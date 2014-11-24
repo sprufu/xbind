@@ -46,8 +46,22 @@ function booleanHandler (data) {
 }
 
 function stringBindHandler (data, attr) {
-	// TODO 
-	console.log(data);
+	var fields = {},
+	expr = parseString(data.value, fields);
+	if (!exports.isEmptyObject(fields)) {
+		var fun, observer, model = data.model;
+		fun = new Function('$model', 'return '+expr);
+		observer = {
+			update: function(value, old) {
+				attr.value = fun(this);
+			}
+		}
+		for(var field in fields) {
+			if (model) {
+				register(observer, model, field);
+			}
+		}
+	}
 }
 
 function stringXBindHandler(data) {
