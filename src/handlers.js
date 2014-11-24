@@ -15,7 +15,8 @@ var optPriority = {
 	'x-controller': 10,
 	'x-each': 20,
 	'x-with': 30,
-	'x-if': 50
+	'x-if': 50,
+	'href': 3000
 };
 
 var optScanHandlers = {
@@ -44,8 +45,9 @@ function booleanHandler (data) {
 	// TODO 绑定结果
 }
 
-function stringBindHandler (data) {
+function stringBindHandler (data, attr) {
 	// TODO 
+	console.log(data);
 }
 
 function stringXBindHandler(data) {
@@ -56,11 +58,11 @@ function stringXBindHandler(data) {
 	optScanHandlers[type] = booleanHandler;
 });
 
-'src href target'.split('.').forEach(function(type) {
+'src href target'.split(' ').forEach(function(type) {
 	optScanHandlers[type] = stringBindHandler;
 });
 
-'x-src x-href'.split('.').forEach(function(type) {
+'x-src x-href'.split(' ').forEach(function(type) {
 	optScanHandlers[type] = stringXBindHandler;
 })
 

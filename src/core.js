@@ -336,12 +336,14 @@ function scanAttrs(element, model) {
 		item = list[i];
 		attr = attrs[item.index];
 		fn = optScanHandlers[item.type];
-		model = fn({
-			model: element.$modelId ? MODELS[element.$modeId] : null,
-			element: element,
-			type: item.type,
-			value: attr.value
-		}) || model;
+		if (fn) {
+			model = fn({
+				model: element.$modelId ? MODELS[element.$modeId] : null,
+				element: element,
+				type: item.type,
+				value: attr.value
+			}, attr) || model;
+		}
 	}
 
 	return model;
@@ -401,11 +403,13 @@ function getScanAttrList(attrs) {
 			endpos = attr.name.indexOf('-', 2);
 			if (~endpos) {
 				type = attr.name.substr(0, endpos);
-			} else {
-				type = attr.name;
 			}
 		} else if (!optScanHandlers[attr.name]) {
 			continue;
+		}
+
+		if (!type) {
+			type = attr.name;
 		}
 
 		res.push({
