@@ -272,27 +272,22 @@ function notifySubscribes(model, field, value, oldValue) {
 /**
 	* 扫描结点, 添加绑定
 	*/
-function scan(element, parentModel) {
+function scan(element, model) {
 	element = element || document.getElementsByTagName('html')[0];
-	parentModel = parentModel || null;
+	model = model || null;
 
 	switch(element.nodeType) {
 	// 普通结点
 	case 1:
-		scanAttr(element, parentModel);
-
-		// 查看是否生成model绑定, 以备扫描下级结点用
-		var model = exports.getModel(element) || parentModel;
-
-		// 循环扫描下级结点
+		model = scanAttrs(element, model) || model;
 		scanChildNodes(element, model);
 	break;
+	// 文本结点
 	case 3:
-		// 文本结点
-		scanText(element, parentModel);
+		scanText(element, model);
 	break;
 	case 9:
-		scanChildNodes(element, parentModel);
+		scanChildNodes(element, model);
 	break;
 	}
 }
@@ -307,23 +302,25 @@ function scanChildNodes(element, parentModel) {
 	}
 }
 
-function scanAttr(element, parentModel) {
+function scanAttrs(element, model) {
 	var attrs = element.attributes,
 	list = getScanAttrList(attrs),
 	i = list.length,
-	item,
-	attr;
+	item, fn, attr;
+
 	while (i--) {
 		item = list[i];
 		attr = attrs[item.index];
 		fn = optScanHandlers[item.type];
-		fn({
+		model = fn({
 			model: element.$modelId ? MODELS[element.$modeId] : null,
 			element: element,
 			type: item.type,
 			value: attr.value
-		});
+		}) || model;
 	}
+
+	return model;
 }
 
 function scanText(element, parentModel) {
@@ -362,7 +359,6 @@ function scanText(element, parentModel) {
  */
 function getScanAttrList(attrs) {
 	var res = [];
-
 
 	if (attrs.length === 0) {
 		return res;
@@ -405,6 +401,10 @@ function getScanAttrList(attrs) {
 	return res;
 }
 
+/**
+ * 获取某个结点的model
+ * 如果这结点没有定义model, 则返回null
+ */
 exports.getModel = function(el) {
 	try {
 		return MODELS[el.$modelId].model;

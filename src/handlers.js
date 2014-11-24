@@ -75,6 +75,7 @@ exports.extend(optScanHandlers, {
 		setInterval(function() {
 			model.$set('test', new Date);
 		}, 1000);
+		return model;
 	},
 	'x-repeat': function(data) {
 		// TODO
