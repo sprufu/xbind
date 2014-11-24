@@ -338,7 +338,7 @@ function scanAttrs(element, model) {
 		fn = optScanHandlers[item.type];
 		if (fn) {
 			model = fn({
-				model: element.$modelId ? MODELS[element.$modeId] : null,
+				model: model,
 				element: element,
 				type: item.type,
 				value: attr.value
