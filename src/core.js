@@ -185,12 +185,10 @@ function setFieldValue(model, field, value) {
 	* 一个结点只绑定一个model, 如果再次绑定会报错, 除非强行绑定, 强行绑定时会清除之前绑定
 	*
 	* @param {Object} model 绑定的数据, 是一个普通的javascript对象
-	* @param {boolean} isolateScope 是否隔离自己的作用域, 默认为不隔离, 当隔离自己的作用域时, 将不从上面继承属性
-	* @param {boolean} forceRegiste 是否强行绑定, 不强行绑定时, 多次对一个结点绑定会出错
 	*
 	* @returns {model} 返回绑定后的数据, 这是一个全新的数据, 已经不是传入的model啦, 在原有的数据上添加一些属性
 	*/
-function factory(model, isolateScope, forceRegiste) {
+function factory(model) {
 	if (!exports.isPlainObject(model)) {
 		throw new TypeError('model必须是普通的javascript对象.');
 	}
@@ -215,13 +213,20 @@ function factory(model, isolateScope, forceRegiste) {
 	return model;
 }
 
-exports.define = function(element, vm, isolateScope, forceRegiste) {
+/**
+ * 定义并绑定作用域
+ * @param {Element} element 绑定的结点
+ * @param {Model|boolean} parentModel 上级作用域, 如果省略则表示隔离上层作用域, 也就是不从上级继承数据
+ * @param {boolean} isolateScope 是否隔离作用域
+ * @returns {Model} 返回定义好的model
+ */
+exports.define = function(element, vm, parentModel) {
 	var model = factory(vm);
 	element.$modelId = model.$id;
 	MODELS[model.$id] = {
 		model: model,
 		element: element,
-		parent: null // TODO
+		parent: parentModel ? parentModel.$id : null
 	};
 	return model;
 }
@@ -302,6 +307,13 @@ function scanChildNodes(element, parentModel) {
 	}
 }
 
+/**
+ * 扫描某个结点的属性
+ * 一个结点只能生成一次model
+ * @param {Element} element 结点对象
+ * @param {Model} parentModel 父级model
+ * @returns {Model} 如果生成model, 则返回model, 否则返回父级model
+ */
 function scanAttrs(element, model) {
 	var attrs = element.attributes,
 	list = getScanAttrList(attrs),
@@ -338,7 +350,7 @@ function scanText(element, parentModel) {
 		update: function(value, old) {
 			// TODO 没有充分的使用 value, 而去计算 model.$get
 			// TODO 是否应该异步更新视图
-			element.nodeValue = fun(this);
+			element.data = fun(this);
 		}
 	}
 	for(var field in fields) {
@@ -368,7 +380,7 @@ function getScanAttrList(attrs) {
 	while (i--) {
 		attr = attrs[i];
 
-		// TODO ie6-7 element.attributes得到一大堆属性
+		// 过滤ie67的element.attributes得到一大堆属性
 		if (!attr.specified) {
 			continue;
 		}
@@ -383,6 +395,7 @@ function getScanAttrList(attrs) {
 		} else if (!optScanHandlers[attr.name]) {
 			continue;
 		}
+
 		res.push({
 			index: i,
 			type: type,
