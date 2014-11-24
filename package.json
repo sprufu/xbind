@@ -1,0 +1,22 @@
+{
+  "name": "vmodel",
+  "version": "0.0.0",
+  "description": "javascript simple ui.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "keywords": [
+    "mvvm",
+    "ui"
+  ],
+  "author": "jcode",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "^0.4.5"
+  }
+}

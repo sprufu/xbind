@@ -1,0 +1,6 @@
+Session.vim
+*.swp
+node_modules/
+dist/
+test/firebug-lite/
+
