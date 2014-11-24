@@ -69,13 +69,22 @@ exports.extend(optScanHandlers, {
 		return false;
 	},
 	'x-controller': function(data) {
-		var model = exports.define(data.element, {
-			$id: data.value
+		var id = data.value,
+		vmodel = MODELS[id];
+		if (vmodel && !vmodel.element) {
+			vmodel.element = data.element;
+			vmodel.parent = exports.getParentModel(data.element);
+		} else {
+			// throw new Error('未定义vmodel');
+			return;
+		}
+
+		// 更新视图
+		setTimeout(function() {
+			fireUpdate(vmodel.model)
 		});
-		setInterval(function() {
-			model.$set('test', new Date);
-		}, 1000);
-		return model;
+
+		return vmodel.model;
 	},
 	'x-repeat': function(data) {
 		// TODO

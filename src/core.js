@@ -12,11 +12,11 @@ var options = {
 };
 
 /**
-	* 所有订阅
-	* 只订阅离自己最近的model
-	* 通知时, 下级model也是订阅之一, 所以通知完自己域内的订阅, 再通知下级model, 从而实现整个结点树都得更新.
-	* 取数据时, 从自己可父级取, 这样递归就可以获得整个树全部数据
-	*/
+ * 所有订阅
+ * 只订阅离自己最近的model
+ * 通知时, 下级model也是订阅之一, 所以通知完自己域内的订阅, 再通知下级model, 从而实现整个结点树都得更新.
+ * 取数据时, 从自己可父级取, 这样递归就可以获得整个树全部数据
+ */
 var SUBSCRIBES = {
 	/**
 	* 以model的id做键, 再按监听的字段细分
@@ -152,9 +152,9 @@ if (!Array.prototype.forEach) {
 /**********************************/
 
 /**
-	* 更新某个字段的值, 并返回之前的值
-	* 是model.$set的底层实现
-	*/
+ * 更新某个字段的值, 并返回之前的值
+ * 是model.$set的底层实现
+ */
 function setFieldValue(model, field, value) {
 	var oldValue, i, v, sub, subs, key, keys;
 	if (~field.indexOf('.')) {
@@ -180,14 +180,14 @@ function setFieldValue(model, field, value) {
 }
 
 /**
-	* 注册model到dom结点上的工厂函数
-	* 此函数会修改vm数据
-	* 一个结点只绑定一个model, 如果再次绑定会报错, 除非强行绑定, 强行绑定时会清除之前绑定
-	*
-	* @param {Object} model 绑定的数据, 是一个普通的javascript对象
-	*
-	* @returns {model} 返回绑定后的数据, 这是一个全新的数据, 已经不是传入的model啦, 在原有的数据上添加一些属性
-	*/
+ * 注册model到dom结点上的工厂函数
+ * 此函数会修改vm数据
+ * 一个结点只绑定一个model, 如果再次绑定会报错, 除非强行绑定, 强行绑定时会清除之前绑定
+ *
+ * @param {Object} model 绑定的数据, 是一个普通的javascript对象
+ *
+ * @returns {model} 返回绑定后的数据, 这是一个全新的数据, 已经不是传入的model啦, 在原有的数据上添加一些属性
+ */
 function factory(model) {
 	if (!exports.isPlainObject(model)) {
 		throw new TypeError('model必须是普通的javascript对象.');
@@ -210,30 +210,18 @@ function factory(model) {
 		return model[field];
 	}
 
-	return model;
-}
-
-/**
- * 定义并绑定作用域
- * @param {Element} element 绑定的结点
- * @param {Model|boolean} parentModel 上级作用域, 如果省略则表示隔离上层作用域, 也就是不从上级继承数据
- * @param {boolean} isolateScope 是否隔离作用域
- * @returns {Model} 返回定义好的model
- */
-exports.define = function(element, vm, parentModel) {
-	var model = factory(vm);
-	element.$modelId = model.$id;
 	MODELS[model.$id] = {
 		model: model,
-		element: element,
-		parent: parentModel ? parentModel.$id : null
+		element: null,
+		parent: null
 	};
+
 	return model;
 }
 
 /**
-	* 注册监听
-	*/
+ * 注册监听
+ */
 function register(observer, model, field) {
 	if (!SUBSCRIBES[model.$id]) {
 		SUBSCRIBES[model.$id] = {};
@@ -247,8 +235,8 @@ function register(observer, model, field) {
 }
 
 /**
-	* 获取一个数据的所有订阅
-	*/
+ * 获取一个数据的所有订阅
+ */
 function subscribes (model, field) {
 	try {
 		return SUBSCRIBES[model.$id][field];
@@ -257,15 +245,38 @@ function subscribes (model, field) {
 	}
 }
 
+/**
+ * 获取监听的字段列表
+ */
+function subscribeFields(model) {
+	return SUBSCRIBES[model.$id] || {};
+}
+
 
 /**
-	* 通知订阅者
-	*/
+ * 通知订阅者
+ */
 function notifySubscribes(model, field, value, oldValue) {
 	var subs = subscribes(model, field), i, sub;
 	for (i=0; i<subs.length; i++) {
 		sub = subs[i];
 		sub.update.call(model, value, oldValue);
+	}
+}
+
+/**
+ * 手动触发更新视图
+ * @param {String|Null} 当不提供field时, 更新所有字段
+ */
+function fireUpdate(model, field) {
+	if (field) {
+		var value = model.$get(field);
+		notifySubscribes(model, field, value, value);
+	} else {
+		var fields = subscribeFields(model);
+		for(var f in fields) {
+			fireUpdate(model, f);
+		}
 	}
 }
 
@@ -275,8 +286,8 @@ function notifySubscribes(model, field, value, oldValue) {
 /**********************************/
 
 /**
-	* 扫描结点, 添加绑定
-	*/
+ * 扫描结点, 添加绑定
+ */
 function scan(element, model) {
 	element = element || document.getElementsByTagName('html')[0];
 	model = model || null;
@@ -310,6 +321,7 @@ function scanChildNodes(element, parentModel) {
 /**
  * 扫描某个结点的属性
  * 一个结点只能生成一次model
+ * TODO 某个属性扫描后, 移出其同名的className
  * @param {Element} element 结点对象
  * @param {Model} parentModel 父级model
  * @returns {Model} 如果生成model, 则返回model, 否则返回父级model
@@ -424,4 +436,9 @@ exports.getModel = function(el) {
 	} catch (err) {
 		return null;
 	}
+}
+
+exports.getParentModel = function(el) {
+	// TODO
+	return null;
 }
