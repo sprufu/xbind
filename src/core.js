@@ -119,6 +119,14 @@ exports.extend(exports, {
 	type: function( obj ) {
 		var c = {}, s = c.toString.call(obj);
 		return s.substring(8, s.length-1).toLowerCase();
+	},
+	ready: function(fn) {
+		if (document.addEventListener) {
+			// 标准浏览器用DOMContentLoaded事件实现
+			document.addEventListener('DOMContentLoaded', fn, false);
+		} else {
+			// TODO ie678
+		}
 	}
 });
 
@@ -289,7 +297,7 @@ function fireUpdate(model, field) {
  * 扫描结点, 添加绑定
  */
 function scan(element, model) {
-	element = element || document.getElementsByTagName('html')[0];
+	element = element || document.documentElement;
 	model = model || null;
 
 	switch(element.nodeType) {
