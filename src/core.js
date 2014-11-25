@@ -123,9 +123,12 @@ exports.extend(exports, {
 	ready: function(fn) {
 		if (document.addEventListener) {
 			// 标准浏览器用DOMContentLoaded事件实现
-			document.addEventListener('DOMContentLoaded', fn, false);
+			document.addEventListener('DOMContentLoaded', function(e) {
+				fn();
+			}, false);
 		} else {
 			// TODO ie678
+			setTimeout(fn);
 		}
 	}
 });
@@ -317,6 +320,7 @@ function scan(element, model) {
 }
 
 exports.scan = scan;
+exports.ready(scan);
 
 function scanChildNodes(element, parentModel) {
 	var el = element.firstChild;
