@@ -18,11 +18,11 @@ function parseString(str, fields) {
 				txt += '+"' + str.substring(pos, pos1) + '" +' + parseExpress(str.substring(pos1 + len1, pos2), fields);
 				pos = pos1 = pos2 = pos2 + len2;
 			} else {
-				txt += str.substr(pos);
+				txt += '+"' + str.substr(pos) + '"';
 				break;
 			}
 		} else {
-			txt += str.substr(pos);
+			txt += '+"' + str.substr(pos) + '"';
 			break;
 		}
 	}
