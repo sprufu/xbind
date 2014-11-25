@@ -369,6 +369,10 @@ function scanText(element, parentModel) {
 	}
 	for(var field in fields) {
 		if (parentModel) {
+			// 更新视图
+			observer.update.call(parentModel);
+
+			// 注册监听
 			register(observer, parentModel, field);
 		}
 	}

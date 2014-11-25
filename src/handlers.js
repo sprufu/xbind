@@ -58,6 +58,7 @@ function stringBindHandler (data, attr) {
 		}
 		for(var field in fields) {
 			if (model) {
+				observer.update.call(model);
 				register(observer, model, field);
 			}
 		}
@@ -94,12 +95,6 @@ exports.extend(optScanHandlers, {
 			// throw new Error('未定义vmodel');
 			return;
 		}
-
-		// 更新视图
-		setTimeout(function() {
-			fireUpdate(vmodel.model)
-		});
-
 		return vmodel.model;
 	},
 	'x-repeat': function(data) {
