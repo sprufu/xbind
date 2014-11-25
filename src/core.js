@@ -217,10 +217,33 @@ function factory(model) {
 	}
 
 	model.$get = function(field) {
-		c++;
-		//return model[field];
 		if (~field.indexOf('.')) {
 			// TODO such as: user.name
+			var v = model,
+			key,
+			keys = field.split('.'),
+			i = 0;
+			for (; i<keys.length; i++) {
+				key = keys[i];
+				if (v.hasOwnProperty(key)) {
+					if (i == keys.length - 1) {
+						return v[key];
+					} else {
+						v = v[key];
+					}
+				} else {
+					if (i) {
+						return;
+					} else {
+						try {
+							var parent = MODELS[model.$id].parent;
+							return parent ? parent.$get(field) : undefined;
+						} catch(err) {
+							return;
+						}
+					}
+				}
+			}
 		} else {
 			if (model.hasOwnProperty(field)) {
 				return model[field];
@@ -243,8 +266,6 @@ function factory(model) {
 
 	return model;
 }
-
-var c = 0;
 
 /**
  * 注册监听
