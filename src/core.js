@@ -201,13 +201,13 @@ function setFieldValue(model, field, value) {
  */
 function factory(model) {
 	if (!exports.isPlainObject(model)) {
-		throw new TypeError('model必须是普通的javascript对象.');
+		throw new TypeError('model must be simple javascript object.');
 	}
 
 	if (!model.$id) {
 		model.$id = '$' + Math.random().toString(36).substr(2);
 	} else if (MODELS[model.$id]) {
-		throw new Error('不能使用一个已经存在的model id.');
+		throw new Error('The model id is exists.');
 	}
 
 	// 赋予model一些特殊属性
@@ -217,8 +217,22 @@ function factory(model) {
 	}
 
 	model.$get = function(field) {
-		// TODO
-		return model[field];
+		c++;
+		//return model[field];
+		if (~field.indexOf('.')) {
+			// TODO such as: user.name
+		} else {
+			if (model.hasOwnProperty(field)) {
+				return model[field];
+			} else {
+				try {
+					var parent = MODELS[model.$id].parent;
+					return parent ? parent.$get(field) : undefined;
+				} catch (err) {
+					return;
+				}
+			}
+		}
 	}
 
 	MODELS[model.$id] = {
@@ -229,6 +243,8 @@ function factory(model) {
 
 	return model;
 }
+
+var c = 0;
 
 /**
  * 注册监听
