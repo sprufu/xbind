@@ -496,6 +496,16 @@ exports.getModel = function(el) {
 }
 
 exports.getParentModel = function(el) {
-	// TODO
+	var id = el.$modelId;
+	if (id) {
+		return MODELS[id].parent;
+	}
+
+	while (el = el.parentNode) {
+		if (el.$modelId) {
+			return MODELS[el.$modelId].model;
+		}
+	}
+
 	return null;
 }

@@ -91,6 +91,7 @@ exports.extend(optScanHandlers, {
 		if (vmodel && !vmodel.element) {
 			vmodel.element = data.element;
 			vmodel.parent = exports.getParentModel(data.element);
+			vmodel.element.$modelId = vmodel.model.$id;
 		} else {
 			// throw new Error('未定义vmodel');
 			return;
