@@ -33,7 +33,7 @@ var optScanHandlers = {
 	*/
 };
 
-function booleanHandler (data) {
+function booleanHandler (data, attr) {
 	var value = data.value.toLowerCase(),
 	type = data.type;
 
@@ -42,7 +42,28 @@ function booleanHandler (data) {
 		return;
 	}
 
-	// TODO 绑定结果
+	var fields = {},
+	expr = parseExpress(data.value, fields);
+	if (!exports.isEmptyObject(fields)) {
+		var fun, observer, model = data.model;
+		fun = new Function('$model', 'return '+expr);
+		observer = {
+			update: function(value, old) {
+				var res = fun(this);
+				if (res) {
+					data.element.setAttribute(data.type, data.type);
+				} else {
+					data.element.removeAttribute(data.type);
+				}
+			}
+		}
+		for(var field in fields) {
+			if (model) {
+				observer.update.call(model);
+				register(observer, model, field);
+			}
+		}
+	}
 }
 
 function stringBindHandler (data, attr) {
