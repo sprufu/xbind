@@ -163,3 +163,7 @@ function parseExpressWithoutFilter(str, field) {
 
 	return expr;
 }
+
+var parseJSON = window.JSON ? window.JSON.parse : function(str) {
+	return (new Function('', 'return ' + str.trim())());
+}
