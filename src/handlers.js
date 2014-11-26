@@ -65,8 +65,26 @@ function stringBindHandler (data, attr) {
 	}
 }
 
-function stringXBindHandler(data) {
-	// TODO
+function stringXBindHandler(data, attr) {
+	var fields = {},
+	expr = parseString(data.value, fields);
+	if (!exports.isEmptyObject(fields)) {
+		var fun, observer,
+		attrName = data.type.substr(2),
+		model = data.model;
+		fun = new Function('$model', 'return '+expr);
+		observer = {
+			update: function(value, old) {
+				data.element.setAttribute(attrName, fun(this));
+			}
+		}
+		for(var field in fields) {
+			if (model) {
+				observer.update.call(model);
+				register(observer, model, field);
+			}
+		}
+	}
 }
 
 'disabled checked selected'.split(' ').forEach(function(type) {
