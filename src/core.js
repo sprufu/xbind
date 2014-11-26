@@ -420,32 +420,9 @@ function scanAttrs(element, model) {
 }
 
 function scanText(element, parentModel) {
-	var fields = {},
-	expr = parseString(element.nodeValue, fields),
-	fun, observer;
-
-	// 没有绑定不处理
-	if (exports.isEmptyObject(fields)) {
-		return;
-	}
-
-	fun = new Function('$model', 'return '+expr);
-	observer = {
-		update: function(value, old) {
-			// TODO 没有充分的使用 value, 而去计算 model.$get
-			// TODO 是否应该异步更新视图
-			element.data = fun(this);
-		}
-	}
-	for(var field in fields) {
-		if (parentModel) {
-			// 更新视图
-			observer.update.call(parentModel);
-
-			// 注册监听
-			register(observer, parentModel, field);
-		}
-	}
+	bindModel(parentModel, element.data, parseString, function(res, value, oldValue) {
+		element.data = res;
+	});
 }
 
 /**
@@ -506,6 +483,28 @@ function getScanAttrList(attrs) {
 	});
 
 	return res;
+}
+
+function bindModel(model, str, parsefn, updatefn) {
+	var fields = {},
+	expr = parsefn(str, fields);
+	if (exports.isEmptyObject(fields)) {
+		return;
+	}
+
+	var fn = new Function('$model', 'return ' + expr),
+	observer = {
+		update: function(value, oldValue) {
+			updatefn(fn(this, value, oldValue));
+		}
+	};
+
+	for (var field in fields) {
+		if (model) {
+			observer.update.call(model);
+			register(observer, model, field);
+		}
+	}
 }
 
 /**

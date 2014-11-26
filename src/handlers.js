@@ -42,70 +42,26 @@ function booleanHandler (data, attr) {
 		return;
 	}
 
-	var fields = {},
-	expr = parseExpress(data.value, fields);
-	if (!exports.isEmptyObject(fields)) {
-		var fun, observer, model = data.model;
-		fun = new Function('$model', 'return '+expr);
-		observer = {
-			update: function(value, old) {
-				var res = fun(this);
-				if (res) {
-					data.element.setAttribute(data.type, data.type);
-				} else {
-					data.element.removeAttribute(data.type);
-				}
-			}
+	bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+		if (res) {
+			data.element.setAttribute(data.type, data.type);
+		} else {
+			data.element.removeAttribute(data.type);
 		}
-		for(var field in fields) {
-			if (model) {
-				observer.update.call(model);
-				register(observer, model, field);
-			}
-		}
-	}
+	});
 }
 
 function stringBindHandler (data, attr) {
-	var fields = {},
-	expr = parseString(data.value, fields);
-	if (!exports.isEmptyObject(fields)) {
-		var fun, observer, model = data.model;
-		fun = new Function('$model', 'return '+expr);
-		observer = {
-			update: function(value, old) {
-				attr.value = fun(this);
-			}
-		}
-		for(var field in fields) {
-			if (model) {
-				observer.update.call(model);
-				register(observer, model, field);
-			}
-		}
-	}
+	bindModel(data.model, data.value, parseString, function(res, value, oldValue) {
+		attr.value = res;
+	});
 }
 
 function stringXBindHandler(data, attr) {
-	var fields = {},
-	expr = parseString(data.value, fields);
-	if (!exports.isEmptyObject(fields)) {
-		var fun, observer,
-		attrName = data.type.substr(2),
-		model = data.model;
-		fun = new Function('$model', 'return '+expr);
-		observer = {
-			update: function(value, old) {
-				data.element.setAttribute(attrName, fun(this));
-			}
-		}
-		for(var field in fields) {
-			if (model) {
-				observer.update.call(model);
-				register(observer, model, field);
-			}
-		}
-	}
+	var attrName = data.type.substr(2);
+	bindModel(data.model, data.value, parseString, function(res, value, oldValue) {
+		data.element.setAttribute(attrName, res);
+	});
 }
 
 'disabled checked selected'.split(' ').forEach(function(type) {
@@ -144,36 +100,26 @@ exports.extend(optScanHandlers, {
 		// TODO
 	},
 
+	'x-visible': function(data, attr) {
+		// TODO
+	},
+
 	/**
 	 * class类操作
 	 * avalon用 ms-class="className: expr",
 	 * 但我觉得x-class-className="expr" 更直观些,
 	 * 且当操作多个class时不需要像avalon那样添加杂质.
+	 * 但这样有个问题, 就是类名只能用小写, 因为属性名都会转化为小写的
 	 * 当expr结果为真时添加class, 否则移出
 	 */
 	'x-class': function(data) {
-		var fields = {},
-		expr = parseExpress(data.value, fields);
-		if (!exports.isEmptyObject(fields)) {
-			var fun, observer, model = data.model;
-			fun = new Function('$model', 'return '+expr);
-			observer = {
-				update: function(value, old) {
-					var res = fun(this);
-					if (res) {
-						exports.addClass(data.element, data.param);
-					} else {
-						exports.removeClass(data.element, data.param);
-					}
-				}
+		bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+			if (res) {
+				exports.addClass(data.element, data.param);
+			} else {
+				exports.removeClass(data.element, data.param);
 			}
-			for(var field in fields) {
-				if (model) {
-					observer.update.call(model);
-					register(observer, model, field);
-				}
-			}
-		}
+		});
 	},
 	'x-ajax': function(data) {
 		// TODO
