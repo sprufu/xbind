@@ -286,10 +286,18 @@ function register(observer, model, field) {
  * 获取一个数据的所有订阅
  */
 function subscribes (model, field) {
+	var ret = []
 	try {
-		return SUBSCRIBES[model.$id][field];
+		// return SUBSCRIBES[model.$id][field];
+		for (var key in SUBSCRIBES[model.$id]) {
+			if (key == '*' || field.startsWith(key)) {
+				ret = ret.concat(SUBSCRIBES[model.$id][key]);
+			}
+		}
 	} catch (err) {
-		return [];
+		// TODO log(err);
+	} finally {
+		return ret;
 	}
 }
 
