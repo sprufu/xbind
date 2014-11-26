@@ -118,7 +118,7 @@ function stringXBindHandler(data, attr) {
 
 'x-src x-href'.split(' ').forEach(function(type) {
 	optScanHandlers[type] = stringXBindHandler;
-})
+});
 
 exports.extend(optScanHandlers, {
 	'x-skip': function(data) {
@@ -143,8 +143,37 @@ exports.extend(optScanHandlers, {
 	'x-if': function(data) {
 		// TODO
 	},
+
+	/**
+	 * class类操作
+	 * avalon用 ms-class="className: expr",
+	 * 但我觉得x-class-className="expr" 更直观些,
+	 * 且当操作多个class时不需要像avalon那样添加杂质.
+	 * 当expr结果为真时添加class, 否则移出
+	 */
 	'x-class': function(data) {
-		// TODO
+		var fields = {},
+		expr = parseExpress(data.value, fields);
+		if (!exports.isEmptyObject(fields)) {
+			var fun, observer, model = data.model;
+			fun = new Function('$model', 'return '+expr);
+			observer = {
+				update: function(value, old) {
+					var res = fun(this);
+					if (res) {
+						exports.addClass(data.element, data.param);
+					} else {
+						exports.removeClass(data.element, data.param);
+					}
+				}
+			}
+			for(var field in fields) {
+				if (model) {
+					observer.update.call(model);
+					register(observer, model, field);
+				}
+			}
+		}
 	},
 	'x-ajax': function(data) {
 		// TODO
