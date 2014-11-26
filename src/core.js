@@ -399,6 +399,7 @@ function scanAttrs(element, model) {
 				model: model,
 				element: element,
 				type: item.type,
+				param: item.param,
 				value: attr.value
 			}, attr) || model;
 		}
@@ -452,7 +453,7 @@ function getScanAttrList(attrs) {
 		return res;
 	}
 
-	var i = attrs.length, attr, params, endpos, type;
+	var i = attrs.length, attr, param, endpos, type;
 	while (i--) {
 		attr = attrs[i];
 
@@ -461,10 +462,13 @@ function getScanAttrList(attrs) {
 			continue;
 		}
 
+		param = undefined;
+
 		if (attr.name.startsWith('x-')) {
 			endpos = attr.name.indexOf('-', 2);
 			if (~endpos) {
 				type = attr.name.substr(0, endpos);
+				param = attr.name.substr(endpos+1);
 			} else {
 				type = attr.name;
 			}
@@ -477,6 +481,7 @@ function getScanAttrList(attrs) {
 		res.push({
 			index: i,
 			type: type,
+			param: param,
 			priority: optPriority[type] || 1000
 		});
 	}
