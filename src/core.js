@@ -465,12 +465,12 @@ function getScanAttrList(attrs) {
 			endpos = attr.name.indexOf('-', 2);
 			if (~endpos) {
 				type = attr.name.substr(0, endpos);
+			} else {
+				type = attr.name;
 			}
 		} else if (!optScanHandlers[attr.name]) {
 			continue;
-		}
-
-		if (!type) {
+		} else {
 			type = attr.name;
 		}
 
