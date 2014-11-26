@@ -174,12 +174,13 @@ function setFieldValue(model, field, value) {
 		v = model;
 		for (i=0; i<keys.length; i++) {
 			key = keys[i];
-			v = v[key];
 			if (i == keys.length - 1) {
 				oldValue = v;
 				v[key] = value;
-			} else if (!v) {
+			} else if (!v[key]) {
 				v[key] = {};
+			} else {
+				v = v[key];
 			}
 		}
 	} else {
