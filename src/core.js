@@ -291,7 +291,7 @@ function subscribes (model, field) {
 	try {
 		// return SUBSCRIBES[model.$id][field];
 		for (var key in SUBSCRIBES[model.$id]) {
-			if (key == '*' || field.startsWith(key)) {
+			if (key == '*' || key.startsWith(field)) {
 				ret = ret.concat(SUBSCRIBES[model.$id][key]);
 			}
 		}
