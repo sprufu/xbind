@@ -158,6 +158,17 @@ if (!Array.prototype.forEach) {
 	};
 }
 
+if (!Array.prototype.indexOf) {
+	Array.prototype.indexOf = function(el) {
+		for (var i=0; i<this.length; i++) {
+			if (el == this[i]) {
+				return i;
+			}
+		}
+		return -1;
+	}
+}
+
 /**********************************/
 /*       数据定义区               */
 /**********************************/
@@ -523,3 +534,31 @@ exports.getParentModel = function(el) {
 
 	return null;
 }
+
+exports.extend(exports, {
+	addClass: function(el, cls) {
+		if (el.classList) {
+			el.classList.add(cls);
+		} else if (el.className) {
+			if (!~el.className.split(' ').indexOf(cls)) {
+				el.className = el.className + ' ' + cls;
+			}
+		} else {
+			el.className = cls;
+		}
+	},
+	removeClass: function(el, cls) {
+		if (el.classList) {
+			el.classList.remove(cls);
+		} else if (el.className) {
+			var classes = el.className.split(' '),
+			i = classes.length;
+			while (i--) {
+				if (classes[i] == cls) {
+					classes.splice(i, 1);
+				}
+			}
+			el.className = classes.join(' ');
+		}
+	}
+})
