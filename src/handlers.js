@@ -122,7 +122,26 @@ exports.extend(optScanHandlers, {
 		});
 	},
 	'x-ajax': function(data) {
-		// TODO
+		var model = exports.getModel(data.element) || factory();
+
+		if (!data.element.$modelId) {
+			data.element.$modelId = model;
+		}
+
+		ajax({
+			type: 'GET',
+			dataType: 'json',
+			cache: false,
+			url: data.value,
+			success: function(res) {
+				model.$set(data.param, res);
+			},
+			error: function(xhr, err) {
+				model.$set(data.param + '.$error', err);
+			}
+		});
+
+		return model;
 	},
 	'x-grid': function(data) {
 		// TODO
