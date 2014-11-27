@@ -100,8 +100,10 @@ exports.extend(optScanHandlers, {
 		// TODO
 	},
 
-	'x-visible': function(data, attr) {
-		// TODO
+	'x-show': function(data, attr) {
+		bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+			data.element.style.display = res ? "" : "none";
+		});
 	},
 
 	/**
