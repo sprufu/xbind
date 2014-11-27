@@ -212,6 +212,8 @@ function setFieldValue(model, field, value) {
  * @returns {model} 返回绑定后的数据, 这是一个全新的数据, 已经不是传入的model啦, 在原有的数据上添加一些属性
  */
 function factory(model) {
+	model = model || {};
+
 	if (!exports.isPlainObject(model)) {
 		throw new TypeError('model must be simple javascript object.');
 	}
