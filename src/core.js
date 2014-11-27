@@ -377,7 +377,6 @@ function scan(element, model) {
 }
 
 exports.scan = scan;
-exports.ready(scan);
 
 function scanChildNodes(element, parentModel) {
 	var el = element.firstChild;
