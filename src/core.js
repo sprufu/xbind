@@ -239,34 +239,34 @@ function factory(model) {
 			i = 0;
 			for (; i<keys.length; i++) {
 				key = keys[i];
-				if (v.hasOwnProperty(key)) {
+				if (v && v.hasOwnProperty(key)) {
 					if (i == keys.length - 1) {
-						return v[key];
+						return v[key] || '';
 					} else {
 						v = v[key];
 					}
 				} else {
 					if (i) {
-						return;
+						return '';
 					} else {
 						try {
 							var parent = MODELS[model.$id].parent;
 							return parent ? parent.$get(field) : undefined;
 						} catch(err) {
-							return;
+							return '';
 						}
 					}
 				}
 			}
 		} else {
 			if (model.hasOwnProperty(field)) {
-				return model[field];
+				return model[field] || '';
 			} else {
 				try {
 					var parent = MODELS[model.$id].parent;
 					return parent ? parent.$get(field) : undefined;
 				} catch (err) {
-					return;
+					return '';
 				}
 			}
 		}
