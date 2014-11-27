@@ -27,7 +27,7 @@ function ajax(opt) {
 					break;
 				}
 				if (opt.success) {
-					opt.success.call(opt, this.responseText, this);
+					opt.success.call(opt, obj, this);
 				}
 			} else {
 				if (opt.error) {
