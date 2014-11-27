@@ -145,8 +145,9 @@ if (!''.startsWith) {
 }
 
 if (!''.trim) {
+	var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
 	String.prototype.trim = function(str) {
-		// TODO
+		return this.replace(rtrim, '');
 	}
 }
 
