@@ -466,7 +466,7 @@ function getScanAttrList(attrs) {
 		}
 
 		res.push({
-			index: i,
+			index: attr.name,
 			type: type,
 			param: param,
 			priority: optPriority[type] || 1000
