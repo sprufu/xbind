@@ -1,3 +1,8 @@
+/**
+ * @file 核心
+ * @author jcode
+ */
+
 /**********************************/
 /*         全局变量定义区         */
 /**********************************/
@@ -11,40 +16,15 @@ var options = {
 	interpolate: ['{{', '}}']
 };
 
-/**
- * 所有订阅
- * 只订阅离自己最近的model
- * 通知时, 下级model也是订阅之一, 所以通知完自己域内的订阅, 再通知下级model, 从而实现整个结点树都得更新.
- * 取数据时, 从自己可父级取, 这样递归就可以获得整个树全部数据
- */
-var SUBSCRIBES = {
-	/**
-	* 以model的id做键, 再按监听的字段细分
-	* some_model_id: {
-	* 	some_field_name: [subscribe array]
-	* }
-	*/
-};
-
 var MODELS = {
 	/**
 	* someid: {
 	* 	model: somemode,
 	* 	element: somedom,
-	* 	parent: somemodeid or null,
-	* 	childs: [somemodeid array]
+	* 	parent: somemodel or null,
+	* 	childs: [somemodel array]
 	* }
 	*/
-};
-
-/**
- * 冻结的model id 列表
- * 被冻结时, 数据更新将不触发视图更新.
- */
-var freezeModelId = {
-	/**
-	 * someid: boolean,
-	 */
 };
 
 // 判断ie67很简单吧
@@ -144,6 +124,8 @@ exports.extend(exports, {
 });
 
 
+function noop(){}
+
 
 /**********************************/
 /*       系统补丁修复区           */
@@ -180,6 +162,15 @@ if (!Array.prototype.indexOf) {
 	}
 }
 
+Array.prototype.remove = function(item) {
+	var i = this.length;
+	while (i--) {
+		if (item == this[i]) {
+			this.splice(i,1);
+		}
+	}
+}
+
 /**********************************/
 /*       数据定义区               */
 /**********************************/
@@ -197,7 +188,7 @@ function setFieldValue(model, field, value) {
 		for (i=0; i<keys.length; i++) {
 			key = keys[i];
 			if (i == keys.length - 1) {
-				oldValue = v;
+				oldValue = v[key];
 				v[key] = value;
 			} else if (!v[key]) {
 				v[key] = {};
@@ -214,39 +205,40 @@ function setFieldValue(model, field, value) {
 }
 
 /**
- * 注册model到dom结点上的工厂函数
- * 此函数会修改vm数据
- * 一个结点只绑定一个model, 如果再次绑定会报错, 除非强行绑定, 强行绑定时会清除之前绑定
- *
- * @param {Object} model 绑定的数据, 是一个普通的javascript对象
- *
- * @returns {model} 返回绑定后的数据, 这是一个全新的数据, 已经不是传入的model啦, 在原有的数据上添加一些属性
+ * model数据对象, 其是一个可观察的对象
  */
-function factory(model) {
-	model = model || {};
+function Model(vm) {
+	exports.extend(this, vm);
 
-	if (!exports.isPlainObject(model)) {
-		throw new TypeError('model must be simple javascript object.');
-	}
+	// 属性不能放到prototype里去定义, 那是公用的地方法.
+	this.$parent = null,
+	this.$childs = [],
+	this.$element = null,
+	this.$freeze = false,
+	this.$subscribes = {
+		/**
+		 * 以字段为键
+		 * 如: name, user.name, user.name.firstName
+		 * 特殊字段名"*"表示所有字段有效
+		 * 如: *, user.*
+		 *
+		 * field: [ subscribe array ]
+		 */
+	};
 
-	if (!model.$id) {
-		model.$id = '$' + Math.random().toString(36).substr(2);
-	} else if (MODELS[model.$id]) {
+	if (!this.$id) {
+		this.$id = '$' + Math.random().toString(36).substr(2);
+	} else if (MODELS[this.$id]) {
 		throw new Error('The model id is exists.');
 	}
 
-	// 赋予model一些特殊属性
-	model.$set = function(field, value) {
-		var oldValue = setFieldValue(model, field, value);
-		if (!freezeModelId[model.$id]) {
-			notifySubscribes(model, field, value, oldValue);
-		}
-	}
+	MODELS[this.$id] = this;
+}
 
-	model.$get = function(field, noExtend) {
+Model.prototype = {
+	$get: function(field, noExtend) {
 		if (~field.indexOf('.')) {
-			// TODO such as: user.name
-			var v = model,
+			var v = this,
 			key,
 			keys = field.split('.'),
 			i = 0;
@@ -262,104 +254,89 @@ function factory(model) {
 					if (i || noExtend) {
 						return '';
 					} else {
-						try {
-							var parent = MODELS[model.$id].parent;
-							return parent ? parent.$get(field) : undefined;
-						} catch(err) {
-							return '';
-						}
+						return this.$parent ? this.$parent.$get(field) : '';
 					}
 				}
 			}
 		} else {
-			if (model.hasOwnProperty(field)) {
-				return model[field] || '';
+			if (this.hasOwnProperty(field)) {
+				return this[field] || '';
 			} else {
-				try {
-					var parent = MODELS[model.$id].parent;
-					return parent ? parent.$get(field) : undefined;
-				} catch (err) {
-					return '';
-				}
+				return this.$parent ? this.$parent.$get(field) : '';
 			}
 		}
+	},
+	$set: function(field, value) {
+		var oldValue = setFieldValue(this, field, value);
+		this.$notifySubscribes(field, value);
+	},
+	$subscribe: function(field, observer) {
+		if (!this.$subscribes[field]) {
+			this.$subscribes[field] = [];
+		}
+		this.$subscribes[field].push(observer);
+	},
+	$unsubscribe: function(field, observer) {
+		if (this.$subscribes[field]) {
+			this.$subscribes[field].remove(observer);
+		}
+	},
+	$notifySubscribes: function(field, value) {
+		if (this.$freeze) {
+			return;
+		}
+
+		var subscribes = getSubscribes(this, field),
+		i = 0,
+		subscribe;
+
+		for(; i<subscribes.length; i++) {
+			subscribes[i].update(this, value, field);
+		}
+	},
+	$bindElement: function(element) {
+		if (element.$modelId) {
+			throw new Error('不能重复绑定model.');
+		}
+
+		var model = this;
+
+		model.$parent = exports.getParentModel(element);
+		if (model.$parent) {
+			model.$parent.$childs.push(model);
+			var observer = {
+				update: function(parentModel, value, field) {
+					if (!model.hasOwnProperty(field)) {
+						model.$notifySubscribes(field, value);
+					}
+				}
+			}
+			model.$parent.$subscribe('*', observer);
+		}
+
+		element.$modelId = model.$id;
 	}
-
-	MODELS[model.$id] = {
-		model: model,
-		element: null,
-		parent: null
-	};
-
-	return model;
 }
 
 /**
- * 注册监听
+ * Observer = {
+ *    update: function(model, value, field)
+ * }
  */
-function register(observer, model, field) {
-	if (!SUBSCRIBES[model.$id]) {
-		SUBSCRIBES[model.$id] = {};
-	}
-
-	if (!SUBSCRIBES[model.$id][field]) {
-		SUBSCRIBES[model.$id][field] = [];
-	}
-
-	SUBSCRIBES[model.$id][field].push(observer);
-}
 
 /**
  * 获取一个数据的所有订阅
  */
-function subscribes (model, field) {
+function getSubscribes (model, field) {
 	var ret = []
 	try {
-		// return SUBSCRIBES[model.$id][field];
-		for (var key in SUBSCRIBES[model.$id]) {
+		for (var key in model.$subscribes) {
 			if (key == '*' || key.startsWith(field)) {
-				ret = ret.concat(SUBSCRIBES[model.$id][key]);
+				ret = ret.concat(model.$subscribes[key]);
 			}
 		}
-	} catch (err) {
-		// TODO log(err);
 	} finally {
 		return ret;
-	}
-}
-
-/**
- * 获取监听的字段列表
- */
-function subscribeFields(model) {
-	return SUBSCRIBES[model.$id] || {};
-}
-
-
-/**
- * 通知订阅者
- */
-function notifySubscribes(model, field, value, oldValue) {
-	var subs = subscribes(model, field), i, sub;
-	for (i=0; i<subs.length; i++) {
-		sub = subs[i];
-		sub.update.call(model, value, oldValue);
-	}
-}
-
-/**
- * 手动触发更新视图
- * @param {String|Null} 当不提供field时, 更新所有字段
- */
-function fireUpdate(model, field) {
-	if (field) {
-		var value = model.$get(field);
-		notifySubscribes(model, field, value, value);
-	} else {
-		var fields = subscribeFields(model);
-		for(var f in fields) {
-			fireUpdate(model, f);
-		}
 	}
 }
 
@@ -379,7 +356,9 @@ function scan(element, model) {
 	// 普通结点
 	case 1:
 		model = scanAttrs(element, model) || model;
-		scanChildNodes(element, model);
+		if (element.childNodes.length) {
+			scanChildNodes(element, model);
+		}
 	break;
 	// 文本结点
 	case 3:
@@ -406,7 +385,7 @@ function scanChildNodes(element, parentModel) {
  * 一个结点只能生成一次model
  * TODO 某个属性扫描后, 移出其同名的className
  * @param {Element} element 结点对象
- * @param {Model} parentModel 父级model
+ * @param {Model} model model
  * @returns {Model} 如果生成model, 则返回model, 否则返回父级model
  */
 function scanAttrs(element, model) {
@@ -508,15 +487,15 @@ function bindModel(model, str, parsefn, updatefn) {
 
 	var fn = new Function('$model', 'return ' + expr),
 	observer = {
-		update: function(value, oldValue) {
-			updatefn(fn(this, value, oldValue));
+		update: function(model, value, oldValue) {
+			updatefn(fn(model, value, oldValue));
 		}
 	};
 
 	for (var field in fields) {
 		if (model) {
-			observer.update.call(model);
-			register(observer, model, field);
+			model.$subscribe(field, observer);
+			observer.update(model);
 		}
 	}
 }
@@ -527,7 +506,7 @@ function bindModel(model, str, parsefn, updatefn) {
  */
 exports.getModel = function(el) {
 	try {
-		return MODELS[el.$modelId].model;
+		return MODELS[el.$modelId];
 	} catch (err) {
 		return null;
 	}
@@ -536,16 +515,20 @@ exports.getModel = function(el) {
 exports.getParentModel = function(el) {
 	var id = el.$modelId;
 	if (id) {
-		return MODELS[id].parent;
+		return MODELS[id];
 	}
 
 	while (el = el.parentNode) {
 		if (el.$modelId) {
-			return MODELS[el.$modelId].model;
+			return MODELS[el.$modelId];
 		}
 	}
 
 	return null;
+}
+
+exports.getExtModel = function(el) {
+	return exports.getModel(el) || exports.getParentModel(el);
 }
 
 exports.extend(exports, {
@@ -587,19 +570,5 @@ exports.extend(exports, {
 		} else if (el.attachEvent){
 			el.attachEvent('on' + type, handler);
 		}
-	},
-
-	/**
-	 * 冻结数据
-	 */
-	freeze: function(model) {
-		freezeModelId[model.$id] = true;
-	},
-
-	/**
-	 * 解冻数据
-	 */
-	unfreeze: function(model) {
-		delete freezeModelId[model.$id];
 	}
 })

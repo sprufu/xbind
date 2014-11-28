@@ -92,42 +92,55 @@ exports.extend(optScanHandlers, {
 		var id = data.value,
 		vmodel = MODELS[id];
 		if (vmodel && !vmodel.element) {
-			vmodel.element = data.element;
-			vmodel.parent = exports.getParentModel(data.element);
-			vmodel.element.$modelId = vmodel.model.$id;
+			vmodel.$element = data.element;
+			vmodel.$parent = exports.getParentModel(data.element);
+			data.element.$modelId = id;
 		} else {
 			// throw new Error('未定义vmodel');
 			return;
 		}
-		return vmodel.model;
+		return vmodel;
 	},
 	'x-repeat': function(data) {
 		// TODO
 	},
+
 	'x-if': function(data) {
 		var element = data.element,
 		parent = element.parentElement,
-		model = exports.getModel(element) || factory(),
+		model = exports.getModel(element) || new Model(),
+		parentModel = exports.getParentModel(element),
 		replaceElement = document.createComment('x-if:' + model.$id);
-		bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+
+		if (!element.$modelId) {
+			model.$bindElement(element);
+		}
+
+		bindModel(parentModel, data.value, parseExpress, function(res, value, oldValue) {
 			if (res) {
-				element.parentElement && parent.replaceChild(replaceElement, element);
-				exports.freeze(model);
-			} else {
 				element.parentElement || parent.replaceChild(element, replaceElement);
-				exports.unfreeze(model);
+				model.$freeze = false;
+				for (var field in model.$subscribes) {
+					model.$notifySubscribes(field);
+				}
+			} else {
+				element.parentElement && parent.replaceChild(replaceElement, element);
+				model.$freeze = true;
 			}
 		});
+		return model;
 	},
 
 	'x-show': function(data, attr) {
-		bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+		console.log(data);
+		var model = exports.getExtModel(data.element);
+		bindModel(model, data.value, parseExpress, function(res, value, oldValue) {
 			data.element.style.display = res ? "" : "none";
 		});
 	},
 
 	'x-value': function(data, attr) {
-		var model = exports.getModel(data.element) || exports.getParentModel(data.element);
+		var model = exports.getExtModel(data.element);
 		function addListen(type) {
 			exports.on(data.element, type, function(e) {
 				model.$set(data.value, data.element.value);
@@ -220,10 +233,10 @@ exports.extend(optScanHandlers, {
 		});
 	},
 	'x-ajax': function(data) {
-		var model = exports.getModel(data.element) || factory();
+		var model = exports.getModel(data.element) || new Model();
 
 		if (!data.element.$modelId) {
-			data.element.$modelId = model;
+			model.$bindElement(data.element);
 		}
 
 		ajax({

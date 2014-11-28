@@ -7,6 +7,7 @@ function parseString(str, fields) {
 	interpolate2 = options.interpolate[1],
 	len1 = interpolate1.length,
 	len2 = interpolate2.length,
+	flag = false,
 	pos = 0,
 	pos1 = 0,
 	pos2 = 0;
@@ -15,6 +16,7 @@ function parseString(str, fields) {
 		if (~pos1) {
 			pos2 = str.indexOf(interpolate2, pos1 + len1);
 			if (~pos2) {
+				flag = true;
 				txt += '+"' + str.substring(pos, pos1) + '" +' + parseExpress(str.substring(pos1 + len1, pos2), fields);
 				pos = pos1 = pos2 = pos2 + len2;
 			} else {
@@ -26,7 +28,7 @@ function parseString(str, fields) {
 			break;
 		}
 	}
-	return txt;
+	return flag ? txt : false;
 }
 
 /**

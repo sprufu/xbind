@@ -1,0 +1,392 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'D:\\Program Files\\nodejs\\\\node.exe',
+1 verbose cli   'D:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   'grunt-jsdoc',
+1 verbose cli   '--save-dev' ]
+2 info using npm@1.4.21
+3 info using node@v0.11.13
+4 verbose node symlink D:\Program Files\nodejs\\node.exe
+5 verbose readDependencies using package.json deps
+6 verbose cache add [ 'grunt-jsdoc', null ]
+7 verbose cache add name=undefined spec="grunt-jsdoc" args=["grunt-jsdoc",null]
+8 verbose parsed url { protocol: null,
+8 verbose parsed url   slashes: null,
+8 verbose parsed url   auth: null,
+8 verbose parsed url   host: null,
+8 verbose parsed url   port: null,
+8 verbose parsed url   hostname: null,
+8 verbose parsed url   hash: null,
+8 verbose parsed url   search: null,
+8 verbose parsed url   query: null,
+8 verbose parsed url   pathname: 'grunt-jsdoc',
+8 verbose parsed url   path: 'grunt-jsdoc',
+8 verbose parsed url   href: 'grunt-jsdoc' }
+9 silly lockFile 3d35aec6-grunt-jsdoc grunt-jsdoc
+10 verbose lock grunt-jsdoc C:\Users\Jcode\AppData\Roaming\npm-cache\3d35aec6-grunt-jsdoc.lock
+11 silly lockFile 3d35aec6-grunt-jsdoc grunt-jsdoc
+12 silly lockFile 3d35aec6-grunt-jsdoc grunt-jsdoc
+13 verbose addNamed [ 'grunt-jsdoc', '' ]
+14 verbose addNamed [ null, '*' ]
+15 silly lockFile 307ac68d-grunt-jsdoc grunt-jsdoc@
+16 verbose lock grunt-jsdoc@ C:\Users\Jcode\AppData\Roaming\npm-cache\307ac68d-grunt-jsdoc.lock
+17 silly addNameRange { name: 'grunt-jsdoc', range: '*', hasData: false }
+18 verbose request where is /grunt-jsdoc
+19 verbose request registry https://registry.npmjs.org/
+20 verbose request id 6f08c4ac4d5e1e38
+21 verbose url raw /grunt-jsdoc
+22 verbose url resolving [ 'https://registry.npmjs.org/', './grunt-jsdoc' ]
+23 verbose url resolved https://registry.npmjs.org/grunt-jsdoc
+24 verbose request where is https://registry.npmjs.org/grunt-jsdoc
+25 info trying registry request attempt 1 at 17:31:28
+26 http GET https://registry.npmjs.org/grunt-jsdoc
+27 http 200 https://registry.npmjs.org/grunt-jsdoc
+28 silly registry.get cb [ 200,
+28 silly registry.get   { date: 'Fri, 28 Nov 2014 09:31:34 GMT',
+28 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+28 silly registry.get     etag: '"3KQBOZSGP54SQEWXFT0LSIMHY"',
+28 silly registry.get     'content-type': 'application/json',
+28 silly registry.get     'cache-control': 'max-age=60',
+28 silly registry.get     'content-length': '38826',
+28 silly registry.get     'accept-ranges': 'bytes',
+28 silly registry.get     via: '1.1 varnish',
+28 silly registry.get     age: '0',
+28 silly registry.get     'x-served-by': 'cache-ty67-TYO',
+28 silly registry.get     'x-cache': 'HIT',
+28 silly registry.get     'x-cache-hits': '1',
+28 silly registry.get     'x-timer': 'S1417167094.670400,VS0,VE125',
+28 silly registry.get     vary: 'Accept',
+28 silly registry.get     connection: 'close' } ]
+29 silly addNameRange number 2 { name: 'grunt-jsdoc', range: '*', hasData: true }
+30 silly addNameRange versions [ 'grunt-jsdoc',
+30 silly addNameRange   [ '0.2.3',
+30 silly addNameRange     '0.2.4',
+30 silly addNameRange     '0.3.0',
+30 silly addNameRange     '0.3.1',
+30 silly addNameRange     '0.3.2',
+30 silly addNameRange     '0.3.3',
+30 silly addNameRange     '0.4.0',
+30 silly addNameRange     '0.4.1',
+30 silly addNameRange     '0.4.2',
+30 silly addNameRange     '0.4.3',
+30 silly addNameRange     '0.5.0',
+30 silly addNameRange     '0.5.1',
+30 silly addNameRange     '0.5.2',
+30 silly addNameRange     '0.5.3',
+30 silly addNameRange     '0.5.4',
+30 silly addNameRange     '0.5.5',
+30 silly addNameRange     '0.5.6',
+30 silly addNameRange     '0.6.0',
+30 silly addNameRange     '0.5.7',
+30 silly addNameRange     '0.6.1' ] ]
+31 verbose addNamed [ 'grunt-jsdoc', '0.5.7' ]
+32 verbose addNamed [ '0.5.7', '0.5.7' ]
+33 silly lockFile ff6f9f1c-grunt-jsdoc-0-5-7 grunt-jsdoc@0.5.7
+34 verbose lock grunt-jsdoc@0.5.7 C:\Users\Jcode\AppData\Roaming\npm-cache\ff6f9f1c-grunt-jsdoc-0-5-7.lock
+35 silly lockFile d0fcbcdc-runt-jsdoc-grunt-jsdoc-0-5-7-tgz https://registry.npmjs.org/grunt-jsdoc/-/grunt-jsdoc-0.5.7.tgz
+36 verbose lock https://registry.npmjs.org/grunt-jsdoc/-/grunt-jsdoc-0.5.7.tgz C:\Users\Jcode\AppData\Roaming\npm-cache\d0fcbcdc-runt-jsdoc-grunt-jsdoc-0-5-7-tgz.lock
+37 verbose addRemoteTarball [ 'https://registry.npmjs.org/grunt-jsdoc/-/grunt-jsdoc-0.5.7.tgz',
+37 verbose addRemoteTarball   '33140dc10f18a0a1eac7f8363b550d50a0e7affc' ]
+38 info retry fetch attempt 1 at 17:31:29
+39 verbose fetch to= c:\Users\Jcode\AppData\Local\Temp\npm-2916-RviuR5ai\registry.npmjs.org\grunt-jsdoc\-\grunt-jsdoc-0.5.7.tgz
+40 http GET https://registry.npmjs.org/grunt-jsdoc/-/grunt-jsdoc-0.5.7.tgz
+41 http 200 https://registry.npmjs.org/grunt-jsdoc/-/grunt-jsdoc-0.5.7.tgz
+42 silly lockFile d0fcbcdc-runt-jsdoc-grunt-jsdoc-0-5-7-tgz https://registry.npmjs.org/grunt-jsdoc/-/grunt-jsdoc-0.5.7.tgz
+43 silly lockFile d0fcbcdc-runt-jsdoc-grunt-jsdoc-0-5-7-tgz https://registry.npmjs.org/grunt-jsdoc/-/grunt-jsdoc-0.5.7.tgz
+44 silly lockFile ff6f9f1c-grunt-jsdoc-0-5-7 grunt-jsdoc@0.5.7
+45 silly lockFile ff6f9f1c-grunt-jsdoc-0-5-7 grunt-jsdoc@0.5.7
+46 silly lockFile 307ac68d-grunt-jsdoc grunt-jsdoc@
+47 silly lockFile 307ac68d-grunt-jsdoc grunt-jsdoc@
+48 silly resolved [ { name: 'grunt-jsdoc',
+48 silly resolved     description: 'Integrates jsdoc3 generation into your Grunt build',
+48 silly resolved     version: '0.5.7',
+48 silly resolved     homepage: 'https://github.com/krampstudio/grunt-jsdoc',
+48 silly resolved     author:
+48 silly resolved      { name: 'Bertrand Chevrier',
+48 silly resolved        email: 'chevrier.bertrand@gmail.com',
+48 silly resolved        url: 'http://krampstudio.com' },
+48 silly resolved     contributors: [ [Object] ],
+48 silly resolved     repository:
+48 silly resolved      { type: 'git',
+48 silly resolved        url: 'git://github.com/krampstudio/grunt-jsdoc.git' },
+48 silly resolved     bugs: { url: 'https://github.com/krampstudio/grunt-jsdoc/issues' },
+48 silly resolved     licenses: [ [Object] ],
+48 silly resolved     main: 'Gruntfile.js',
+48 silly resolved     bin: { 'grunt-jsdoc': 'bin/grunt-jsdoc' },
+48 silly resolved     engines: { node: '>= 0.8.0' },
+48 silly resolved     scripts: { test: 'grunt test' },
+48 silly resolved     devDependencies:
+48 silly resolved      { grunt: '~0.4.3',
+48 silly resolved        'grunt-contrib-clean': '~0.5.0',
+48 silly resolved        'grunt-contrib-jshint': '~0.10.0',
+48 silly resolved        'grunt-contrib-nodeunit': '~0.4.0' },
+48 silly resolved     dependencies: { jsdoc: '~3.2.2', 'ink-docstrap': '~0.4.12' },
+48 silly resolved     peerDependencies: { grunt: '~0.4.0' },
+48 silly resolved     keywords:
+48 silly resolved      [ 'gruntplugin',
+48 silly resolved        'grunt',
+48 silly resolved        'documentation',
+48 silly resolved        'doc',
+48 silly resolved        'jsdoc',
+48 silly resolved        'jsdoc3' ],
+48 silly resolved     gitHead: '5ade6359ace3fabcddf95356aaf087203a1698d6',
+48 silly resolved     _id: 'grunt-jsdoc@0.5.7',
+48 silly resolved     _shasum: '33140dc10f18a0a1eac7f8363b550d50a0e7affc',
+48 silly resolved     _from: 'grunt-jsdoc@',
+48 silly resolved     _npmVersion: '1.4.21',
+48 silly resolved     _npmUser: { name: 'krampstudio', email: 'chevrier.bertrand@gmail.com' },
+48 silly resolved     maintainers: [ [Object] ],
+48 silly resolved     dist:
+48 silly resolved      { shasum: '33140dc10f18a0a1eac7f8363b550d50a0e7affc',
+48 silly resolved        tarball: 'http://registry.npmjs.org/grunt-jsdoc/-/grunt-jsdoc-0.5.7.tgz' },
+48 silly resolved     directories: {},
+48 silly resolved     _resolved: 'https://registry.npmjs.org/grunt-jsdoc/-/grunt-jsdoc-0.5.7.tgz' } ]
+49 info install grunt-jsdoc@0.5.7 into F:\vhosts\vmodel
+50 info installOne grunt-jsdoc@0.5.7
+51 verbose node_modules\grunt-jsdoc unbuild
+52 verbose tar unpack c:\Users\Jcode\AppData\Roaming\npm-cache\grunt-jsdoc\0.5.7\package.tgz
+53 silly lockFile 26bd292b--vmodel-node-modules-grunt-jsdoc tar://F:\vhosts\vmodel\node_modules\grunt-jsdoc
+54 verbose lock tar://F:\vhosts\vmodel\node_modules\grunt-jsdoc C:\Users\Jcode\AppData\Roaming\npm-cache\26bd292b--vmodel-node-modules-grunt-jsdoc.lock
+55 silly lockFile 18bb4745-he-grunt-jsdoc-0-5-7-package-tgz tar://c:\Users\Jcode\AppData\Roaming\npm-cache\grunt-jsdoc\0.5.7\package.tgz
+56 verbose lock tar://c:\Users\Jcode\AppData\Roaming\npm-cache\grunt-jsdoc\0.5.7\package.tgz C:\Users\Jcode\AppData\Roaming\npm-cache\18bb4745-he-grunt-jsdoc-0-5-7-package-tgz.lock
+57 silly gunzTarPerm modes [ '777', '666' ]
+58 silly gunzTarPerm extractEntry package.json
+59 silly gunzTarPerm modified mode [ 'package.json', 436, 438 ]
+60 silly gunzTarPerm extractEntry .npmignore
+61 silly gunzTarPerm modified mode [ '.npmignore', 420, 438 ]
+62 silly gunzTarPerm extractEntry README.md
+63 silly gunzTarPerm modified mode [ 'README.md', 436, 438 ]
+64 silly gunzTarPerm extractEntry Gruntfile.js
+65 silly gunzTarPerm modified mode [ 'Gruntfile.js', 436, 438 ]
+66 silly gunzTarPerm extractEntry LICENSE-MIT
+67 silly gunzTarPerm modified mode [ 'LICENSE-MIT', 420, 438 ]
+68 silly gunzTarPerm extractEntry bin/grunt-jsdoc
+69 silly gunzTarPerm modified mode [ 'bin/grunt-jsdoc', 493, 511 ]
+70 silly gunzTarPerm extractEntry tasks/jsdoc-plugin.js
+71 silly gunzTarPerm modified mode [ 'tasks/jsdoc-plugin.js', 436, 438 ]
+72 silly gunzTarPerm extractEntry tasks/lib/exec.js
+73 silly gunzTarPerm modified mode [ 'tasks/lib/exec.js', 420, 438 ]
+74 silly gunzTarPerm extractEntry test/jsdoc-basic_test.js
+75 silly gunzTarPerm modified mode [ 'test/jsdoc-basic_test.js', 420, 438 ]
+76 silly gunzTarPerm extractEntry test/jsdoc-docstrap_test.js
+77 silly gunzTarPerm modified mode [ 'test/jsdoc-docstrap_test.js', 420, 438 ]
+78 silly gunzTarPerm extractEntry test/jsdoc-plugin_test.js
+79 silly gunzTarPerm modified mode [ 'test/jsdoc-plugin_test.js', 420, 438 ]
+80 silly gunzTarPerm extractEntry test/jsdoc-task_test.js
+81 silly gunzTarPerm modified mode [ 'test/jsdoc-task_test.js', 420, 438 ]
+82 silly lockFile 26bd292b--vmodel-node-modules-grunt-jsdoc tar://F:\vhosts\vmodel\node_modules\grunt-jsdoc
+83 silly lockFile 26bd292b--vmodel-node-modules-grunt-jsdoc tar://F:\vhosts\vmodel\node_modules\grunt-jsdoc
+84 silly lockFile 18bb4745-he-grunt-jsdoc-0-5-7-package-tgz tar://c:\Users\Jcode\AppData\Roaming\npm-cache\grunt-jsdoc\0.5.7\package.tgz
+85 silly lockFile 18bb4745-he-grunt-jsdoc-0-5-7-package-tgz tar://c:\Users\Jcode\AppData\Roaming\npm-cache\grunt-jsdoc\0.5.7\package.tgz
+86 info preinstall grunt-jsdoc@0.5.7
+87 verbose readDependencies using package.json deps
+88 verbose readDependencies using package.json deps
+89 verbose cache add [ 'jsdoc@~3.2.2', null ]
+90 verbose cache add name=undefined spec="jsdoc@~3.2.2" args=["jsdoc@~3.2.2",null]
+91 verbose parsed url { protocol: null,
+91 verbose parsed url   slashes: null,
+91 verbose parsed url   auth: null,
+91 verbose parsed url   host: null,
+91 verbose parsed url   port: null,
+91 verbose parsed url   hostname: null,
+91 verbose parsed url   hash: null,
+91 verbose parsed url   search: null,
+91 verbose parsed url   query: null,
+91 verbose parsed url   pathname: 'jsdoc@~3.2.2',
+91 verbose parsed url   path: 'jsdoc@~3.2.2',
+91 verbose parsed url   href: 'jsdoc@~3.2.2' }
+92 verbose cache add [ 'ink-docstrap@~0.4.12', null ]
+93 verbose cache add name=undefined spec="ink-docstrap@~0.4.12" args=["ink-docstrap@~0.4.12",null]
+94 verbose parsed url { protocol: null,
+94 verbose parsed url   slashes: null,
+94 verbose parsed url   auth: null,
+94 verbose parsed url   host: null,
+94 verbose parsed url   port: null,
+94 verbose parsed url   hostname: null,
+94 verbose parsed url   hash: null,
+94 verbose parsed url   search: null,
+94 verbose parsed url   query: null,
+94 verbose parsed url   pathname: 'ink-docstrap@~0.4.12',
+94 verbose parsed url   path: 'ink-docstrap@~0.4.12',
+94 verbose parsed url   href: 'ink-docstrap@~0.4.12' }
+95 verbose cache add name="jsdoc" spec="~3.2.2" args=["jsdoc","~3.2.2"]
+96 verbose parsed url { protocol: null,
+96 verbose parsed url   slashes: null,
+96 verbose parsed url   auth: null,
+96 verbose parsed url   host: null,
+96 verbose parsed url   port: null,
+96 verbose parsed url   hostname: null,
+96 verbose parsed url   hash: null,
+96 verbose parsed url   search: null,
+96 verbose parsed url   query: null,
+96 verbose parsed url   pathname: '~3.2.2',
+96 verbose parsed url   path: '~3.2.2',
+96 verbose parsed url   href: '~3.2.2' }
+97 verbose addNamed [ 'jsdoc', '~3.2.2' ]
+98 verbose addNamed [ null, '>=3.2.2-0 <3.3.0-0' ]
+99 silly lockFile e0ecda3c-jsdoc-3-2-2 jsdoc@~3.2.2
+100 verbose lock jsdoc@~3.2.2 C:\Users\Jcode\AppData\Roaming\npm-cache\e0ecda3c-jsdoc-3-2-2.lock
+101 verbose cache add name="ink-docstrap" spec="~0.4.12" args=["ink-docstrap","~0.4.12"]
+102 verbose parsed url { protocol: null,
+102 verbose parsed url   slashes: null,
+102 verbose parsed url   auth: null,
+102 verbose parsed url   host: null,
+102 verbose parsed url   port: null,
+102 verbose parsed url   hostname: null,
+102 verbose parsed url   hash: null,
+102 verbose parsed url   search: null,
+102 verbose parsed url   query: null,
+102 verbose parsed url   pathname: '~0.4.12',
+102 verbose parsed url   path: '~0.4.12',
+102 verbose parsed url   href: '~0.4.12' }
+103 verbose addNamed [ 'ink-docstrap', '~0.4.12' ]
+104 verbose addNamed [ null, '>=0.4.12-0 <0.5.0-0' ]
+105 silly lockFile 9ad250b5-ink-docstrap-0-4-12 ink-docstrap@~0.4.12
+106 verbose lock ink-docstrap@~0.4.12 C:\Users\Jcode\AppData\Roaming\npm-cache\9ad250b5-ink-docstrap-0-4-12.lock
+107 silly addNameRange { name: 'jsdoc', range: '>=3.2.2-0 <3.3.0-0', hasData: false }
+108 silly addNameRange { name: 'ink-docstrap',
+108 silly addNameRange   range: '>=0.4.12-0 <0.5.0-0',
+108 silly addNameRange   hasData: false }
+109 verbose request where is /jsdoc
+110 verbose request registry https://registry.npmjs.org/
+111 verbose url raw /jsdoc
+112 verbose url resolving [ 'https://registry.npmjs.org/', './jsdoc' ]
+113 verbose url resolved https://registry.npmjs.org/jsdoc
+114 verbose request where is https://registry.npmjs.org/jsdoc
+115 info trying registry request attempt 1 at 17:31:30
+116 http GET https://registry.npmjs.org/jsdoc
+117 verbose request where is /ink-docstrap
+118 verbose request registry https://registry.npmjs.org/
+119 verbose url raw /ink-docstrap
+120 verbose url resolving [ 'https://registry.npmjs.org/', './ink-docstrap' ]
+121 verbose url resolved https://registry.npmjs.org/ink-docstrap
+122 verbose request where is https://registry.npmjs.org/ink-docstrap
+123 info trying registry request attempt 1 at 17:31:30
+124 http GET https://registry.npmjs.org/ink-docstrap
+125 http 200 https://registry.npmjs.org/ink-docstrap
+126 silly registry.get cb [ 200,
+126 silly registry.get   { date: 'Fri, 28 Nov 2014 09:31:36 GMT',
+126 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+126 silly registry.get     etag: '"854BQNX8XT141VIHW58QFM6N7"',
+126 silly registry.get     'content-type': 'application/json',
+126 silly registry.get     'cache-control': 'max-age=60',
+126 silly registry.get     'content-length': '35718',
+126 silly registry.get     'accept-ranges': 'bytes',
+126 silly registry.get     via: '1.1 varnish',
+126 silly registry.get     age: '0',
+126 silly registry.get     'x-served-by': 'cache-ty66-TYO',
+126 silly registry.get     'x-cache': 'HIT',
+126 silly registry.get     'x-cache-hits': '1',
+126 silly registry.get     'x-timer': 'S1417167096.662295,VS0,VE187',
+126 silly registry.get     vary: 'Accept',
+126 silly registry.get     connection: 'close' } ]
+127 silly addNameRange number 2 { name: 'ink-docstrap',
+127 silly addNameRange   range: '>=0.4.12-0 <0.5.0-0',
+127 silly addNameRange   hasData: true }
+128 silly addNameRange versions [ 'ink-docstrap',
+128 silly addNameRange   [ '0.2.0-0',
+128 silly addNameRange     '0.3.0-0',
+128 silly addNameRange     '0.4.0-1',
+128 silly addNameRange     '0.4.0-2',
+128 silly addNameRange     '0.4.0-3',
+128 silly addNameRange     '0.4.2',
+128 silly addNameRange     '0.4.3',
+128 silly addNameRange     '0.4.5',
+128 silly addNameRange     '0.4.6',
+128 silly addNameRange     '0.4.7',
+128 silly addNameRange     '0.4.8',
+128 silly addNameRange     '0.4.11',
+128 silly addNameRange     '0.4.12' ] ]
+129 verbose addNamed [ 'ink-docstrap', '0.4.12' ]
+130 verbose addNamed [ '0.4.12', '0.4.12' ]
+131 silly lockFile d7f64ddc-ink-docstrap-0-4-12 ink-docstrap@0.4.12
+132 verbose lock ink-docstrap@0.4.12 C:\Users\Jcode\AppData\Roaming\npm-cache\d7f64ddc-ink-docstrap-0-4-12.lock
+133 silly lockFile cc6c1a82-docstrap-ink-docstrap-0-4-12-tgz https://registry.npmjs.org/ink-docstrap/-/ink-docstrap-0.4.12.tgz
+134 verbose lock https://registry.npmjs.org/ink-docstrap/-/ink-docstrap-0.4.12.tgz C:\Users\Jcode\AppData\Roaming\npm-cache\cc6c1a82-docstrap-ink-docstrap-0-4-12-tgz.lock
+135 verbose addRemoteTarball [ 'https://registry.npmjs.org/ink-docstrap/-/ink-docstrap-0.4.12.tgz',
+135 verbose addRemoteTarball   'd41e376919debdad061288c11c8022b785e8acdf' ]
+136 info retry fetch attempt 1 at 17:31:31
+137 verbose fetch to= c:\Users\Jcode\AppData\Local\Temp\npm-2916-RviuR5ai\registry.npmjs.org\ink-docstrap\-\ink-docstrap-0.4.12.tgz
+138 http GET https://registry.npmjs.org/ink-docstrap/-/ink-docstrap-0.4.12.tgz
+139 http 200 https://registry.npmjs.org/jsdoc
+140 silly registry.get cb [ 200,
+140 silly registry.get   { date: 'Fri, 28 Nov 2014 09:31:36 GMT',
+140 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+140 silly registry.get     etag: '"DOVZPQ5TWYCDUPCYPJJEN7BBL"',
+140 silly registry.get     'content-type': 'application/json',
+140 silly registry.get     'cache-control': 'max-age=60',
+140 silly registry.get     'content-length': '26125',
+140 silly registry.get     'accept-ranges': 'bytes',
+140 silly registry.get     via: '1.1 varnish',
+140 silly registry.get     age: '0',
+140 silly registry.get     'x-served-by': 'cache-ty67-TYO',
+140 silly registry.get     'x-cache': 'HIT',
+140 silly registry.get     'x-cache-hits': '1',
+140 silly registry.get     'x-timer': 'S1417167096.656953,VS0,VE125',
+140 silly registry.get     vary: 'Accept',
+140 silly registry.get     connection: 'close' } ]
+141 silly addNameRange number 2 { name: 'jsdoc', range: '>=3.2.2-0 <3.3.0-0', hasData: true }
+142 silly addNameRange versions [ 'jsdoc',
+142 silly addNameRange   [ '0.0.0',
+142 silly addNameRange     '3.2.0-dev',
+142 silly addNameRange     '3.2.0',
+142 silly addNameRange     '3.2.1',
+142 silly addNameRange     '3.2.2',
+142 silly addNameRange     '3.3.0-alpha1',
+142 silly addNameRange     '3.3.0-alpha2',
+142 silly addNameRange     '3.3.0-alpha3',
+142 silly addNameRange     '3.3.0-alpha4',
+142 silly addNameRange     '3.3.0-alpha5',
+142 silly addNameRange     '3.3.0-alpha7',
+142 silly addNameRange     '3.3.0-alpha8',
+142 silly addNameRange     '3.3.0-alpha9',
+142 silly addNameRange     '3.3.0-alpha10' ] ]
+143 verbose addNamed [ 'jsdoc', '3.2.2' ]
+144 verbose addNamed [ '3.2.2', '3.2.2' ]
+145 silly lockFile 17dae88a-jsdoc-3-2-2 jsdoc@3.2.2
+146 verbose lock jsdoc@3.2.2 C:\Users\Jcode\AppData\Roaming\npm-cache\17dae88a-jsdoc-3-2-2.lock
+147 silly lockFile a6be9d88--npmjs-org-jsdoc-jsdoc-3-2-2-tgz https://registry.npmjs.org/jsdoc/-/jsdoc-3.2.2.tgz
+148 verbose lock https://registry.npmjs.org/jsdoc/-/jsdoc-3.2.2.tgz C:\Users\Jcode\AppData\Roaming\npm-cache\a6be9d88--npmjs-org-jsdoc-jsdoc-3-2-2-tgz.lock
+149 verbose addRemoteTarball [ 'https://registry.npmjs.org/jsdoc/-/jsdoc-3.2.2.tgz',
+149 verbose addRemoteTarball   '3fbbcf9b6c585545c8c7ac18ec2e822aae3338bf' ]
+150 info retry fetch attempt 1 at 17:31:32
+151 verbose fetch to= c:\Users\Jcode\AppData\Local\Temp\npm-2916-RviuR5ai\registry.npmjs.org\jsdoc\-\jsdoc-3.2.2.tgz
+152 http GET https://registry.npmjs.org/jsdoc/-/jsdoc-3.2.2.tgz
+153 http 200 https://registry.npmjs.org/ink-docstrap/-/ink-docstrap-0.4.12.tgz
+154 http 200 https://registry.npmjs.org/jsdoc/-/jsdoc-3.2.2.tgz
+155 silly lockFile a6be9d88--npmjs-org-jsdoc-jsdoc-3-2-2-tgz https://registry.npmjs.org/jsdoc/-/jsdoc-3.2.2.tgz
+156 silly lockFile a6be9d88--npmjs-org-jsdoc-jsdoc-3-2-2-tgz https://registry.npmjs.org/jsdoc/-/jsdoc-3.2.2.tgz
+157 silly lockFile 17dae88a-jsdoc-3-2-2 jsdoc@3.2.2
+158 silly lockFile 17dae88a-jsdoc-3-2-2 jsdoc@3.2.2
+159 silly lockFile e0ecda3c-jsdoc-3-2-2 jsdoc@~3.2.2
+160 silly lockFile e0ecda3c-jsdoc-3-2-2 jsdoc@~3.2.2
+161 silly lockFile cc6c1a82-docstrap-ink-docstrap-0-4-12-tgz https://registry.npmjs.org/ink-docstrap/-/ink-docstrap-0.4.12.tgz
+162 silly lockFile cc6c1a82-docstrap-ink-docstrap-0-4-12-tgz https://registry.npmjs.org/ink-docstrap/-/ink-docstrap-0.4.12.tgz
+163 silly lockFile d7f64ddc-ink-docstrap-0-4-12 ink-docstrap@0.4.12
+164 silly lockFile d7f64ddc-ink-docstrap-0-4-12 ink-docstrap@0.4.12
+165 silly lockFile 9ad250b5-ink-docstrap-0-4-12 ink-docstrap@~0.4.12
+166 silly lockFile 9ad250b5-ink-docstrap-0-4-12 ink-docstrap@~0.4.12
+167 verbose about to build F:\vhosts\vmodel\node_modules\grunt-jsdoc
+168 verbose node_modules\grunt-jsdoc unbuild
+169 info preuninstall grunt-jsdoc@0.5.7
+170 info uninstall grunt-jsdoc@0.5.7
+171 verbose true,F:\vhosts\vmodel\node_modules,F:\vhosts\vmodel\node_modules unbuild grunt-jsdoc@0.5.7
+172 verbose F:\vhosts\vmodel\node_modules\.bin,[object Object] binRoot
+173 info postuninstall grunt-jsdoc@0.5.7
+174 error Error: shasum check failed for c:\Users\Jcode\AppData\Local\Temp\npm-2916-RviuR5ai\registry.npmjs.org\ink-docstrap\-\ink-docstrap-0.4.12.tgz
+174 error Expected: d41e376919debdad061288c11c8022b785e8acdf
+174 error Actual:   5e6cb7c701075dff3e02dd524a6a70845c74e3da
+174 error     at D:\Program Files\nodejs\node_modules\npm\node_modules\sha\index.js:38:8
+174 error     at ReadStream.<anonymous> (D:\Program Files\nodejs\node_modules\npm\node_modules\sha\index.js:85:7)
+174 error     at ReadStream.EventEmitter.emit (events.js:129:20)
+174 error     at _stream_readable.js:898:16
+174 error     at process._tickCallback (node.js:343:11)
+175 error If you need help, you may report this *entire* log,
+175 error including the npm and node versions, at:
+175 error     <http://github.com/npm/npm/issues>
+176 error System Windows_NT 6.2.9200
+177 error command "D:\\Program Files\\nodejs\\\\node.exe" "D:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "grunt-jsdoc" "--save-dev"
+178 error cwd F:\vhosts\vmodel
+179 error node -v v0.11.13
+180 error npm -v 1.4.21
+181 verbose exit [ 1, true ]

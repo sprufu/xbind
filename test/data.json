@@ -1,0 +1,19 @@
+{
+	"total":532,
+	"rows":[{
+		"title":"test3","publishDate":"2014-09-17 08:57:33"
+	},{
+		"title":"test4","publishDate":"2014-09-17 08:57:33"
+	}],
+	"sex": [{
+		"label": "男",
+		"value": 1
+	}, {
+		"label": "女",
+		"value": 2
+	}],
+	"ah": {
+		"1": "音乐",
+		"2": "体育"
+	}
+}

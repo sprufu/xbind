@@ -9,29 +9,56 @@
 <script src="../src/core.js"></script>
 <script src="../src/handlers.js"></script>
 <script src="../src/parser.js"></script>
+<script src="../src/ajax.js"></script>
+<script src="../src/exports.js"></script>
 <script>
-var model = factory({
+var model = new Model({
 	$id: 'test',
 	url: 'http://www.baidu.com',
+	user: {
+		name: 'jcode',
+		sex: '女士'
+	},
 	test: 'Hello Word!'
 });
-var model2 = factory({
+var model2 = new Model({
 	$id: 'testa',
 	test: '表1'
 });
 setTimeout(function() {
-	model.$set('test', 'Hello Jcode!');
+	model.$set('user.name', 'sprufu');
 }, 2000);
-window.onload = function() {
-	scan();
-}
+
+
 </script>
 </head>
 <body x-controller="test">
-	<div id="test">{{ test }}</div>
-	<a href="{{ url }}"> {{ test }} </a>
-	<table x-controller="testa">
-		<caption> 标题: {{ test }} </caption>
+	<div><input type="TEXT" x-value="user.name" /></div>
+	<div>
+		<label><input type="radio" name="sex" x-value="user.sex" value="先生" /> 男</label>
+		<label><input type="radio" name="sex" x-value="user.sex" value="女士" /> 女</label>
+	</div>
+	
+	<div>
+		<label><input type="checkbox" name="ah" x-value="user.ah" value="体育" /> 体育</label>
+		<label><input type="checkbox" name="ah" x-value="user.ah" value="音乐" /> 音乐</label>
+		<label><input type="checkbox" name="ah" x-value="user.ah" value="游戏" /> 游戏</label>
+	</div>
+	
+	<div>
+		<select x-value="user.job" id="select">
+			<option>--请选择--</option>
+			<option value="被踢">IT</option>
+			<option value="国家养的猪">公务员</option>
+		</select>
+	</div>
+	
+	<div>
+		<textarea x-value="user.info"></textarea>
+	</div>
+	
+	<table x-ajax-users="data.json">
+		<caption> 总共: {{ users.total }} <a href="{{ url }}"> {{ test }} </a></caption>
 		<tr>
 			<th>ID</th>
 			<th>姓名</th>
@@ -54,5 +81,14 @@ window.onload = function() {
 			<td></td>
 		</tr>
 	</table>
+	
+	<div id="test" class="man woman" x-class-woman="user.sex == '女士'">hello {{ user.name }}{{ user.sex }}!</div>
+	<div> visible </div>
+	<div>爱好: {{ user.ah }} </div>
+	<div>职位: {{ user.job }} </div>
+	<div>自我介绍: {{ user.info }}</div>
+	<a x-href="{{ url }}">主页: {{ user.name }} </a>
+	<div id="test2" x-if="user.sex == '先生'">TMD, 这家伙是男的, 喜欢{{ user.ah }}!!!</div>
+	<div id="dd" x-show="user.sex == '女士'"> 这个MM很漂亮嘛, 很喜欢{{ user.ah }}. </div>
 </body>
 </html>

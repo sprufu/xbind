@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html lang="cn-zh">
+<head>
+<meta charset="UTF-8"/>
+<title>{{ test }}</title>
+<!--[if IE 6]>
+<script type="text/javascript" src="firebug-lite/build/firebug-lite.js"></script>
+<![endif]-->
+<script src="../src/ajax.js"></script>
+<script>
+function test() {
+ajax({
+	type: 'GET',
+	url: 'data.json',
+	success: function(data) {
+		console.log(data);
+	},
+	error: function(xhr) {
+		console.log(data);
+	}
+});
+}
+</script>
+</head>
+<body x-controller="test">
+	<div id="test">hello {{ user.name }}!</div>
+	<a href="{{ url }}"> {{ test }} </a>
+</body>
+</html>
