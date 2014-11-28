@@ -574,11 +574,32 @@ exports.extend(exports, {
 			el.className = classes.join(' ');
 		}
 	},
+
+	/**
+	 * 添加事件监听
+	 * @param {Element} el 监听对象
+	 * @param {String} type 事件类型, 如click
+	 * @param {Function} handler 事件句柄
+	 */
 	on: function(el, type, handler) {
 		if (el.addEventListener) {
 			el.addEventListener(type, handler, false);
 		} else if (el.attachEvent){
 			el.attachEvent('on' + type, handler);
 		}
+	},
+
+	/**
+	 * 冻结数据
+	 */
+	freeze: function(model) {
+		freezeModelId[model.$id] = true;
+	},
+
+	/**
+	 * 解冻数据
+	 */
+	unfreeze: function(model) {
+		delete freezeModelId[model.$id];
 	}
 })
