@@ -231,7 +231,7 @@ function factory(model) {
 		notifySubscribes(model, field, value, oldValue);
 	}
 
-	model.$get = function(field) {
+	model.$get = function(field, noExtend) {
 		if (~field.indexOf('.')) {
 			// TODO such as: user.name
 			var v = model,
@@ -247,7 +247,7 @@ function factory(model) {
 						v = v[key];
 					}
 				} else {
-					if (i) {
+					if (i || noExtend) {
 						return '';
 					} else {
 						try {
