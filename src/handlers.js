@@ -64,6 +64,10 @@ function stringXBindHandler(data, attr) {
 	});
 }
 
+function eventBindHandler(data, attr) {
+	// TODO
+}
+
 'disabled checked selected'.split(' ').forEach(function(type) {
 	optScanHandlers[type] = booleanHandler;
 });
@@ -75,6 +79,10 @@ function stringXBindHandler(data, attr) {
 'x-src x-href'.split(' ').forEach(function(type) {
 	optScanHandlers[type] = stringXBindHandler;
 });
+
+'blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu'.split(' ').forEach(function(type) {
+	optScanHandlers['x-' + type] = eventBindHandler;
+})
 
 exports.extend(optScanHandlers, {
 	'x-skip': function(data) {
@@ -97,7 +105,19 @@ exports.extend(optScanHandlers, {
 		// TODO
 	},
 	'x-if': function(data) {
-		// TODO
+		var element = data.element,
+		parent = element.parentElement,
+		model = exports.getModel(element) || factory(),
+		replaceElement = document.createComment('x-if:' + model.$id);
+		bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+			if (res) {
+				element.parentElement && parent.replaceChild(replaceElement, element);
+				exports.freeze(model);
+			} else {
+				element.parentElement || parent.replaceChild(element, replaceElement);
+				exports.unfreeze(model);
+			}
+		});
 	},
 
 	'x-show': function(data, attr) {
@@ -107,7 +127,6 @@ exports.extend(optScanHandlers, {
 	},
 
 	'x-value': function(data, attr) {
-		// TODO
 		var model = exports.getModel(data.element) || exports.getParentModel(data.element);
 		function addListen(type) {
 			exports.on(data.element, type, function(e) {
