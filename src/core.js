@@ -37,6 +37,16 @@ var MODELS = {
 	*/
 };
 
+/**
+ * 冻结的model id 列表
+ * 被冻结时, 数据更新将不触发视图更新.
+ */
+var freezeModelId = {
+	/**
+	 * someid: boolean,
+	 */
+};
+
 // 判断ie67很简单吧
 var ie67 = !"1"[0];
 
@@ -228,7 +238,9 @@ function factory(model) {
 	// 赋予model一些特殊属性
 	model.$set = function(field, value) {
 		var oldValue = setFieldValue(model, field, value);
-		notifySubscribes(model, field, value, oldValue);
+		if (!freezeModelId[model.$id]) {
+			notifySubscribes(model, field, value, oldValue);
+		}
 	}
 
 	model.$get = function(field, noExtend) {
