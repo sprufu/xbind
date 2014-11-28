@@ -561,5 +561,12 @@ exports.extend(exports, {
 			}
 			el.className = classes.join(' ');
 		}
+	},
+	on: function(el, type, handler) {
+		if (el.addEventListener) {
+			el.addEventListener(type, handler, false);
+		} else if (el.attachEvent){
+			el.attachEvent('on' + type, handler);
+		}
 	}
 })
