@@ -106,6 +106,83 @@ exports.extend(optScanHandlers, {
 		});
 	},
 
+	'x-value': function(data, attr) {
+		// TODO
+		var model = exports.getModel(data.element) || exports.getParentModel(data.element);
+		function addListen(type) {
+			exports.on(data.element, type, function(e) {
+				model.$set(data.value, data.element.value);
+			});
+		}
+		switch(data.element.tagName) {
+			case 'INPUT':
+				switch(data.element.type) {
+					case 'checkbox':
+						var v = model.$get(data.value);
+						if (v && !exports.isArray(v)) {
+							throw new TypeError('Checkbox bind must be array.');
+						}
+
+						if (!v) {
+							model.$set(data.value, []);
+						}
+
+						exports.on(data.element, 'click', function(e) {
+							var el = ie678 ? e.srcElement : this,
+							value = model.$get(data.value),
+							item = el.value;
+
+							if (el.checked) {
+								value.push(item);
+							} else {
+								// 删除掉元素
+								var i = value.length;
+								while (i--) {
+									if (item == value[i]) {
+										value.splice(i, 1);
+									}
+								}
+							}
+
+							model.$set(data.value, value);
+						});
+					break;
+					case 'radio':
+						exports.on(data.element, 'click', function(e) {
+							model.$set(data.value, ie678 ? e.srcElement.value : this.value);
+						});
+					break;
+					default:
+						addListen('keyup');
+						addListen('change');
+					break;
+				}
+			break;
+			case 'SELECT':
+				exports.on(data.element, 'change', function(e) {
+					var value, el;
+					if (ie67) {
+						el = data.element.options[data.element.selectedIndex];
+						if (el.attributes.value.specified) {
+							value = el.value;
+						} else {
+							value = el.text;
+						}
+					} else if (ie678) {
+						value = data.element.options[data.element.selectedIndex].value;
+					} else {
+						value = this.value;
+					}
+					model.$set(data.value, value);
+				});
+			break;
+			case 'TEXTAREA':
+				addListen('keyup');
+				addListen('change');
+			break;
+		}
+	},
+
 	/**
 	 * class类操作
 	 * avalon用 ms-class="className: expr",
