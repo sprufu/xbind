@@ -376,7 +376,7 @@ function scanChildNodes(element, parentModel) {
 	var el = element.firstChild;
 	while (el) {
 		scan(el, parentModel);
-		el = el.nextSibling;
+		el = el.$nextSibling || el.nextSibling;
 	}
 }
 
