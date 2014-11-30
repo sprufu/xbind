@@ -112,6 +112,8 @@ exports.extend(optScanHandlers, {
 		parentModel = exports.getParentModel(element),
 		replaceElement = document.createComment('x-if:' + model.$id);
 
+		element.$nextSibling = element.nextSibling;
+
 		if (!element.$modelId) {
 			model.$bindElement(element);
 		}
