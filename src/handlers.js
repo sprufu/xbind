@@ -82,7 +82,7 @@ function eventBindHandler(data, attr) {
 
 'blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu'.split(' ').forEach(function(type) {
 	optScanHandlers['x-' + type] = eventBindHandler;
-})
+});
 
 exports.extend(optScanHandlers, {
 	'x-skip': function(data) {
@@ -134,7 +134,6 @@ exports.extend(optScanHandlers, {
 	},
 
 	'x-show': function(data, attr) {
-		console.log(data);
 		var model = exports.getExtModel(data.element);
 		bindModel(model, data.value, parseExpress, function(res, value, oldValue) {
 			data.element.style.display = res ? "" : "none";
@@ -142,6 +141,34 @@ exports.extend(optScanHandlers, {
 	},
 
 	'x-value': function(data, attr) {
+		var model = exports.getExtModel(data.element);
+		bindModel(model, data.value, parseExpress, function(res, value, field) {
+			var el = data.element,
+			flag = true;
+			if (el.tagName == 'INPUT') {
+				if (el.type == 'radio') {
+					flag = false;
+					if (res == el.value) {
+						el.checked = true;
+					} else {
+						el.checked = false;
+					}
+				} else if (el.type == 'checkbox') {
+					flag = false;
+					if (~res.indexOf(el.value)) {
+						el.checked = true;
+					} else {
+						el.checked = false;
+					}
+				}
+			}
+
+			if (flag) {
+				el.value = res;
+			}
+		});
+
+
 		var model = exports.getExtModel(data.element);
 		function addListen(type) {
 			exports.on(data.element, type, function(e) {
