@@ -197,12 +197,7 @@ exports.extend(optScanHandlers, {
 								value.push(item);
 							} else {
 								// 删除掉元素
-								var i = value.length;
-								while (i--) {
-									if (item == value[i]) {
-										value.splice(i, 1);
-									}
-								}
+								value.remove(item);
 							}
 
 							model.$set(data.value, value);

@@ -558,13 +558,8 @@ exports.extend(exports, {
 		if (el.classList) {
 			el.classList.remove(cls);
 		} else if (el.className) {
-			var classes = el.className.split(' '),
-			i = classes.length;
-			while (i--) {
-				if (classes[i] == cls) {
-					classes.splice(i, 1);
-				}
-			}
+			var classes = el.className.split(' ');
+			classes.remove(cls);
 			el.className = classes.join(' ');
 		}
 	},
