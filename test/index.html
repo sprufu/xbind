@@ -84,7 +84,7 @@ setTimeout(function() {
 	</table>
 	
 	<div id="test" class="man woman" x-class-woman="user.sex == '女士'">hello {{ user.name }}{{ user.sex }}!</div>
-	<div> visible </div>
+	<div x-click="user.sex = '先生'"> visible </div>
 	<div>爱好: {{ user.ah }} </div>
 	<div>职位: {{ user.job }} </div>
 	<div>自我介绍: {{ user.info }}</div>
