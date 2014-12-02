@@ -1,5 +1,6 @@
 Session.vim
 *.swp
+npm-debug.log
 node_modules/
 dist/
 test/firebug-lite/
