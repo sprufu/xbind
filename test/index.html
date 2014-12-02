@@ -34,20 +34,20 @@ setTimeout(function() {
 </script>
 </head>
 <body x-controller="test">
-	<div><input type="TEXT" x-value="user.name" /></div>
+	<div><input type="TEXT" x-bind="user.name" /></div>
 	<div>
-		<label><input type="radio" name="sex" x-value="user.sex" value="先生" /> 男</label>
-		<label><input type="radio" name="sex" x-value="user.sex" value="女士" /> 女</label>
+		<label><input type="radio" name="sex" x-bind="user.sex" value="先生" /> 男</label>
+		<label><input type="radio" name="sex" x-bind="user.sex" value="女士" /> 女</label>
 	</div>
 	
 	<div>
-		<label><input type="checkbox" name="ah" x-value="user.ah" value="体育" /> 体育</label>
-		<label><input type="checkbox" name="ah" x-value="user.ah" value="音乐" /> 音乐</label>
-		<label><input type="checkbox" name="ah" x-value="user.ah" value="游戏" /> 游戏</label>
+		<label><input type="checkbox" name="ah" x-bind="user.ah" value="体育" /> 体育</label>
+		<label><input type="checkbox" name="ah" x-bind="user.ah" value="音乐" /> 音乐</label>
+		<label><input type="checkbox" name="ah" x-bind="user.ah" value="游戏" /> 游戏</label>
 	</div>
 	
 	<div>
-		<select x-value="user.job" id="select">
+		<select x-bind="user.job" id="select">
 			<option>--请选择--</option>
 			<option value="被踢">IT</option>
 			<option value="国家养的猪">公务员</option>
@@ -55,7 +55,7 @@ setTimeout(function() {
 	</div>
 	
 	<div>
-		<textarea x-value="user.info"></textarea>
+		<textarea x-bind="user.info"></textarea>
 	</div>
 	
 	<table x-ajax-users="data.json">

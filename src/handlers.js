@@ -153,7 +153,7 @@ exports.extend(optScanHandlers, {
 		});
 	},
 
-	'x-value': function(data, attr) {
+	'x-bind': function(data, attr) {
 		var model = exports.getExtModel(data.element);
 		bindModel(model, data.value, parseExpress, function(res, value, field) {
 			var el = data.element,
