@@ -102,7 +102,26 @@ exports.extend(optScanHandlers, {
 		return vmodel;
 	},
 	'x-repeat': function(data) {
-		// TODO
+		var id = data.value,
+		param = data.param,
+		element = data.element,
+		startElement = document.createComment('x-repeat-start:' + param),
+		endElement = document.createComment('x-repeat-end:' + param),
+		emptyModel = new Model();
+
+		// 插入定界注释结点
+		element.parentNode.insertBefore(startElement, element);
+		element.parentNode.insertBefore(endElement, element.nextSibling);
+
+		// 设定下一个扫描结点
+		element.$nextSibling = element.nextSibling;
+
+		// 先用空的对象用于扫描
+		// 运行时再替换成真实的model
+		emptyModel.$bindElement(element);
+		emptyModel.$freeze = true;
+
+		// var fn = 
 	},
 
 	'x-if': function(data) {
