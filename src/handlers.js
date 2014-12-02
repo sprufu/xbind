@@ -101,6 +101,19 @@ exports.extend(optScanHandlers, {
 		}
 		return vmodel;
 	},
+
+	/**
+	 * 用来定义一个模板
+	 * <div x-template="tplId"> ... </div>
+	 *
+	 * 模板包括最外层的Element,
+	 * 扫描后会移出这个结点, 并移出这个属性及x-template的class
+	 * 可以设置.x-template{display:none}避免没有扫描到时显示错乱
+	 */
+	'x-template': function(data) {
+		// TODO
+	},
+
 	'x-repeat': function(data) {
 		// TODO
 	},
