@@ -129,7 +129,12 @@ exports.extend(optScanHandlers, {
 	 * 优先从TEMPLATES中查找, 如果没有就从url中加载.
 	 */
 	'x-include': function(data) {
-		// TODO
+		var element = data.element,
+		model = exports.getExtModel(element);
+		bindModel(model, data.value, parseExpress, function(res) {
+			element.innerHTML = '';
+			element.appendChild(TEMPLATES[res].element.cloneNode(true));
+		});
 	},
 
 	'x-repeat': function(data) {
@@ -320,7 +325,7 @@ exports.extend(optScanHandlers, {
 
 /**
  * 注册的模板列表
- * /
+ */
 var TEMPLATES = {
 	/**
 	 * 以模板id为键, 模板为值

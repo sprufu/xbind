@@ -15,6 +15,7 @@
 var model = new Model({
 	$id: 'test',
 	url: 'http://www.baidu.com',
+	my_tpl: 'full',
 	user: {
 		name: 'jcode',
 		sex: '女士',
@@ -32,8 +33,11 @@ setTimeout(function() {
 
 
 </script>
+
 </head>
 <body x-controller="test">
+	<div x-template="full"><b>Hello</b> {{ user.name }}!</div>
+	<div x-template="simple">Hi {{ user.name }}!</div>
 	<div><input type="TEXT" x-bind="user.name" /></div>
 	<div>
 		<label><input type="radio" name="sex" x-bind="user.sex" value="先生" /> 男</label>
@@ -91,5 +95,7 @@ setTimeout(function() {
 	<a x-href="{{ url }}">主页: {{ user.name }} </a>
 	<div id="test2" x-if="user.sex == '先生'">TMD, 这家伙是男的, 喜欢{{ user.ah }}!!!</div>
 	<div id="dd" x-show="user.sex == '女士'"> 这个MM很漂亮嘛, 很喜欢{{ user.ah }}. </div>
+	<div x-include="my_tpl"></div>
+	<div x-include="my_tpl"></div>
 </body>
 </html>
