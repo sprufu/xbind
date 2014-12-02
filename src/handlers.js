@@ -120,6 +120,18 @@ exports.extend(optScanHandlers, {
 		element.remove();
 	},
 
+	/**
+	 * 加载一个模板到子结点
+	 * <div x-include="tplId or urlString"></div>
+	 *
+	 * 所有在页面上定义的模板, 在首次扫描时就收集到TEMPLATES中,
+	 * 从url加载的模板加载一次后也会收集到TEMPLATES中
+	 * 优先从TEMPLATES中查找, 如果没有就从url中加载.
+	 */
+	'x-include': function(data) {
+		// TODO
+	},
+
 	'x-repeat': function(data) {
 		// TODO
 	},
