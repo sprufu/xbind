@@ -111,7 +111,13 @@ exports.extend(optScanHandlers, {
 	 * 可以设置.x-template{display:none}避免没有扫描到时显示错乱
 	 */
 	'x-template': function(data) {
-		// TODO
+		var element = data.element,
+		tplId = data.value,
+		parentModel = exports.getParentModel(element),
+		tpl = new Template(tplId, element, parentModel);
+
+		element.$nextSibling = element.nextSibling;
+		element.remove();
 	},
 
 	'x-repeat': function(data) {
@@ -299,3 +305,20 @@ exports.extend(optScanHandlers, {
 	}
 });
 
+
+/**
+ * 注册的模板列表
+ * /
+var TEMPLATES = {
+	/**
+	 * 以模板id为键, 模板为值
+	 * some_tpl_id : template
+	 */
+};
+
+function Template(id, element, parentModel) {
+	this.id = id;
+	this.element = element;
+	this.parentModel = parentModel;
+	TEMPLATES[id] = this;
+}
