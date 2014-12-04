@@ -1,5 +1,5 @@
 /**
- * @file 核心
+ * @file 一些底层函数
  * @author jcode
  */
 
@@ -169,50 +169,10 @@ extend(exports, {
 
 function noop(){}
 
-/**********************************/
-/*       系统补丁修复区           */
-/**********************************/
-
+// 修复浏览器字符串没有 startsWith方法
 if (!''.startsWith) {
 	String.prototype.startsWith = function(str) {
 		return this.indexOf(str) === 0;
-	}
-}
-
-if (!''.trim) {
-	var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
-	String.prototype.trim = function(str) {
-		return this.replace(rtrim, '');
-	}
-}
-
-if (!Array.prototype.forEach) {
-	Array.prototype.forEach = function(cb) {
-		for (var i=0; i<this.length; i++) {
-			cb(this[i], i);
-		}
-	};
-}
-
-if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function(el) {
-		for (var i=0; i<this.length; i++) {
-			if (el == this[i]) {
-				return i;
-			}
-		}
-		return -1;
-	}
-}
-
-if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function(el) {
-		for(var i=0; i<this.length; i++) {
-			if (this[i] == el) {
-				return i;
-			}
-		}
-		return -1;
 	}
 }
 

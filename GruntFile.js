@@ -20,6 +20,7 @@ module.exports = function(grunt) {
 					'src/core.js',
 					'src/model.js',
 					'src/scan.js',
+					'src/compat.js',
 					'src/handlers.js',
 					'src/parser.js',
 					'src/exports.js',
