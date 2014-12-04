@@ -137,6 +137,7 @@ exports.extend(optScanHandlers, {
 	'x-include': function(data) {
 		var element = data.element,
 		model = exports.getExtModel(element);
+		element.$noScanChild = true;
 		bindModel(model, data.value, parseExpress, function(res) {
 			element.innerHTML = '';
 			element.appendChild(TEMPLATES[res].element.cloneNode(true));
