@@ -1,5 +1,13 @@
+/**
+ * @file 数据模型
+ * 所有通过工厂函数加工过的数据, 都是以这个为原型
+ * @author jcode
+ */
 
-
+/**
+ * 存储所有的数据
+ * 以数据的id为键索引
+ */
 var MODELS = {
 	/**
 	* someid: {
@@ -44,7 +52,8 @@ function setFieldValue(model, field, value) {
  * model数据对象, 其是一个可观察的对象
  */
 function Model(vm) {
-	exports.extend(this, vm);
+	// 拷贝所有的数据到自己的属性上
+	extend(this, vm);
 
 	// 属性不能放到prototype里去定义, 那是公用的地方法.
 	this.$parent = null,
@@ -72,8 +81,14 @@ function Model(vm) {
 }
 
 Model.prototype = {
+	/**
+	 * 获取某个字段的值
+	 * @param {string} field 字段, 可以是深层的, 如: user.name
+	 * @returns {object} 从当前数据查找, 如果不存在指定的键, 则向上查找, 除非明确指定noExtend
+	 */
 	$get: function(field, noExtend) {
 		if (~field.indexOf('.')) {
+			// 深层处理, 如: user.name
 			var v = this,
 			key,
 			keys = field.split('.'),
@@ -102,21 +117,48 @@ Model.prototype = {
 			}
 		}
 	},
+
+	/**
+	 * 设置一个字段的值
+	 * 这与this.field = value有几点不同:
+	 *    1. 可以直接设置深层数据, 如: $set("user.name", "jcode")
+	 *    2. 当user为空$set("user.name", "jcode")也会成功
+	 *    3. 这会触发视图更新
+	 */
 	$set: function(field, value) {
 		var oldValue = setFieldValue(this, field, value);
 		this.$notifySubscribes(field, value);
 	},
+
+	/**
+	 * 订阅数据更新
+	 * 相当于angular的$watch
+	 * @see $notifySubscribes
+	 * @see $unsubscribe
+	 */
 	$subscribe: function(field, observer) {
 		if (!this.$subscribes[field]) {
 			this.$subscribes[field] = [];
 		}
 		this.$subscribes[field].push(observer);
 	},
+
+	/**
+	 * 取消订阅
+	 * @see $subscribe
+	 * @see $notifySubscribes
+	 */
 	$unsubscribe: function(field, observer) {
 		if (this.$subscribes[field]) {
 			this.$subscribes[field].remove(observer);
 		}
 	},
+
+	/**
+	 * 通知订阅者更新自己
+	 * @see $subscribe
+	 * @see $unsubscribe
+	 */
 	$notifySubscribes: function(field, value) {
 		if (this.$freeze) {
 			return;
@@ -130,6 +172,11 @@ Model.prototype = {
 			subscribes[i].update(this, value, field);
 		}
 	},
+
+	/**
+	 * 绑定数据到结点上去
+	 * 一个结点只能绑定一个数据
+	 */
 	$bindElement: function(element) {
 		if (element.$modelId) {
 			throw new Error('不能重复绑定model.');
