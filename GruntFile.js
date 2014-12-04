@@ -14,7 +14,17 @@ module.exports = function(grunt) {
 					wrap:'global'
 				},
 				files: {
-					'dist/<%= pkg.name %>.js': ['src/wrap/header', 'src/core.js', 'src/handlers.js', 'src/parser.js', 'src/exports.js', 'src/wrap/footer'],
+					'dist/<%= pkg.name %>.js': [
+					'src/wrap/header',
+
+					'src/core.js',
+					'src/model.js',
+					'src/scan.js',
+					'src/handlers.js',
+					'src/parser.js',
+					'src/exports.js',
+
+					'src/wrap/footer'],
 				},
 			}
 		},
