@@ -166,6 +166,124 @@ function parseExpressWithoutFilter(str, field) {
 	return expr;
 }
 
+/**
+ * 解析些待执行的表达式
+ * 如:
+ *    user.name = 'jcode'         ===>   $model.$set("user.name", "jcode")                    // 赋值表达式要转换成model的$set
+ *    user.age = user.age + 1     ===>   $model.$set("user.age", $model.$get("user.age") + 1) // 赋值也可能与调用方法混用
+ *    clickHandler                ===>   $model.$get("clickHandler")()                        // 方法要转换成model方法
+ *    clickHandler(item)          ===>   $model.$get("clickHandler")($model.$get("item"))     // 变量要转换成model变量
+ *    clickHandler(4, null, true) ===> $model.$get("clickHandler")(4, null, true)             // 常量(数字, null, undefined, boolean)不转换
+ *
+ * 从上面情况来看, 虽然复杂, 但就只有两种情况: 赋值和执行函数操作
+ * 表达式由各个操作元素(变量或常量)和操作符(+, -, *, /, '%', 等)组合在一起
+ */
+function parseExecute(str, fields) {
+	fields = fields || {};
+	var ret = '';
+
+	if (~str.indexOf(';')) {
+		// 含有";", 如: user.name = 'jcode'; user.age = 31
+		// 表示由多个表达式组成
+		var strs = str.split(';'),
+		i = 0;
+
+		// 循环解析每个表达式, 把结果累加在一起
+		for (; i<strs.length; i++) {
+			if (i) {
+				ret += ';';
+			}
+			ret += parseExecute(strs[i], fields);
+		}
+	} else {
+		if (~str.indexOf('=')) {
+			// 含有"=", 是赋值操作
+			var part = str.split('=');
+			ret = '$model.$set("' + part[0].trim() + '", ' + parseExecuteItem(part[1].trim(), fields) + ')';
+		} else {
+			ret = parseExecuteItem(str, fields) + ';';
+		}
+	}
+	return ret;
+}
+
+/**
+ * 表达式操作符
+ */
+var exprActionReg = /[^\w\.]+/g;
+
+/**
+ * parseExecute的辅助函数, 用来解析单个表达式, str两边已经去掉无用的空白符
+ * 如:
+ *    clickHandler
+ *    user.age + 1
+ *    user.getName()
+ *
+ * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
+ */
+function parseExecuteItem(str, fields) {
+	var c = str.charAt(0);
+	if (c == '"' || c == "'") {
+		return str;
+	}
+
+	var actions = str.match(exprActionReg);
+	if (actions) {
+		var ret = '',
+		field,
+		pos0 = 0,
+		pos,
+		i = 0;
+
+		// 循环解析操作符分隔的每个表达式
+		// 并把他们加在一起
+		for (; i<actions.length; i++) {
+			pos = str.indexOf(actions[i], pos0);
+			field = str.substring(pos0, pos);
+			ret += parseStatic(field) + actions[i];
+			pos0 = pos + actions[i].length;
+
+			// 不是方法, 而是属性的话, 要加到监听列表里
+			if (actions[i].indexOf('(') == -1) {
+				fields[field] = true;
+			}
+		}
+
+		// 处理最后结尾部分
+		if (str.length > pos0) {
+			field = str.substr(pos0);
+			var res = parseStatic(field);
+			if (res != field) {
+				fields[field] = true;
+			}
+			ret += res;
+		}
+
+		return ret;
+	} else {
+		ret = parseStatic(str);
+		if (ret != str) {
+			fields[str] = true;
+		}
+		return ret;
+	}
+}
+
+var numberReg = /^\-?\d?\.?\d+$/;
+function parseStatic(str) {
+	// 普通常量, 常量有很多, 这里只处理几个常用的
+	if (str == 'true' || str == 'false' || str == 'null' || str == 'undefined' || str == 'NaN') {
+		return str;
+	}
+
+	// 数字
+	if (numberReg.test(str)) {
+		return str;
+	}
+
+	return '$model.$get("' + str + '")';
+}
+
 var parseJSON = window.JSON ? window.JSON.parse : function(str) {
 	return (new Function('', 'return ' + str.trim())());
 }

@@ -65,7 +65,13 @@ function stringXBindHandler(data, attr) {
 }
 
 function eventBindHandler(data, attr) {
-	// TODO
+	var model = exports.getExtModel(data.element),
+	eventType = data.type.substr(2),
+	expr = parseExecute(data.value),
+	fn = new Function('$model', expr);
+	exports.on(data.element, eventType, function() {
+		fn(model);
+	});
 }
 
 'disabled checked selected'.split(' ').forEach(function(type) {
