@@ -22,7 +22,7 @@ function scan(element, model) {
 	// 普通结点
 	case 1:
 		model = scanAttrs(element, model) || model;
-		if (element.childNodes.length) {
+		if (!element.$noScanChild && element.childNodes.length) {
 			scanChildNodes(element, model);
 		}
 	break;
