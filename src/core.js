@@ -153,6 +153,20 @@ extend(exports, {
 	},
 
 	/**
+	 * css操作
+	 */
+	css: function(el, name, value) {
+		if (arguments.length == 2) {
+			// jquery式的getter
+			var styles = window.getComputedStyle ? window.getComputedStyle(el) : el.currentStyle,
+			style = styles[name];
+			return style;
+		} else {
+			el.style[name] = value;
+		}
+	},
+
+	/**
 	 * 添加事件监听
 	 * @param {Element} el 监听对象
 	 * @param {String} type 事件类型, 如click
