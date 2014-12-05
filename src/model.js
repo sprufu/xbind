@@ -198,6 +198,7 @@ Model.prototype = {
 		}
 
 		element.$modelId = model.$id;
+		this.$element = element;
 	}
 }
 
