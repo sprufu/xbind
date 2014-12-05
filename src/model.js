@@ -253,3 +253,25 @@ exports.getParentModel = function(el) {
 exports.getExtModel = function(el) {
 	return exports.getModel(el) || exports.getParentModel(el);
 }
+
+exports.destroyModel = function(model, removeBindElement) {
+	if (model.$childs) {
+		model.$childs.forEach(function(m) {
+			exports.destroyModel(m, removeBindElement);
+		});
+	}
+
+	// 从MODELS中删除
+	delete MODELS[model.$id];
+
+	// 解除绑定
+	if (model.$element) {
+		if (removeBindElement) {
+			model.$element.parentNode.removeChild(model.$element);
+		} else {
+			model.$element.$modelId = undefined;
+		}
+	}
+
+	model = null;
+}
