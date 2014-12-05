@@ -154,27 +154,60 @@ exports.extend(optScanHandlers, {
 		});
 	},
 
-	'x-repeat': function(data) {
+	'x-repeat': function(data, attr) {
 		var id = data.value,
 		param = data.param,
 		element = data.element,
+		parent = element.parentNode,
+		model = exports.getExtModel(element),
 		startElement = document.createComment('x-repeat-start:' + param),
-		endElement = document.createComment('x-repeat-end:' + param),
-		emptyModel = new Model();
+		endElement = document.createComment('x-repeat-end:' + param);
 
 		// 插入定界注释结点
-		element.parentNode.insertBefore(startElement, element);
-		element.parentNode.insertBefore(endElement, element.nextSibling);
+		parent.insertBefore(startElement, element);
+		parent.insertBefore(endElement, element.nextSibling);
 
 		// 设定下一个扫描结点
 		element.$nextSibling = element.nextSibling;
+		element.$noScanChild = true;
+		element.removeAttribute(attr.name);
+		element.parentNode.removeChild(element);
 
-		// 先用空的对象用于扫描
-		// 运行时再替换成真实的model
-		emptyModel.$bindElement(element);
-		emptyModel.$freeze = true;
+		bindModel(model, data.value, parseExpress, function(res) {
+			if (!exports.isArray(res)) {
+				throw new TypeError('repeat must bind to an array.');
+			}
 
-		// var fn = 
+			var el = startElement.nextSibling, model;
+
+			// 循环删除已经有的结点
+			while (el && el != endElement) {
+				model = exports.getModel(el);
+				exports.destroyModel(model, true);
+				el = startElement.nextSibling;
+			}
+
+			// 循环添加
+			var i = 0, item, el = startElement;
+			for (; i<res.length; i++) {
+				model = new Model({
+					$index: i,
+					$remove: function() {
+						// TODO
+					},
+					$first: !i,
+					$last: i == res.length,
+					$middle: i > 0 && i < res.length
+				});
+				model[param] = res[i];
+
+				item = element.cloneNode(true);
+				model.$bindElement(item);
+				parent.insertBefore(item, endElement);
+				scan(item, model);
+
+			}
+		});
 	},
 
 	'x-if': function(data) {

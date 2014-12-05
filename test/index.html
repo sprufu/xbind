@@ -102,5 +102,8 @@ setTimeout(function() {
 	<div id="dd" x-show="user.sex == '女士'"> 这个MM很漂亮嘛, 很喜欢{{ user.ah }}. </div>
 	<div x-include="my_tpl"></div>
 	<div x-include="my_tpl"></div>
+	<ul>
+		<li x-repeat-item="user.ah"> {{ $index }} - {{ item }} </li>
+	</ul>
 </body>
 </html>
