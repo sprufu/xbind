@@ -103,7 +103,7 @@ setTimeout(function() {
 	<div x-include="my_tpl"></div>
 	<div x-include="my_tpl"></div>
 	<ul>
-		<li x-repeat-item="user.ah"> {{ $index }} - {{ item }} </li>
+		<li x-repeat-item="user.ah"> {{ $index }} - {{ item }} <button x-click="$remove()">remove</button> </li>
 	</ul>
 </body>
 </html>

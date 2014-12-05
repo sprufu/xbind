@@ -188,29 +188,27 @@ exports.extend(optScanHandlers, {
 			}
 
 			// 循环添加
-			var i = 0, item, el = startElement;
-			for (; i<res.length; i++) {
-				item = element.cloneNode(true);
+			res.forEach(function(item, i) {
+				var el = element.cloneNode(true);
 				if (ie678) {
-					item.$noScanChild = false;
+					el.$noScanChild = false;
 				}
 
-				model = new Model({
+				var model = new Model({
 					$index: i,
 					$remove: function() {
-						// TODO
+						exports.destroyModel(model, true);
 					},
 					$first: !i,
 					$last: i == res.length,
 					$middle: i > 0 && i < res.length
 				});
-				model[param] = res[i];
+				model[param] = item;
 
-				parent.insertBefore(item, endElement);
-				model.$bindElement(item);
-				scan(item, model);
-
-			}
+				parent.insertBefore(el, endElement);
+				model.$bindElement(el);
+				scan(el, model);
+			});
 		});
 	},
 
