@@ -73,6 +73,7 @@ function scanAttrs(element, model) {
 				value: attr.value
 			}, attr) || model;
 			element.removeAttribute(attr.name);
+			exports.removeClass(element, item.type);
 		}
 	}
 
