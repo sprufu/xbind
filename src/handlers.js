@@ -141,7 +141,16 @@ exports.extend(optScanHandlers, {
 		element.$noScanChild = true;
 		bindModel(model, data.value, parseExpress, function(res) {
 			element.innerHTML = '';
-			element.appendChild(TEMPLATES[res].element.cloneNode(true));
+			var copyEl = TEMPLATES[res].element.cloneNode(true);
+
+			// ie678的cloneNode会连同自定义属性一起拷贝
+			// 且ie67还不能delete
+			if (ie678) {
+				copyEl.$noScanChild = false;
+			}
+
+			element.appendChild(copyEl);
+			scan(copyEl, model);
 		});
 	},
 
