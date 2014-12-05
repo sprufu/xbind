@@ -190,6 +190,11 @@ exports.extend(optScanHandlers, {
 			// 循环添加
 			var i = 0, item, el = startElement;
 			for (; i<res.length; i++) {
+				item = element.cloneNode(true);
+				if (ie678) {
+					item.$noScanChild = false;
+				}
+
 				model = new Model({
 					$index: i,
 					$remove: function() {
@@ -201,9 +206,8 @@ exports.extend(optScanHandlers, {
 				});
 				model[param] = res[i];
 
-				item = element.cloneNode(true);
-				model.$bindElement(item);
 				parent.insertBefore(item, endElement);
+				model.$bindElement(item);
 				scan(item, model);
 
 			}
