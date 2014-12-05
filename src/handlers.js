@@ -175,7 +175,7 @@ exports.extend(optScanHandlers, {
 
 		bindModel(model, data.value, parseExpress, function(res) {
 			if (!exports.isArray(res)) {
-				throw new TypeError('repeat must bind to an array.');
+				return;
 			}
 
 			var el = startElement.nextSibling, model;
@@ -370,18 +370,22 @@ exports.extend(optScanHandlers, {
 			model.$bindElement(data.element);
 		}
 
-		ajax({
-			type: 'GET',
-			dataType: 'json',
-			cache: false,
-			url: data.value,
-			success: function(res) {
-				model.$set(data.param, res);
-			},
-			error: function(xhr, err) {
-				model.$set(data.param + '.$error', err);
-			}
-		});
+		var read = function() {
+			ajax({
+				type: 'GET',
+				dataType: 'json',
+				cache: false,
+				url: data.value,
+				success: function(res) {
+					res.$read = read;
+					model.$set(data.param, res);
+				},
+				error: function(xhr, err) {
+					model.$set(data.param + '.$error', err);
+				}
+			});
+		}
+		read();
 
 		return model;
 	},

@@ -76,20 +76,14 @@ setTimeout(function() {
 			<th>email</th>
 			<th>操作</th>
 		</tr>
-		<tr>
+		<tr x-repeat-user="users.rows">
 			<td></td>
+			<td>{{ user.title }}</td>
 			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
+			<td> {{ user.publishDate }} </td>
+			<td> <button x-click="users.$read()"> read() </button> </td>
 		</tr>
-		<tr>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-		</tr>
+
 	</table>
 	
 	<div id="test" class="man woman" x-class-woman="user.sex == '女士'">hello {{ user.name }}{{ user.sex }}!</div>
