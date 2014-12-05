@@ -123,6 +123,7 @@ exports.extend(optScanHandlers, {
 		tpl = new Template(tplId, element, parentModel);
 
 		element.$nextSibling = element.nextSibling;
+		element.$noScanChild = true;
 		element.parentNode.removeChild(element);
 	},
 
