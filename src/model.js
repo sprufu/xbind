@@ -255,7 +255,7 @@ exports.getExtModel = function(el) {
 }
 
 exports.destroyModel = function(model, removeBindElement) {
-	if (model.$childs) {
+	if (model.$childs.length) {
 		model.$childs.forEach(function(m) {
 			exports.destroyModel(m, removeBindElement);
 		});
