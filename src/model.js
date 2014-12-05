@@ -97,7 +97,7 @@ Model.prototype = {
 				key = keys[i];
 				if (v && v.hasOwnProperty(key)) {
 					if (i == keys.length - 1) {
-						return v[key] || '';
+						return returnValue(v[key]);
 					} else {
 						v = v[key];
 					}
@@ -111,7 +111,7 @@ Model.prototype = {
 			}
 		} else {
 			if (this.hasOwnProperty(field)) {
-				return this[field] || '';
+				return returnValue(this[field]);
 			} else {
 				return this.$parent ? this.$parent.$get(field) : '';
 			}
@@ -200,6 +200,13 @@ Model.prototype = {
 		element.$modelId = model.$id;
 		this.$element = element;
 	}
+}
+
+function returnValue(val) {
+	if (val === null || val === undefined) {
+		return val;
+	}
+	return val;
 }
 
 /**
