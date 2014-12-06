@@ -47,8 +47,9 @@ setTimeout(function() {
 	
 	<form x-form-fuser="">
 		<div>
-			<input type="TEXT" id="in" name="name" x-bind="user.name" min="4" />
+			<input type="TEXT" id="in" name="name" x-bind="user.name" min="4" max="14" />
 			<span x-show="fuser.name.$error.min">长度要大于4位</span>
+			<span x-show="fuser.name.$error.max">长度要小于14位</span>
 		</div>
 		<div>
 			<label><input type="radio" name="sex" x-bind="user.sex" value="先生" /> 男</label>

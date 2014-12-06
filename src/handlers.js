@@ -414,7 +414,7 @@ exports.extend(optScanHandlers, {
         }
         extend(model, {
             $dirty: false, // 是否更改过
-            $valid: true, // 是不验证通过
+            $valid: true // 是不验证通过
         });
         data.element.$xform = data.param;
         return model;
@@ -446,8 +446,12 @@ var VALIDATTRIBUTES = {
     /**
      * 类型验证, 如type="url", type="email", type="number"
      */
-    type: function(type) {
-        // TODO
+    type: function(type, value) {
+        var reg = REGEXPS[type.toLowerCase()];
+        if (reg) {
+            return ret.test(value);
+        }
+        return true;
     },
 
     /**
