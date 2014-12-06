@@ -51,7 +51,7 @@ function parseExpress(str, fields) {
 	try {
 		var filters = [],
 		str = divExpress(str, filters),
-		expr = parseExpressWithoutFilter(str, fields);
+		expr = parseExecuteItem(str.trim(), fields);
 
 		if (filters.length) {
 			// TODO 过滤器处理
@@ -104,66 +104,6 @@ function divExpress(str, filters) {
  */
 function parseFilter(str) {
 	// TODO
-}
-
-/**
- * 解析表达式, 收集依赖
- * 这表达式不含过滤器
- * 依赖的变量由字母开头, 数字, 下划线, 半角句号及空白符构成, 后面跟上半角括号的为方法, 否则为要收集的变量
- * 如: `user.age + 1` 应该返回:  'model.$get("user.age")+1'
- *     `user.getFirstName() + ' ' + user.getLastName()` 返回: 'model.$get("user.getFirstName")()+ ' ' +model.$get("user.getLastName")()'
- *
- * @param {String} str 表达式字符串
- * @param {Object} field 是一个传值的变量, 用来收集依赖
- * @returns {String} 解析后的表达式
- */
-function parseExpressWithoutFilter(str, field) {
-	var reg = /\s*[a-zA-Z_\$][\$a-zA-Z_\s\.]*/gm, item
-	pos0 = 0,
-	pos = 0,
-	expr = '';
-
-	// 循环找出其变量或方法
-	// 构成真正求值的表达式
-	// 并把变量加入监听列表
-	while (item = reg.exec(str)) {
-		item = item[0];
-
-		// 找出变量开始出现的位置
-		pos = str.indexOf(item, pos0);
-
-		// 记住变量的结束位置
-		// 供下次从这里查找下一个变量
-		pos0 = pos + item.length;
-
-		// TODO 有引号处理
-		// 如: user.firstName + ' ' + user.lastName
-
-		if (pos) {
-			// 如果不在第一个位置出现
-			// 需要把不是变量的部分原样添加
-			expr += str.substr(pos0, pos - item.length);
-		}
-
-		// 把变量的空白符去掉
-		item = item.replace(/\s+/g,'');
-
-		// 把属性变量或变量方法换成实际求值函数
-		expr += '$model.$get("' + item + '")'
-
-		// 不是方法的变量, 需要监听其变化
-		if (str.charAt(pos0) != '(') {
-			field[item] = true;
-		}
-	}
-
-	// 把没有结束的串加上
-	// 如: user.age + 1 会加上 '+ 1'
-	if (pos0 < str.length) {
-		expr += str.substr(pos0);
-	}
-
-	return expr;
 }
 
 /**
