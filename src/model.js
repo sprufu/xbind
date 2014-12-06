@@ -199,6 +199,28 @@ Model.prototype = {
 
         element.$modelId = model.$id;
         this.$element = element;
+    },
+
+    /**
+     * 执行过滤器
+     * @param {string} filterName 过滤器名字
+     * @param {Object} obj 用于过滤器的对象
+     * @param {object...} args 过滤器参数
+     */
+    $filter: function(filterName, obj, args) {
+        var fn = FILTERS[filterName];
+        if (!fn) {
+            return obj;
+        }
+
+        if (arguments.length > 2) {
+            args = Array.prototype.slice.call(arguments);
+            args.shift();
+        } else {
+            args = [obj];
+        }
+
+        return fn.apply(null, args);
     }
 }
 
