@@ -1,4 +1,9 @@
 /**
+ * @file 表达式字符串解析
+ * @author jcode
+ */
+
+/**
  * 解析插值字符串
  */
 function parseString(str, fields) {
@@ -54,7 +59,12 @@ function parseExpress(str, fields) {
         expr = parseExecuteItem(str.trim(), fields);
 
         if (filters.length) {
-            // TODO 过滤器处理
+            var filter, ifn = '(function(expr){';
+            for (var i=0; i<filters.length; i++) {
+                filter = filters[i];
+                ifn += 'expr = $model.$filter("' + filter.name + '", expr, ' + filter.args + ');'
+            }
+            expr = ifn + 'return expr;}(' + expr + '))'
         }
 
         return expr;
@@ -69,7 +79,7 @@ function parseExpress(str, fields) {
  * @param {String} str 表达式, 也就是双花括号的中间部分
  * @param {Array} filters 传值的过滤器引用, 用于收集过滤器, 过滤器要分解出其参数, 所以是一个对象的数组, 如: [{
  *     name: 'date', // 过滤器名字
- *     args: ['yyyy-mm-dd'], // 参数列表
+ *     args: 'yyyy-mm-dd', // 参数列表
  * }]
  * @returns {String} 没有带过滤器的表达式
  */
@@ -81,7 +91,10 @@ function divExpress(str, filters) {
             if (str.charAt(pos + 1) == '|') {
                 pos += 2;
             } else {
-                filters = str.substr(pos + 1).split('|').map(parseFilter);
+                str.substr(pos + 1).split('|').forEach(function(str) {
+                    var filter = parseFilter(str);
+                    filters.push(filter);
+                });
                 expr = str.substr(0, pos - 1);
                 break;
             }
@@ -96,14 +109,21 @@ function divExpress(str, filters) {
 
 /**
  * 解析过滤器, 把过滤器分解成名字和参数两部分
+ * 名字与参数部分用空格分开
+ * 多个参数用逗号分隔
  * @param {String} str 过滤器表达式
- * @returns {Object} 分解后的对象, 如 date('yyyy-mm-dd') 应该返回: {
+ * @returns {Object} 分解后的对象, 如 date 'yyyy-mm-dd' 应该返回: {
  *    name: 'date',
- *    args: ['yyyy-mm-dd']
+ *    args: 'yyyy-mm-dd'
  * }
  */
+var filterRegExp = /(\w+)(.*)/;
 function parseFilter(str) {
-    // TODO
+    var p = filterRegExp.exec(str);
+    return {
+        name: p[1],
+        args: p[2]
+    };
 }
 
 /**
