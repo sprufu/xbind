@@ -44,25 +44,31 @@ setTimeout(function() {
 <body x-controller="test" class="x-controller">
     <div x-template="full"><b>Hello</b> {{ user.name | limit 3 }}!</div>
     <div x-template="simple">Hi {{ user.name }}!</div>
-    <div><input type="TEXT" x-bind="user.name" /></div>
-    <div>
-        <label><input type="radio" name="sex" x-bind="user.sex" value="先生" /> 男</label>
-        <label><input type="radio" name="sex" x-bind="user.sex" value="女士" /> 女</label>
-    </div>
-    
-    <div>
-        <label><input type="checkbox" name="ah" x-bind="user.ah" value="体育" /> 体育</label>
-        <label><input type="checkbox" name="ah" x-bind="user.ah" value="音乐" /> 音乐</label>
-        <label><input type="checkbox" name="ah" x-bind="user.ah" value="游戏" /> 游戏</label>
-    </div>
-    
-    <div>
-        <select x-bind="user.job" id="select">
-            <option>--请选择--</option>
-            <option value="被踢">IT</option>
-            <option value="国家养的猪">公务员</option>
-        </select>
-    </div>
+	
+	<form x-form-fuser="">
+		<div>
+			<input type="TEXT" id="in" name="name" x-bind="user.name" min="4" />
+			<span x-show="fuser.name.$error.min">长度要大于4位</span>
+		</div>
+		<div>
+			<label><input type="radio" name="sex" x-bind="user.sex" value="先生" /> 男</label>
+			<label><input type="radio" name="sex" x-bind="user.sex" value="女士" /> 女</label>
+		</div>
+		
+		<div>
+			<label><input type="checkbox" name="ah" x-bind="user.ah" value="体育" /> 体育</label>
+			<label><input type="checkbox" name="ah" x-bind="user.ah" value="音乐" /> 音乐</label>
+			<label><input type="checkbox" name="ah" x-bind="user.ah" value="游戏" /> 游戏</label>
+		</div>
+		
+		<div>
+			<select x-bind="user.job" id="select">
+				<option>--请选择--</option>
+				<option value="被踢">IT</option>
+				<option value="国家养的猪">公务员</option>
+			</select>
+		</div>
+	</form>
     
     <div>
         <textarea x-bind="user.info"></textarea>
@@ -97,7 +103,7 @@ setTimeout(function() {
     <div id="dd" x-show="user.sex == '女士'"> 这个MM很漂亮嘛, 很喜欢{{ user.ah }}. </div>
     <div x-include="my_tpl"></div>
     <div x-include="my_tpl"></div>
-    <ul>
+    <ul x-skip>
         <li x-repeat-item="user.ah"> {{ $index }} - {{ item }} <button x-click="$remove()">remove</button> </li>
     </ul>
 </body>

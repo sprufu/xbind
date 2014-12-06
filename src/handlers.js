@@ -273,6 +273,10 @@ exports.extend(optScanHandlers, {
             if (flag) {
                 el.value = res;
             }
+
+            if (el.name && el.form && el.form.$xform) {
+                validItem(el);
+            }
         });
 
 
@@ -394,9 +398,107 @@ exports.extend(optScanHandlers, {
     },
     'x-style': function(data) {
         // TODO
+    },
+
+    /**
+     * 表单操作
+     * <form x-form-frmname="action" action="actionUrl" method="post">
+     *      <input name="name" x-bind="name" />
+     * </form>
+     */
+    'x-form': function(data) {
+        var model = exports.getExtModel(data.element);
+        if (!model) {
+            model = new Model();
+            model.$bindElement(data.element);
+        }
+        extend(model, {
+            $dirty: false, // 是否更改过
+            $valid: true, // 是不验证通过
+        });
+        data.element.$xform = data.param;
+        return model;
     }
 });
 
+var VALIDATTRIBUTES = {
+    /**
+     * 最小长度验证
+     */
+    min: function(num, value) {
+        return value.length >= +num;
+    },
+
+    /**
+     * 最大长度验证
+     */
+    max: function(num, value) {
+        return value.length <= +num;
+    },
+
+    /**
+     * 正则验证
+     */
+    pattern: function(regexp, value) {
+        return new RegExp(regexp).test(value);
+    },
+
+    /**
+     * 类型验证, 如type="url", type="email", type="number"
+     */
+    type: function(type) {
+        // TODO
+    },
+
+    /**
+     * 必填验证
+     */
+    required: function(_, value) {
+        return !!value;
+    }
+}
+
+/**
+ * 验证输入表单数据
+ * @param {Element} input 输入结点, 如input, textarea, select
+ */
+function validItem(input) {
+    var name, fn, attr, field,
+    valid = true, error,
+    frm = input.form,   // 表单
+    fname = frm.$xform, // 表单绑定名
+    fmodel = exports.getExtModel(frm); // 表单数据
+    for (name in VALIDATTRIBUTES) {
+        attr = input.attributes[name];
+
+        // 没有的属性, 不做处理
+        if (!attr || !attr.specified) {
+            continue;
+        }
+
+        // 计算验证结果
+        fn = VALIDATTRIBUTES[name];
+        if (fn.call(input, attr.value, input.value)) {
+            error = false;
+        } else {
+            error = true;
+            valid = false;
+        }
+
+        // 更新验证出错信息
+        // 验证出错信息是区分开的
+        field = fname + '.' + input.name + '.$error.' + name;
+        if (fmodel.$get(field) != error) {
+            fmodel.$set(field, error);
+        }
+    }
+
+    // 更新验证结果
+    field = fname + '.' + input.name + '.valid';
+    if (fmodel.$get(field) != valid) {
+        fmodel.$set(field, valid);
+    }
+}
 
 /**
  * 注册的模板列表
