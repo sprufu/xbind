@@ -2,33 +2,33 @@
  * 解析插值字符串
  */
 function parseString(str, fields) {
-	var txt = '""',
-	interpolate1 = options.interpolate[0],
-	interpolate2 = options.interpolate[1],
-	len1 = interpolate1.length,
-	len2 = interpolate2.length,
-	flag = false,
-	pos = 0,
-	pos1 = 0,
-	pos2 = 0;
-	while (true) {
-		pos1 = str.indexOf(interpolate1, pos1);
-		if (~pos1) {
-			pos2 = str.indexOf(interpolate2, pos1 + len1);
-			if (~pos2) {
-				flag = true;
-				txt += '+"' + str.substring(pos, pos1) + '" +' + parseExpress(str.substring(pos1 + len1, pos2), fields);
-				pos = pos1 = pos2 = pos2 + len2;
-			} else {
-				txt += '+"' + str.substr(pos) + '"';
-				break;
-			}
-		} else {
-			txt += '+"' + str.substr(pos) + '"';
-			break;
-		}
-	}
-	return flag ? txt : false;
+    var txt = '""',
+    interpolate1 = options.interpolate[0],
+    interpolate2 = options.interpolate[1],
+    len1 = interpolate1.length,
+    len2 = interpolate2.length,
+    flag = false,
+    pos = 0,
+    pos1 = 0,
+    pos2 = 0;
+    while (true) {
+        pos1 = str.indexOf(interpolate1, pos1);
+        if (~pos1) {
+            pos2 = str.indexOf(interpolate2, pos1 + len1);
+            if (~pos2) {
+                flag = true;
+                txt += '+"' + str.substring(pos, pos1) + '" +' + parseExpress(str.substring(pos1 + len1, pos2), fields);
+                pos = pos1 = pos2 = pos2 + len2;
+            } else {
+                txt += '+"' + str.substr(pos) + '"';
+                break;
+            }
+        } else {
+            txt += '+"' + str.substr(pos) + '"';
+            break;
+        }
+    }
+    return flag ? txt : false;
 }
 
 /**
@@ -48,19 +48,19 @@ function parseString(str, fields) {
  *    任何步骤出错将返回空串
  */
 function parseExpress(str, fields) {
-	try {
-		var filters = [],
-		str = divExpress(str, filters),
-		expr = parseExecuteItem(str.trim(), fields);
+    try {
+        var filters = [],
+        str = divExpress(str, filters),
+        expr = parseExecuteItem(str.trim(), fields);
 
-		if (filters.length) {
-			// TODO 过滤器处理
-		}
+        if (filters.length) {
+            // TODO 过滤器处理
+        }
 
-		return expr;
-	} catch (err) {
-		return '';
-	}
+        return expr;
+    } catch (err) {
+        return '';
+    }
 }
 
 /**
@@ -74,24 +74,24 @@ function parseExpress(str, fields) {
  * @returns {String} 没有带过滤器的表达式
  */
 function divExpress(str, filters) {
-	var pos = 0, expr;
-	while (true) {
-		pos = str.indexOf('|', pos);
-		if (~pos) {
-			if (str.charAt(pos + 1) == '|') {
-				pos += 2;
-			} else {
-				filters = str.substr(pos + 1).split('|').map(parseFilter);
-				expr = str.substr(0, pos - 1);
-				break;
-			}
-		} else {
-			expr = str;
-			filters = [];
-			break;
-		}
-	}
-	return expr;
+    var pos = 0, expr;
+    while (true) {
+        pos = str.indexOf('|', pos);
+        if (~pos) {
+            if (str.charAt(pos + 1) == '|') {
+                pos += 2;
+            } else {
+                filters = str.substr(pos + 1).split('|').map(parseFilter);
+                expr = str.substr(0, pos - 1);
+                break;
+            }
+        } else {
+            expr = str;
+            filters = [];
+            break;
+        }
+    }
+    return expr;
 }
 
 /**
@@ -103,7 +103,7 @@ function divExpress(str, filters) {
  * }
  */
 function parseFilter(str) {
-	// TODO
+    // TODO
 }
 
 /**
@@ -119,32 +119,32 @@ function parseFilter(str) {
  * 表达式由各个操作元素(变量或常量)和操作符(+, -, *, /, '%', 等)组合在一起
  */
 function parseExecute(str, fields) {
-	fields = fields || {};
-	var ret = '';
+    fields = fields || {};
+    var ret = '';
 
-	if (~str.indexOf(';')) {
-		// 含有";", 如: user.name = 'jcode'; user.age = 31
-		// 表示由多个表达式组成
-		var strs = str.split(';'),
-		i = 0;
+    if (~str.indexOf(';')) {
+        // 含有";", 如: user.name = 'jcode'; user.age = 31
+        // 表示由多个表达式组成
+        var strs = str.split(';'),
+        i = 0;
 
-		// 循环解析每个表达式, 把结果累加在一起
-		for (; i<strs.length; i++) {
-			if (i) {
-				ret += ';';
-			}
-			ret += parseExecute(strs[i], fields);
-		}
-	} else {
-		if (~str.indexOf('=')) {
-			// 含有"=", 是赋值操作
-			var part = str.split('=');
-			ret = '$model.$set("' + part[0].trim() + '", ' + parseExecuteItem(part[1].trim(), fields) + ')';
-		} else {
-			ret = parseExecuteItem(str, fields) + ';';
-		}
-	}
-	return ret;
+        // 循环解析每个表达式, 把结果累加在一起
+        for (; i<strs.length; i++) {
+            if (i) {
+                ret += ';';
+            }
+            ret += parseExecute(strs[i], fields);
+        }
+    } else {
+        if (~str.indexOf('=')) {
+            // 含有"=", 是赋值操作
+            var part = str.split('=');
+            ret = '$model.$set("' + part[0].trim() + '", ' + parseExecuteItem(part[1].trim(), fields) + ')';
+        } else {
+            ret = parseExecuteItem(str, fields) + ';';
+        }
+    }
+    return ret;
 }
 
 /**
@@ -162,68 +162,70 @@ var exprActionReg = /[^\w\$\.]+/g;
  * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
  */
 function parseExecuteItem(str, fields) {
-	var c = str.charAt(0);
-	if (c == '"' || c == "'") {
-		return str;
-	}
+    var c = str.charAt(0);
+    if (c == '"' || c == "'") {
+        return str;
+    }
 
-	var actions = str.match(exprActionReg);
-	if (actions) {
-		var ret = '',
-		field,
-		pos0 = 0,
-		pos,
-		i = 0;
+    var actions = str.match(exprActionReg);
+    if (actions) {
+        var ret = '',
+        field,
+        pos0 = 0,
+        pos,
+        i = 0;
 
-		// 循环解析操作符分隔的每个表达式
-		// 并把他们加在一起
-		for (; i<actions.length; i++) {
-			pos = str.indexOf(actions[i], pos0);
-			field = str.substring(pos0, pos);
-			ret += parseStatic(field) + actions[i];
-			pos0 = pos + actions[i].length;
+        // 循环解析操作符分隔的每个表达式
+        // 并把他们加在一起
+        for (; i<actions.length; i++) {
+            pos = str.indexOf(actions[i], pos0);
+            field = str.substring(pos0, pos);
+            ret += parseStatic(field) + actions[i];
+            pos0 = pos + actions[i].length;
 
-			// 不是方法, 而是属性的话, 要加到监听列表里
-			if (actions[i].indexOf('(') == -1) {
-				fields[field] = true;
-			}
-		}
+            // 不是方法, 而是属性的话, 要加到监听列表里
+            if (actions[i].indexOf('(') == -1) {
+                fields[field] = true;
+            }
+        }
 
-		// 处理最后结尾部分
-		if (str.length > pos0) {
-			field = str.substr(pos0);
-			var res = parseStatic(field);
-			if (res != field) {
-				fields[field] = true;
-			}
-			ret += res;
-		}
+        // 处理最后结尾部分
+        if (str.length > pos0) {
+            field = str.substr(pos0);
+            var res = parseStatic(field);
+            if (res != field) {
+                fields[field] = true;
+            }
+            ret += res;
+        }
 
-		return ret;
-	} else {
-		ret = parseStatic(str);
-		if (ret != str) {
-			fields[str] = true;
-		}
-		return ret;
-	}
+        return ret;
+    } else {
+        ret = parseStatic(str);
+        if (ret != str) {
+            fields[str] = true;
+        }
+        return ret;
+    }
 }
 
 var numberReg = /^\-?\d?\.?\d+$/;
 function parseStatic(str) {
-	// 普通常量, 常量有很多, 这里只处理几个常用的
-	if (str == 'true' || str == 'false' || str == 'null' || str == 'undefined' || str == 'NaN') {
-		return str;
-	}
+    // 普通常量, 常量有很多, 这里只处理几个常用的
+    if (str == 'true' || str == 'false' || str == 'null' || str == 'undefined' || str == 'NaN') {
+        return str;
+    }
 
-	// 数字
-	if (numberReg.test(str)) {
-		return str;
-	}
+    // 数字
+    if (numberReg.test(str)) {
+        return str;
+    }
 
-	return '$model.$get("' + str + '")';
+    return '$model.$get("' + str + '")';
 }
 
 var parseJSON = window.JSON ? window.JSON.parse : function(str) {
-	return (new Function('', 'return ' + str.trim())());
+    return (new Function('', 'return ' + str.trim())());
 }
+
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
