@@ -92,7 +92,7 @@ function eventBindHandler(data, attr) {
 
 exports.extend(optScanHandlers, {
     'x-skip': function(data) {
-        return false;
+        data.element.$noScanChild = true;
     },
     'x-controller': function(data) {
         var id = data.value,
