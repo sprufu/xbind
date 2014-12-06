@@ -502,6 +502,17 @@ function validItem(input) {
     if (fmodel.$get(field) != valid) {
         fmodel.$set(field, valid);
     }
+
+    // 更新class
+    if (valid) {
+        exports.addClass(input, 'x-valid');
+        exports.removeClass(input, 'x-invalid');
+    } else {
+        exports.addClass(input, 'x-invalid');
+        exports.removeClass(input, 'x-valid');
+    }
+
+    exports.addClass(input, 'x-dirty');
 }
 
 /**
