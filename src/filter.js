@@ -21,6 +21,11 @@ var FILTERS = {
 
 		suffix = suffix || '...';
 		return str.substring(0, num) + suffix;
+	},
+
+	"number": function(it, num) {
+		it = +it;
+		return it.toFixed(num);
 	}
 };
 
