@@ -15,6 +15,7 @@
 <script src="../src/handlers.js"></script>
 <script src="../src/parser.js"></script>
 <script src="../src/ajax.js"></script>
+<script src="../src/filter.js"></script>
 <script src="../src/exports.js"></script>
 <script>
 var model = new Model({
@@ -41,7 +42,7 @@ setTimeout(function() {
 
 </head>
 <body x-controller="test" class="x-controller">
-    <div x-template="full"><b>Hello</b> {{ user.name }}!</div>
+    <div x-template="full"><b>Hello</b> {{ user.name | limit 3 }}!</div>
     <div x-template="simple">Hi {{ user.name }}!</div>
     <div><input type="TEXT" x-bind="user.name" /></div>
     <div>
