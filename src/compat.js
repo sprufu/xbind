@@ -40,4 +40,13 @@ if (!Array.prototype.indexOf) {
     }
 }
 
+if (!Function.prototype.bind) {
+    Function.prototype.bind = function(scope) {
+        var fn = this;
+        return function() {
+            return fn.apply(scope);
+        };
+    };
+}
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
