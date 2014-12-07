@@ -208,7 +208,14 @@ Array.prototype.remove = function(item) {
             this.splice(i,1);
         }
     }
-}
+};
+
+Function.prototype.bind = function(scope) {
+    var fn = this;
+    return function() {
+        return fn.apply(scope);
+    };
+};
 
 function bindModel(model, str, parsefn, updatefn) {
     var fields = {},
