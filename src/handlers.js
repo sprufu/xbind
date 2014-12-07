@@ -554,8 +554,8 @@ function Template(id, element, parentModel) {
 }
 
 function DataGrid(opt) {
-    parseParam('page', this, 1);
-    parseParam('pageSize', this, 2);
+    parseUrlParam('page', this, 1);
+    parseUrlParam('pageSize', this, 2);
 }
 
 DataGrid.prototype = {
@@ -571,10 +571,6 @@ DataGrid.prototype = {
     $sort: function(field, order) {
         // TODO
     }
-}
-
-function parseParam(name, object, def) {
-    // TODO
 }
 
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
