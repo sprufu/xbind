@@ -95,11 +95,29 @@ Model.prototype = {
             i = 0;
             for (; i<keys.length; i++) {
                 key = keys[i];
-                if (v && (v[key] ||v.hasOwnProperty(key))) {
+                if (v && v.hasOwnProperty(key)) {
                     if (i == keys.length - 1) {
                         return returnValue(v[key]);
                     } else {
                         v = v[key];
+                    }
+                } else if (v[key]) {
+                    // 当
+                    // function User() {}
+                    // User.prototype = {
+                    //      setName: function(){},
+                    //      getName: function(name){
+                    //          console.log(this);
+                    //      }
+                    // };
+                    // var model = new Model({
+                    //      user: new User()
+                    // });
+                    //
+                    // 上面代码中, model.$get("user.getName")时, 这里的实现使其调用者不变
+                    // 灵感来自于Function.prototype.bind
+                    return function() {
+                        return v[key].apply(v, arguments);
                     }
                 } else {
                     if (i || noExtend) {
