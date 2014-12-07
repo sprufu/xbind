@@ -95,7 +95,7 @@ Model.prototype = {
             i = 0;
             for (; i<keys.length; i++) {
                 key = keys[i];
-                if (v && v.hasOwnProperty(key)) {
+                if (v && (v[key] ||v.hasOwnProperty(key))) {
                     if (i == keys.length - 1) {
                         return returnValue(v[key]);
                     } else {
