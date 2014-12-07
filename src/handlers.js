@@ -398,8 +398,24 @@ exports.extend(optScanHandlers, {
 
         return model;
     },
-    'x-grid': function(data) {
-        // TODO
+    'x-grid': function(data, attr) {
+        var model = exports.getModel(data.element) || new Model();
+
+        if (!data.element.$modelId) {
+            model.$bindElement(data.element);
+        }
+
+        var el = data.element,
+        opt = {
+            url: attr.value,
+            page: el.getAttribute('page'),
+            pageSize: el.getAttribute('page-size')
+        };
+
+        model[data.param] = new DataGrid(opt);
+        model[data.param].$read();
+
+        return model;
     },
     'x-style': function(data) {
         // TODO
@@ -535,6 +551,30 @@ function Template(id, element, parentModel) {
     this.element = element;
     this.parentModel = parentModel;
     TEMPLATES[id] = this;
+}
+
+function DataGrid(opt) {
+    parseParam('page', this, 1);
+    parseParam('pageSize', this, 2);
+}
+
+DataGrid.prototype = {
+    $read: function(search) {
+        // TODO
+    },
+    $page: function() {
+        // TODO
+    },
+    $pageSize: function() {
+        // TODO
+    },
+    $sort: function(field, order) {
+        // TODO
+    }
+}
+
+function parseParam(name, object, def) {
+    // TODO
 }
 
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
