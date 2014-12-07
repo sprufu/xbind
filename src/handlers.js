@@ -406,14 +406,16 @@ exports.extend(optScanHandlers, {
         }
 
         var el = data.element,
+        name = data.param,
         opt = {
+            name: name,
             url: attr.value,
             page: el.getAttribute('page'),
             pageSize: el.getAttribute('page-size')
         };
 
-        model[data.param] = new DataGrid(opt);
-        model[data.param].$read();
+        model[name] = new DataGrid(opt);
+        model[name].$$model = model;
 
         return model;
     },
@@ -554,22 +556,100 @@ function Template(id, element, parentModel) {
 }
 
 function DataGrid(opt) {
-    parseUrlParam('page', this, 1);
-    parseUrlParam('pageSize', this, 2);
+    if (opt.page) {
+        if (REGEXPS.number.test(opt.page)) {
+            this.$$page = +opt.page;
+        } else {
+            this.$$page = +parseUrlParam(opt.page) || 1;
+        }
+    } else {
+        this.$$page = 1;
+    }
+
+    if (opt.pageSize) {
+        if (REGEXPS.number.test(opt.pageSize)) {
+            this.$$pageSize = +opt.pageSize;
+        } else {
+            this.$$pageSize = +parseUrlParam(opt.pageSize) || 20;
+        }
+    } else {
+        this.$$pageSize = 20;
+    }
+
+    this.$$sort = '';
+    this.$$order = '';
+    this.$$params = {
+        page: this.$$page,
+        pageSize: this.$$pageSize
+    };
+    this.$$url = opt.url;
+    this.$$name = opt.name;
+
+    this.$read();
 }
 
 DataGrid.prototype = {
+    /**
+     * 读取数据
+     */
     $read: function(search) {
-        // TODO
+        if (arguments.length) {
+            this.$$param = search;
+            this.$$page = 1;
+        }
+
+        var self = this;
+
+        ajax({
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            url: this.$$url,
+            data: this.$$param,
+            success: function(res) {
+                for (var key in res) {
+                    self.$$model.$set(self.$$name + '.' + key, res[key]);
+                }
+            },
+            error: function(xhr, err) {
+                self.$$model.$set(self.$$name + '.$error', err);
+            }
+        });
     },
-    $page: function() {
-        // TODO
+
+    /**
+     * 获取当前页码或跳到指定页码
+     */
+    $page: function(page) {
+        if (page) {
+            this.$$page = page;
+            this.$read();
+        } else {
+            return this.$$page;
+        }
     },
-    $pageSize: function() {
-        // TODO
+
+    /**
+     * 设置或更改每页显示记录数
+     * 更改时重新加载页面并跳到第一页
+     */
+    $pageSize: function(pageSize) {
+        if (pageSize) {
+            this.$$pageSize = pageSize;
+            this.$$page = 1;
+            this.$read();
+        } else {
+            return this.$$pageSize;
+        }
     },
+
+    /**
+     * 重新排序
+     */
     $sort: function(field, order) {
-        // TODO
+        this.$$sort = field;
+        this.$$order = order || '';
+        this.$read();
     }
 }
 
