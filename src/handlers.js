@@ -594,18 +594,30 @@ DataGrid.prototype = {
      */
     $read: function(search) {
         if (arguments.length) {
-            this.$$param = search;
+            this.$$params = search;
             this.$$page = 1;
         }
 
-        var self = this;
+        var self = this,
+        data = this.$$params;
+        extend(data, {
+            page: this.$$page,
+            pageSize: this.$$pageSize
+        });
+        if (this.$$sort) {
+            data.sort = this.$$sort;
+        }
+
+        if (this.$$order) {
+            data.order = this.$$order;
+        }
 
         ajax({
             type: 'GET',
             dataType: 'json',
             cache: false,
             url: this.$$url,
-            data: this.$$param,
+            data: data,
             success: function(res) {
                 for (var key in res) {
                     self.$$model.$set(self.$$name + '.' + key, res[key]);
@@ -651,6 +663,6 @@ DataGrid.prototype = {
         this.$$order = order || '';
         this.$read();
     }
-}
+};
 
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
