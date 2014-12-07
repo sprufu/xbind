@@ -1,10 +1,21 @@
 describe('ajax', function() {
-	it('ajax', function(done) {
+	it('ajax#success()', function(done) {
 		ajax({
 			url: '../sample/data.json',
 			dataType: 'json',
 			success: function(res) {
 				assert(res.total);
+				done();
+			}
+		})
+	})
+
+	it('ajax#error()', function(done) {
+		ajax({
+			url: 'unkown-url',
+			dataType: 'json',
+			error: function(res) {
+				console.log(res);
 				done();
 			}
 		})
