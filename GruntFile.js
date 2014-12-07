@@ -24,6 +24,7 @@ module.exports = function(grunt) {
 					'src/compat.js',
 					'src/handlers.js',
 					'src/parser.js',
+					'src/filter.js',
 					'src/exports.js',
 
 					'src/wrap/footer'],
