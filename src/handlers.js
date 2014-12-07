@@ -419,8 +419,12 @@ exports.extend(optScanHandlers, {
 
         return model;
     },
+
     'x-style': function(data) {
-        // TODO
+        var cssName = camelize(data.param);
+        bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+            data.element.style[cssName] = res;
+        });
     },
 
     /**
