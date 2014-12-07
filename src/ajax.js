@@ -44,4 +44,31 @@ ajax.defaults = {
     dataType: 'text'
 };
 
+/**
+ * 把对象转换成url参数
+ * 如:
+ *    {name: 'jcode', uid:215}                  ===> name=jcode&uid=215
+ *    null                                      ===> 
+ *    serach-string                             ===> serach-string
+ */
+function object2UrlSearch(object) {
+    if ('string' == typeof object) {
+        return object;
+    }
+
+    if ('number' == typeof object) {
+        return object.toString();
+    }
+
+    if (!object) {
+        return '';
+    }
+
+    var key, ret = [];
+    for (key in object) {
+        ret.push(key + '=' + window.encodeURIComponent(object[key] || ''));
+    }
+    return ret.join('&');
+}
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
