@@ -244,6 +244,27 @@ function parseStatic(str) {
     return '$model.$get("' + str + '")';
 }
 
+/**
+ * 解析url参数
+ */
+function parseUrlParam(name, object, def) {
+    if (URLPARAMS === null) {
+        URLPARAMS = {};
+        if (location.search) {
+            decodeURIComponent(location.search).substr(1).split('&').map(function(it) {
+                var val = it.split('=');
+                URLPARAMS[val[0]] = val[1];
+            });
+        }
+    }
+
+    if (object) {
+        object[name] = URLPARAMS[name] || def;
+    } else {
+        return URLPARAMS[name];
+    }
+}
+
 var parseJSON = window.JSON ? window.JSON.parse : function(str) {
     return (new Function('', 'return ' + str.trim())());
 }
