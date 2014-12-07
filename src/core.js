@@ -25,7 +25,7 @@ var ie678 = window == document && document != window;
 var REGEXPS = {
     url: /^https?\:\/\/[-a-z0-9\.]+(\/.*)?$/,
     email: /^[\w\.\-]+\@[-a-z0-9]+\.\w+$/,
-    number: /^\-?\d?\.?\d+$/,
+    number: /^\-?\d*\.?\d+$/,
     phone: /^1\d{10}$/,
     telphone: /^0\d{10,11}/,
     idcard: /^\d{6}(19\d{2}|2\d{3})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
