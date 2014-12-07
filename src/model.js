@@ -273,6 +273,13 @@ function getSubscribes (model, field) {
 
 extend(exports, {
     /**
+     * 暴露Model
+     */
+    define: function(vm) {
+        return new Model(vm);
+    },
+
+    /**
     * 获取某个结点的model
     * 如果这结点没有定义model, 则返回null
     */
