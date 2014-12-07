@@ -210,6 +210,18 @@ Array.prototype.remove = function(item) {
     }
 };
 
+/**
+ * 转换为驼峰风格
+ */
+function camelize(target) {
+    if (target.indexOf("-") == -1) {
+        return target;
+    }
+    return target.replace(/-[^-]/g, function(match) {
+        return match.charAt(1).toUpperCase();
+    });
+}
+
 function bindModel(model, str, parsefn, updatefn) {
     var fields = {},
     expr = parsefn(str, fields);
