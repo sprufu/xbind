@@ -23,8 +23,8 @@ var ie67 = !"1"[0];
 var ie678 = window == document && document != window;
 
 var REGEXPS = {
-    url: /^https?\:\/\/[-\w\.]+(\/.*)?$/,
-    email: /^[\w\.\-]+\@\[\w\-]+\.\w+$/,
+    url: /^https?\:\/\/[-a-z0-9\.]+(\/.*)?$/,
+    email: /^[\w\.\-]+\@[-a-z0-9]+\.\w+$/,
     number: /^\-?\d?\.?\d+$/,
     phone: /^1\d{10}$/,
     telphone: /^0\d{10,11}/,
