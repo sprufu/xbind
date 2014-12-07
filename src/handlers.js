@@ -381,8 +381,9 @@ exports.extend(optScanHandlers, {
                 cache: false,
                 url: data.value,
                 success: function(res) {
-                    res.$read = read;
-                    model.$set(data.param, res);
+                    for (var key in res) {
+                        model.$set(data.param + '.' + key, res[key]);
+                    }
                 },
                 error: function(xhr, err) {
                     model.$set(data.param + '.$error', err);
@@ -390,6 +391,10 @@ exports.extend(optScanHandlers, {
             });
         }
         read();
+
+        model[data.param] = {
+            $read: read
+        };
 
         return model;
     },
