@@ -1,6 +1,20 @@
 function ajax(opt) {
     opt = exports.extend({}, ajax.defaults, opt);
-    var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
+    var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP'),
+    data = null;
+
+    if (opt.data) {
+        data = object2UrlSearch(opt.data);
+        if (opt.type.toLowerCase() == 'get') {
+            if (~opt.url.indexOf('?')) {
+                opt.url += '&' + data;
+            } else {
+                opt.url += '?' + data;
+            }
+            data = null;
+        }
+    }
+
     xhr.open(opt.type, opt.url, true);
     if (opt.headers) {
         var key, header;
@@ -36,7 +50,7 @@ function ajax(opt) {
             }
         }
     }
-    xhr.send(opt.data);
+    xhr.send(data);
 }
 
 ajax.defaults = {
