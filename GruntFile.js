@@ -18,6 +18,7 @@ module.exports = function(grunt) {
 					'src/wrap/header',
 
 					'src/core.js',
+					'src/ajax.js',
 					'src/model.js',
 					'src/scan.js',
 					'src/compat.js',
