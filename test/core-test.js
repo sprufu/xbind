@@ -45,3 +45,22 @@ describe('REGEXPS test', function() {
 		assert(REGEXPS.idcard.test('65531219831232234x') == false, '生日日不对')
 	})
 })
+
+describe('extend()', function() {
+	it('base', function() {
+		var a = {a:'a'},
+		b = {a:'b', b:'2'};
+		var c = extend({}, a, b);
+		assert(c.a == b.a && c.b == b.b);
+
+		extend(a, b);
+		assert(a.a == b.a && b.b == a.b && a.b);
+	});
+
+	it('deep', function() {
+		var a = {a:{a:1,b:2}},
+		b = {a: {b:5}};
+		extend(true, a, b);
+		assert(a.a.b == a.a.b && a.a.a == 1);
+	})
+})
