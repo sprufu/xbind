@@ -100,4 +100,13 @@ describe('isPlainObject()', function() {
     })
 })
 
+describe('isEmptyObject()', function() {
+    it('base', function() {
+        assert(exports.isEmptyObject({}));
+        assert(exports.isEmptyObject({a:false}) == false);
+        assert(exports.isEmptyObject(null) == false);
+        assert(exports.isEmptyObject(new Date) == false);
+    })
+})
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
