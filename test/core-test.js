@@ -131,14 +131,27 @@ describe('camelize', function() {
 })
 
 describe('class', function() {
-    it('addClass()', function() {
-        var el = document.getElementById('mocha'),
+    var el = document.createElement('div');
         cls = 'abc',
         cls2 = 'abcd';
+
+    beforeEach(function() {
+        el.className = '';
+    })
+
+    it('addClass()', function() {
         exports.addClass(el, cls);
         assert(el.className == cls);
         exports.addClass(el, cls2);
         assert(el.className == cls + ' ' + cls2);
+    });
+
+    it('removeClass()', function() {
+        el.className = cls + ' ' + cls2;
+        exports.removeClass(el, cls);
+        assert(el.className, cls2);
+        exports.removeClass(el, cls2);
+        assert(el.className, '');
     })
 })
 
