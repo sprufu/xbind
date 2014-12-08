@@ -103,6 +103,10 @@ extend(exports, {
     },
     isEmptyObject: function(obj) {
         var name;
+        if (exports.type(obj) != 'object') {
+            return false;
+        }
+
         for ( name in obj ) {
             return false;
         }
