@@ -64,3 +64,16 @@ describe('extend()', function() {
 		assert(a.a.b == a.a.b && a.a.a == 1);
 	})
 })
+
+describe('isFunction()', function() {
+	it('base', function() {
+		assert(exports.isFunction(function(){}));
+		assert(exports.isFunction(''.toString));
+		assert(exports.isFunction(null) == false);
+		assert(exports.isFunction({}) == false);
+		assert(exports.isFunction([]) == false);
+		assert(exports.isFunction(false) == false);
+		assert(exports.isFunction(1) == false);
+	});
+
+})
