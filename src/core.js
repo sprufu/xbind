@@ -28,7 +28,7 @@ var REGEXPS = {
     number: /^\-?\d*\.?\d+$/,
     phone: /^1\d{10}$/,
     telphone: /^0\d{10,11}/,
-    idcard: /^\d{6}(19\d{2}|2\d{3})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
+    idcard: /^\d{6}(19\d{2}|20\d{2})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
 };
 
 var URLPARAMS = null;
