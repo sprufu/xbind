@@ -109,4 +109,17 @@ describe('isEmptyObject()', function() {
     })
 })
 
+describe('type()', function() {
+    it('base', function() {
+        assert(exports.type(0) == 'number');
+        assert(exports.type(false) == 'boolean');
+        assert(exports.type(null) == 'null');
+        assert(exports.type([]) == 'array');
+        assert(exports.type(new Date) == 'date');
+        assert(exports.type(/a/) == 'regexp');
+        assert(exports.type({}) == 'object');
+        assert(exports.type('') == 'string');
+    })
+})
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
