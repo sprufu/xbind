@@ -16,11 +16,15 @@ var options = {
     interpolate: ['{{', '}}']
 };
 
+/* ie678( */
+
 // 判断ie67很简单吧
 var ie67 = !"1"[0];
 
 // 判断ie678也很简单, 因为它有个神奇的特性
 var ie678 = window == document && document != window;
+
+/* ie678) */
 
 var REGEXPS = {
     url: /^https?\:\/\/[-a-z0-9\.]+(\/.*)?$/,
@@ -121,11 +125,13 @@ extend(exports, {
         var c = {}, s = c.toString.call(obj);
 
         // ie678下null及undefined返回object修正
+        /* ie678( */
         if (obj === null) {
             return 'null';
         } else if(obj === undefined) {
             return 'undefined';
         }
+        /* ie678) */
 
         return s.substring(8, s.length-1).toLowerCase();
     },
@@ -134,15 +140,19 @@ extend(exports, {
      * DOMReady
      */
     ready: function(fn) {
+        /* ie678( */
         if (document.addEventListener) {
+            /* ie678) */
             // 标准浏览器用DOMContentLoaded事件实现
             document.addEventListener('DOMContentLoaded', function(e) {
                 fn();
             }, false);
+            /* ie678( */
         } else {
             // TODO ie678
             setTimeout(fn);
         }
+        /* ie678) */
     },
 
     /**

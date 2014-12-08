@@ -3,6 +3,7 @@
  * 如果不考虑ie678, 可以去掉这个文件
  * @author jcode
  */
+/* ie678( */
 if (!''.trim) {
     var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
     String.prototype.trim = function(str) {
@@ -48,5 +49,7 @@ if (!Function.prototype.bind) {
         };
     };
 }
+
+/* ie678) */
 
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile

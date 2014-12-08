@@ -107,9 +107,11 @@ function getScanAttrList(attrs) {
         attr = attrs[i];
 
         // 过滤ie67的element.attributes得到一大堆属性
+        /* ie678( */
         if (!attr.specified) {
             continue;
         }
+        /* ie678) */
 
         param = undefined;
 

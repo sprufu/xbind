@@ -145,9 +145,11 @@ exports.extend(optScanHandlers, {
 
             // ie678的cloneNode会连同自定义属性一起拷贝
             // 且ie67还不能delete
+            /* ie678( */
             if (ie678) {
                 copyEl.$noScanChild = false;
             }
+            /* ie678) */
 
             element.appendChild(copyEl);
             scan(copyEl, model);
@@ -190,9 +192,11 @@ exports.extend(optScanHandlers, {
             // 循环添加
             res.forEach(function(item, i) {
                 var el = element.cloneNode(true);
+                /* ie678( */
                 if (ie678) {
                     el.$noScanChild = false;
                 }
+                /* ie678) */
 
                 var model = new Model({
                     $index: i,
@@ -300,7 +304,12 @@ exports.extend(optScanHandlers, {
                         }
 
                         exports.on(data.element, 'click', function(e) {
-                            var el = ie678 ? e.srcElement : this,
+                            // var el = ie678 ? e.srcElement : this
+                            var el =
+                            /* ie678( */
+                            ie678 ? e.srcElement :
+                            /* ie678) */
+                            this,
                             value = model.$get(data.value),
                             item = el.value;
 
@@ -316,7 +325,12 @@ exports.extend(optScanHandlers, {
                     break;
                     case 'radio':
                         exports.on(data.element, 'click', function(e) {
-                            model.$set(data.value, ie678 ? e.srcElement.value : this.value);
+                            // model.$set(data.value, ie678 ? e.srcElement.value : this.value);
+                            model.$set(data.value,
+                            /* ie678( */
+                            ie678 ? e.srcElement.value :
+                            /* ie678) */
+                            this.value);
                         });
                     break;
                     default:
@@ -328,6 +342,7 @@ exports.extend(optScanHandlers, {
             case 'SELECT':
                 exports.on(data.element, 'change', function(e) {
                     var value, el;
+                    /* ie678( */
                     if (ie67) {
                         el = data.element.options[data.element.selectedIndex];
                         if (el.attributes.value.specified) {
@@ -338,8 +353,11 @@ exports.extend(optScanHandlers, {
                     } else if (ie678) {
                         value = data.element.options[data.element.selectedIndex].value;
                     } else {
+                        /* ie678) */
                         value = this.value;
+                        /* ie678( */
                     }
+                    /* ie678) */
                     model.$set(data.value, value);
                 });
             break;
