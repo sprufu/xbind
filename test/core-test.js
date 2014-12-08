@@ -122,4 +122,12 @@ describe('type()', function() {
     })
 })
 
+describe('camelize', function() {
+    it('base', function() {
+        assert(camelize('test') == 'test');
+        assert(camelize('test-user') == 'testUser');
+        assert(camelize('test-user-id') == 'testUserId');
+    })
+})
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
