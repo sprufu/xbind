@@ -124,8 +124,8 @@ extend(exports, {
     type: function( obj ) {
         var c = {}, s = c.toString.call(obj);
 
-        // ie678下null及undefined返回object修正
         /* ie678( */
+        // ie678下null及undefined返回object修正
         if (obj === null) {
             return 'null';
         } else if(obj === undefined) {
