@@ -130,4 +130,16 @@ describe('camelize', function() {
     })
 })
 
+describe('class', function() {
+    it('addClass()', function() {
+        var el = document.getElementById('mocha'),
+        cls = 'abc',
+        cls2 = 'abcd';
+        exports.addClass(el, cls);
+        assert(el.className == cls);
+        exports.addClass(el, cls2);
+        assert(el.className == cls + ' ' + cls2);
+    })
+})
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
