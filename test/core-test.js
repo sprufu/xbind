@@ -75,5 +75,16 @@ describe('isFunction()', function() {
 		assert(exports.isFunction(false) == false);
 		assert(exports.isFunction(1) == false);
 	});
+})
 
+describe('isArray()', function() {
+	it('base', function() {
+		assert(exports.isArray([]));
+		assert(exports.isArray(1) == false);
+		assert(exports.isArray(false) == false);
+		assert(exports.isArray(null) == false);
+		assert(exports.isArray({}) == false);
+		assert(exports.isArray('') == false);
+		assert(exports.isArray(new Date) == false);
+	})
 })
