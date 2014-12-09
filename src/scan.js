@@ -63,7 +63,7 @@ function scanAttrs(element, model) {
     while (i--) {
         item = list[i];
         attr = attrs[item.index];
-        fn = optScanHandlers[item.type];
+        fn = exports.scanners[item.type];
         if (fn) {
             model = fn({
                 model: model,
@@ -121,7 +121,7 @@ function getScanAttrList(attrs) {
             } else {
                 type = attr.name;
             }
-        } else if (!optScanHandlers[attr.name]) {
+        } else if (!exports.scanners[attr.name]) {
             continue;
         } else {
             type = attr.name;
