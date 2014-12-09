@@ -93,8 +93,66 @@ function parseDateNumber(num) {
     return new Date(num);
 }
 
+/**
+ * 日期格式化函数
+ */
 function formatDate(date, format) {
     // TODO
+}
+
+/**
+ * 时间格式化函数
+ */
+var dateFormatter = {
+    yyyy: function(d) {
+        return d.getFullYear();
+    },
+    mm: function(date) {
+        return fix0Number(date.getMonth());
+    },
+    m: function(date) {
+        return date.getMonth();
+    },
+    dd: function(date) {
+        return fix0Number(date.getDate());
+    },
+    d: function(date) {
+        return date.getDate();
+    },
+    hh: function(date) {
+        return fix0Number(date.getHours());
+    },
+    h: function(date) {
+        return date.getHours();
+    },
+    MM: function(date) {
+        return fix0Number(date.getMinutes());
+    },
+    M: function(date) {
+        return date.getMinutes();
+    },
+    ss: function(date) {
+        return fix0Number(date.getSeconds());
+    },
+    s: function(date) {
+        return date.getSeconds();
+    },
+    l: function(date) {
+        // TODO 多少时间前
+        return '';
+    },
+    ww: function(date) {
+        var arr = '日一二三四五六'.split('');
+        return '星期' + arr[date.getDay()];
+    },
+    w: function(date) {
+        var arr = '日一二三四五六'.split('');
+        return '周' + arr[date.getDay()];
+    }
+}
+
+FILTERS.date.format = function(match, handler) {
+    dateFormatter[match] = handler;
 }
 
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
