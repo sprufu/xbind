@@ -23,3 +23,30 @@ vmodel.config({
 ```
 
 > 采用这方法与上面有着明显不同, 上面直接替换属性的值, 而这种方式中采用extend方式深度拷贝.
+
+### 常用的配置项
+1. `interpolate`
+	> 字符串插值分隔符, 是一个有两个元素的数组, 默认是: `['{{', '}}']`
+
+2. `ajax`
+	> ajax默认参数, 默认:
+	```javascript
+	{
+		type: 'get',
+		dataType: 'text',
+		cache: false
+	}
+	```
+
+3. `stringBindAttrs`
+	> 可用于字符串插值的属性
+
+4. `booleanBindAttrs`
+	> 布尔属性绑定属性
+
+5. `eventBindAttrs`
+	> 事件绑定属性, 这些属性会自动添加前辍"x-"
+
+6. `priorities`
+	> 扫描属性优先级顺序, 以属性名为键, 数字为值, 值越小优先级越高, 越早得到扫描, 没有设置的属性默认为3000
+	> 如: `vmodel.config({priorities:{"x-controller":50}})`
