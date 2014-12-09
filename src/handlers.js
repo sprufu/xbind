@@ -10,7 +10,7 @@ var optIgonreTag = {
 };
 
 // 扫描优先级, 没有定义的都在1000
-var optPriority = {
+options.priorities = {
     'x-skip': 0,
     'x-controller': 10,
     'x-each': 20,

@@ -131,7 +131,7 @@ function getScanAttrList(attrs) {
             index: attr.name,
             type: type,
             param: param,
-            priority: optPriority[type] || 1000
+            priority: options.priorities[type] || 1000
         });
     }
 
