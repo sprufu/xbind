@@ -97,7 +97,10 @@ function parseDateNumber(num) {
  * 日期格式化函数
  */
 function formatDate(date, format) {
-    // TODO
+    return format.replace(/[a-zA-Z]+/g, function(str) {
+        var fn = dateFormatter[str];
+        return fn ? fn(date) : fn;
+    })
 }
 
 /**
@@ -149,6 +152,10 @@ var dateFormatter = {
         var arr = '日一二三四五六'.split('');
         return '周' + arr[date.getDay()];
     }
+}
+
+function fix0Number(num) {
+    return num > 9 ? num : ('0' + num);
 }
 
 FILTERS.date.format = function(match, handler) {
