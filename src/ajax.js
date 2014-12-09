@@ -1,5 +1,5 @@
 function ajax(opt) {
-    opt = exports.extend({}, ajax.defaults, opt);
+    opt = exports.extend({}, options.ajax, opt);
     // var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP')
     var xhr = new /* ie678( */ ( /* ie678) */ window.XMLHttpRequest /* ie678( */ || ActiveXObject) /* ie678) */ ( /* ie678( */ 'Microsoft.XMLHTTP' /* ie678) */),
     data = null;
@@ -54,7 +54,7 @@ function ajax(opt) {
     xhr.send(data);
 }
 
-ajax.defaults = {
+options.ajax = {
     type: 'GET',
     dataType: 'text'
 };
