@@ -171,6 +171,7 @@ exports.extend(optScanHandlers, {
 
         element.$nextSibling = element.nextSibling;
         element.$noScanChild = true;
+        element.removeAttribute('x-template');
         element.parentNode.removeChild(element);
     },
 
