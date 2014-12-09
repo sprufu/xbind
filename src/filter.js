@@ -111,10 +111,10 @@ var dateFormatter = {
         return d.getFullYear();
     },
     mm: function(date) {
-        return fix0Number(date.getMonth());
+        return fix0Number(date.getMonth() + 1);
     },
     m: function(date) {
-        return date.getMonth();
+        return date.getMonth() + 1;
     },
     dd: function(date) {
         return fix0Number(date.getDate());
