@@ -19,7 +19,7 @@ var optPriority = {
     'href': 3000
 };
 
-options.scanners = {
+exports.scanners = {
     /**
      * 以属性名为键, 回调为值
     * attrname: function(data[, priority]) {
@@ -91,7 +91,7 @@ options.booleanBindAttrs = [
 ];
 
 options.booleanBindAttrs.forEach(function(type) {
-    options.scanners[type] = booleanHandler;
+    exports.scanners[type] = booleanHandler;
 });
 
 /**
@@ -138,18 +138,18 @@ options.stringBindAttrs = [
 ];
 
 options.stringBindAttrs.forEach(function(type) {
-    options.scanners[type] = stringBindHandler;
+    exports.scanners[type] = stringBindHandler;
 });
 
 'x-src x-href'.split(' ').forEach(function(type) {
-    options.scanners[type] = stringXBindHandler;
+    exports.scanners[type] = stringXBindHandler;
 });
 
 'blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu'.split(' ').forEach(function(type) {
-    options.scanners['x-' + type] = eventBindHandler;
+    exports.scanners['x-' + type] = eventBindHandler;
 });
 
-exports.extend(options.scanners, {
+exports.extend(exports.scanners, {
     'x-skip': function(data, attr) {
         data.element.removeAttribute(attr.name);
         data.element.$noScanChild = true;
