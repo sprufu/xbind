@@ -98,10 +98,19 @@ options.booleanBindAttrs.forEach(function(type) {
  * 字符串插值扫描的属性名
  * 如:
  *      title="删除{{ rs.title }}记录."
+ *
+ * 提示: 不要把style和class属性用于字符串插值, 这两个属性经常被javascript改变
+ * 插值会直接设置多个属性会导致某些不想要的设置
+ * 应该使用相应的x-style及x-class
+ *
+ * src属性在没有扫描时就会加载, 从而加载一个不存在地地址, 应该使用x-src
+ * href比src好一些, 但没扫描时点击也会跳到一个不存在的连接, 这是不想要的结果, 请使用x-href
+ *
+ * 对于value能用x-bind的就不要用value字符串插值, 保留这个是为了其它标签, 如option
  */
 options.stringBindAttrs = [
-    'src',
-    'href',
+    // 'src',
+    // 'href',
     'target',
     'title',
     'width',
@@ -123,8 +132,9 @@ options.stringBindAttrs = [
     'size',
     'face',
     'color',
-    'wrap',
-    'value'
+    'value',
+    'label',
+    'wrap'
 ];
 
 options.stringBindAttrs.forEach(function(type) {

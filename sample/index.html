@@ -77,7 +77,7 @@ setTimeout(function() {
     </div>
     
     <table x-ajax-users="data.json">
-        <caption> 总共: {{ users.total }} <a href="{{ url }}"> {{ test }} </a></caption>
+        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} </a></caption>
         <tr>
             <th>ID</th>
             <th>姓名</th>
@@ -96,7 +96,7 @@ setTimeout(function() {
     </table>
     
     <table x-grid-users="data.json" page="3">
-        <caption> 总共: {{ users.total }} <a href="{{ url }}"> {{ test }} <button x-click="users.$page(2)">page 2</button></a></caption>
+        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} <button x-click="users.$page(2)">page 2</button></a></caption>
         <tr>
             <th>ID</th>
             <th>姓名</th>
