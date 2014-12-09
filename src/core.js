@@ -211,6 +211,29 @@ extend(exports, {
         } else if (el.attachEvent){
             el.attachEvent('on' + type, handler);
         }
+    },
+
+    /**
+     * 配置参数
+     *
+     * 设置单个参数
+     * vmodel.config('interpolate', ['<%', '%>'])
+     *
+     * 设置多个参数
+     * vmodel.config({
+     *      ajax: {
+     *          type: 'POST',
+     *          dataType: 'json',
+     *          cache: false
+     *      }
+     * });
+     */
+    config: function(key, val) {
+        if (options.hasOwnProperty(key)) {
+            options[key] = val;
+        } else if (exports.isPlainObject(key)) {
+            extend(options, key);
+        }
     }
 });
 
