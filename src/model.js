@@ -226,7 +226,7 @@ Model.prototype = {
      * @param {object...} args 过滤器参数
      */
     $filter: function(filterName, obj, args) {
-        var fn = FILTERS[filterName];
+        var fn = exports.filters[filterName];
         if (!fn) {
             return obj;
         }

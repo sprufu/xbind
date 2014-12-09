@@ -3,7 +3,7 @@
  * @author jcode
  */
 
-var FILTERS = {
+exports.filters = {
 	/**
 	 * name: function(obj, arg...),
 	 */
@@ -158,7 +158,7 @@ function fix0Number(num) {
     return num > 9 ? num : ('0' + num);
 }
 
-FILTERS.date.format = function(match, handler) {
+exports.filters.date.format = function(match, handler) {
     dateFormatter[match] = handler;
 }
 
