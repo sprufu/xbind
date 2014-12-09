@@ -89,7 +89,7 @@ setTimeout(function() {
             <td></td>
             <td>{{ user.title }}</td>
             <td></td>
-            <td> {{ user.publishDate }} </td>
+            <td> {{ user.publishDate | date 'yyyy-mm-dd(w)' }} </td>
             <td> <button x-click="users.$read()"> read() </button> </td>
         </tr>
 
