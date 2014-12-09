@@ -788,7 +788,7 @@ function scanAttrs(element, model) {
     while (i--) {
         item = list[i];
         attr = attrs[item.index];
-        fn = optScanHandlers[item.type];
+        fn = exports.scanners[item.type];
         if (fn) {
             model = fn({
                 model: model,
@@ -846,7 +846,7 @@ function getScanAttrList(attrs) {
             } else {
                 type = attr.name;
             }
-        } else if (!optScanHandlers[attr.name]) {
+        } else if (!exports.scanners[attr.name]) {
             continue;
         } else {
             type = attr.name;
@@ -946,7 +946,7 @@ var optPriority = {
     'href': 3000
 };
 
-var optScanHandlers = {
+exports.scanners = {
     /**
      * 以属性名为键, 回调为值
     * attrname: function(data[, priority]) {
@@ -1018,7 +1018,7 @@ options.booleanBindAttrs = [
 ];
 
 options.booleanBindAttrs.forEach(function(type) {
-    optScanHandlers[type] = booleanHandler;
+    exports.scanners[type] = booleanHandler;
 });
 
 /**
@@ -1064,19 +1064,54 @@ options.stringBindAttrs = [
     'wrap'
 ];
 
+/**
+ * 事件绑定属性
+ * 如:
+ *      x-click="click()"
+ *
+ * 所有的属性都会自动加上前辍"x-"
+ */
+options.eventBindAttrs = [
+    'blur',
+    'focus',
+    'focusin',
+    'focusout',
+    'load',
+    'resize',
+    'scroll',
+    'unload',
+    'click',
+    'dblclick',
+    'mousedown',
+    'mouseup',
+    'mousemove',
+    'mouseover',
+    'mouseout',
+    'mouseenter',
+    'mouseleave',
+    'change',
+    'select',
+    'submit',
+    'keydown',
+    'keypress',
+    'keyup',
+    'error',
+    'contextmenu'
+];
+
 options.stringBindAttrs.forEach(function(type) {
-    optScanHandlers[type] = stringBindHandler;
+    exports.scanners[type] = stringBindHandler;
 });
 
 'x-src x-href'.split(' ').forEach(function(type) {
-    optScanHandlers[type] = stringXBindHandler;
+    exports.scanners[type] = stringXBindHandler;
 });
 
-'blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu'.split(' ').forEach(function(type) {
-    optScanHandlers['x-' + type] = eventBindHandler;
+options.eventBindAttrs.forEach(function(type) {
+    exports.scanners['x-' + type] = eventBindHandler;
 });
 
-exports.extend(optScanHandlers, {
+exports.extend(exports.scanners, {
     'x-skip': function(data, attr) {
         data.element.removeAttribute(attr.name);
         data.element.$noScanChild = true;

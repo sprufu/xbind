@@ -137,6 +137,41 @@ options.stringBindAttrs = [
     'wrap'
 ];
 
+/**
+ * 事件绑定属性
+ * 如:
+ *      x-click="click()"
+ *
+ * 所有的属性都会自动加上前辍"x-"
+ */
+options.eventBindAttrs = [
+    'blur',
+    'focus',
+    'focusin',
+    'focusout',
+    'load',
+    'resize',
+    'scroll',
+    'unload',
+    'click',
+    'dblclick',
+    'mousedown',
+    'mouseup',
+    'mousemove',
+    'mouseover',
+    'mouseout',
+    'mouseenter',
+    'mouseleave',
+    'change',
+    'select',
+    'submit',
+    'keydown',
+    'keypress',
+    'keyup',
+    'error',
+    'contextmenu'
+];
+
 options.stringBindAttrs.forEach(function(type) {
     exports.scanners[type] = stringBindHandler;
 });
@@ -145,7 +180,7 @@ options.stringBindAttrs.forEach(function(type) {
     exports.scanners[type] = stringXBindHandler;
 });
 
-'blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu'.split(' ').forEach(function(type) {
+options.eventBindAttrs.forEach(function(type) {
     exports.scanners['x-' + type] = eventBindHandler;
 });
 
