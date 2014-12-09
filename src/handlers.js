@@ -59,6 +59,7 @@ function stringBindHandler (data, attr) {
 
 function stringXBindHandler(data, attr) {
     var attrName = data.type.substr(2);
+    data.element.removeAttribute(attr.name);
     bindModel(data.model, data.value, parseString, function(res, value, oldValue) {
         data.element.setAttribute(attrName, res);
     });
@@ -69,6 +70,7 @@ function eventBindHandler(data, attr) {
     eventType = data.type.substr(2),
     expr = parseExecute(data.value),
     fn = new Function('$model', expr);
+    data.element.removeAttribute(attr.name);
     exports.on(data.element, eventType, function() {
         fn(model);
     });
@@ -138,12 +140,14 @@ options.stringBindAttrs.forEach(function(type) {
 });
 
 exports.extend(optScanHandlers, {
-    'x-skip': function(data) {
+    'x-skip': function(data, attr) {
+        data.element.removeAttribute(attr.name);
         data.element.$noScanChild = true;
     },
-    'x-controller': function(data) {
+    'x-controller': function(data, attr) {
         var id = data.value,
         vmodel = MODELS[id];
+        data.element.removeAttribute(attr.name);
         if (vmodel && !vmodel.element) {
             vmodel.$element = data.element;
             vmodel.$parent = exports.getParentModel(data.element);
@@ -163,7 +167,7 @@ exports.extend(optScanHandlers, {
      * 扫描后会移出这个结点, 并移出这个属性及x-template的class
      * 可以设置.x-template{display:none}避免没有扫描到时显示错乱
      */
-    'x-template': function(data) {
+    'x-template': function(data, attr) {
         var element = data.element,
         tplId = data.value,
         parentModel = exports.getParentModel(element),
@@ -171,7 +175,7 @@ exports.extend(optScanHandlers, {
 
         element.$nextSibling = element.nextSibling;
         element.$noScanChild = true;
-        element.removeAttribute('x-template');
+        element.removeAttribute(attr.name);
         element.parentNode.removeChild(element);
     },
 
@@ -183,10 +187,11 @@ exports.extend(optScanHandlers, {
      * 从url加载的模板加载一次后也会收集到TEMPLATES中
      * 优先从TEMPLATES中查找, 如果没有就从url中加载.
      */
-    'x-include': function(data) {
+    'x-include': function(data, attr) {
         var element = data.element,
         model = exports.getExtModel(element);
         element.$noScanChild = true;
+        element.removeAttribute(attr.name);
         bindModel(model, data.value, parseExpress, function(res) {
             element.innerHTML = '';
             var copyEl = TEMPLATES[res].element.cloneNode(true);
@@ -264,7 +269,7 @@ exports.extend(optScanHandlers, {
         });
     },
 
-    'x-if': function(data) {
+    'x-if': function(data, attr) {
         var element = data.element,
         parent = element.parentElement,
         model = exports.getModel(element) || new Model(),
@@ -272,6 +277,7 @@ exports.extend(optScanHandlers, {
         replaceElement = document.createComment('x-if:' + model.$id);
 
         element.$nextSibling = element.nextSibling;
+        element.removeAttribute(attr.name);
 
         if (!element.$modelId) {
             model.$bindElement(element);
@@ -294,6 +300,7 @@ exports.extend(optScanHandlers, {
 
     'x-show': function(data, attr) {
         var model = exports.getExtModel(data.element);
+        data.element.removeAttribute(attr.name);
         bindModel(model, data.value, parseExpress, function(res, value, oldValue) {
             data.element.style.display = res ? "" : "none";
         });
@@ -301,6 +308,7 @@ exports.extend(optScanHandlers, {
 
     'x-bind': function(data, attr) {
         var model = exports.getExtModel(data.element);
+        data.element.removeAttribute(attr.name);
         bindModel(model, data.value, parseExpress, function(res, value, field) {
             var el = data.element,
             flag = true;
@@ -416,7 +424,9 @@ exports.extend(optScanHandlers, {
      * 但这样有个问题, 就是类名只能用小写, 因为属性名都会转化为小写的
      * 当expr结果为真时添加class, 否则移出
      */
-    'x-class': function(data) {
+    'x-class': function(data, attr) {
+        var element = data.element;
+        element.removeAttribute(attr.name);
         bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
             if (res) {
                 exports.addClass(data.element, data.param);
@@ -425,11 +435,13 @@ exports.extend(optScanHandlers, {
             }
         });
     },
-    'x-ajax': function(data) {
-        var model = exports.getModel(data.element) || new Model();
+    'x-ajax': function(data, attr) {
+        var element = data.element,
+        model = exports.getModel(element) || new Model();
+        element.removeAttribute(attr.name);
 
-        if (!data.element.$modelId) {
-            model.$bindElement(data.element);
+        if (!element.$modelId) {
+            model.$bindElement(element);
         }
 
         var read = function() {
@@ -457,14 +469,15 @@ exports.extend(optScanHandlers, {
         return model;
     },
     'x-grid': function(data, attr) {
-        var model = exports.getModel(data.element) || new Model();
+        var el= data.element,
+        model = exports.getModel(el) || new Model();
+        el.removeAttribute(attr.name);
 
-        if (!data.element.$modelId) {
-            model.$bindElement(data.element);
+        if (!el.$modelId) {
+            model.$bindElement(el);
         }
 
-        var el = data.element,
-        name = data.param,
+        var name = data.param,
         opt = {
             name: name,
             url: attr.value,
@@ -478,8 +491,9 @@ exports.extend(optScanHandlers, {
         return model;
     },
 
-    'x-style': function(data) {
+    'x-style': function(data, attr) {
         var cssName = camelize(data.param);
+        data.element.removeAttribute(attr.name);
         bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
             data.element.style[cssName] = res;
         });
@@ -491,8 +505,9 @@ exports.extend(optScanHandlers, {
      *      <input name="name" x-bind="name" />
      * </form>
      */
-    'x-form': function(data) {
+    'x-form': function(data, attr) {
         var model = exports.getExtModel(data.element);
+        data.element.removeAttribute(attr.name);
         if (!model) {
             model = new Model();
             model.$bindElement(data.element);
