@@ -74,11 +74,58 @@ function eventBindHandler(data, attr) {
     });
 }
 
-'disabled checked selected'.split(' ').forEach(function(type) {
+/**
+ * 布尔插值扫描属性名
+ * 如:
+ *      disabled="user.sex == 'F'"
+ */
+options.booleanBindAttrs = [
+    "disabled",
+    "checked",
+    "selected",
+    "contenteditable",
+    "draggable",
+    "dropzone"
+];
+
+options.booleanBindAttrs.forEach(function(type) {
     optScanHandlers[type] = booleanHandler;
 });
 
-'src href target'.split(' ').forEach(function(type) {
+/**
+ * 字符串插值扫描的属性名
+ * 如:
+ *      title="删除{{ rs.title }}记录."
+ */
+options.stringBindAttrs = [
+    'src',
+    'href',
+    'target',
+    'title',
+    'width',
+    'height',
+    'name',
+    'alt',
+    'align',
+    'valign',
+    'clos',
+    'rows',
+    'clospan',
+    'rowspan',
+    'cellpadding',
+    'cellspacing',
+    'method',
+    'color',
+    'type',
+    'border',
+    'size',
+    'face',
+    'color',
+    'wrap',
+    'value'
+];
+
+options.stringBindAttrs.forEach(function(type) {
     optScanHandlers[type] = stringBindHandler;
 });
 
