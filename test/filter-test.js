@@ -50,4 +50,13 @@ describe('date', function() {
 		assert(parseDate(d/1000) - 0 == d - 0);
 	});
 
+	it('fix0Number', function() {
+		assert(fix0Number(9) == '09');
+		assert(fix0Number(10) == '10');
+	})
+
+	it('formatDate()', function() {
+		var d = parseDate(sJson);
+		assert(formatDate(d, 'yyyy-mm-dd hh:MM:ss(w ww)') == '2014-12-09 11:24:08(周二 星期二)');
+	})
 });
