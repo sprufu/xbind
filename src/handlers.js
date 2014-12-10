@@ -247,8 +247,25 @@ exports.extend(exports.scanners, {
             }
             /* ie678) */
 
-            element.appendChild(copyEl);
-            scan(copyEl, model);
+            if (copyEl) {
+                element.appendChild(copyEl);
+                scan(copyEl, model);
+            } else {
+                ajax({
+                    url: res,
+                    cache: true,
+                    dataType: 'html',
+                    success: function(html) {
+                        var tpl = new Template(res, html),
+                        copyEl = tpl.element.cloneNode(true);
+                        element.appendChild(copyEl);
+                        scan(copyEl, model);
+                    },
+                    error: function() {
+                        throw new Error('Cannot find template: ' + res);
+                    }
+                });
+            }
         });
     },
 

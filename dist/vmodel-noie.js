@@ -1065,7 +1065,7 @@ exports.extend(exports.scanners, {
         var element = data.element,
         tplId = data.value,
         parentModel = exports.getParentModel(element),
-        tpl = new Template(tplId, element, parentModel);
+        tpl = new Template(tplId, element);
 
         element.$nextSibling = element.nextSibling;
         element.$noScanChild = true;
@@ -1092,8 +1092,25 @@ exports.extend(exports.scanners, {
 
             
 
-            element.appendChild(copyEl);
-            scan(copyEl, model);
+            if (copyEl) {
+                element.appendChild(copyEl);
+                scan(copyEl, model);
+            } else {
+                ajax({
+                    url: res,
+                    cache: true,
+                    dataType: 'html',
+                    success: function(html) {
+                        var tpl = new Template(res, html),
+                        copyEl = tpl.element.cloneNode(true);
+                        element.appendChild(copyEl);
+                        scan(copyEl, model);
+                    },
+                    error: function() {
+                        throw new Error('Cannot find template: ' + res);
+                    }
+                });
+            }
         });
     },
 
@@ -1486,10 +1503,9 @@ var TEMPLATES = {
      */
 };
 
-function Template(id, element, parentModel) {
+function Template(id, element) {
     this.id = id;
     this.element = element;
-    this.parentModel = parentModel;
     TEMPLATES[id] = this;
 }
 
