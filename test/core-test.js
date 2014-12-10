@@ -149,9 +149,9 @@ describe('class', function() {
     it('removeClass()', function() {
         el.className = cls + ' ' + cls2;
         exports.removeClass(el, cls);
-        assert(el.className, cls2);
+        assert(el.className == cls2);
         exports.removeClass(el, cls2);
-        assert(el.className, '');
+        assert(el.className == '');
     })
 })
 
