@@ -36,6 +36,17 @@ function ajax(opt) {
                             obj = null;
                         }
                     break;
+                    case 'html':
+                        try {
+                            var el = document.createElement('div');
+                            el.innerHTML = obj;
+                            obj = el.firstChild;
+                            el.removeChild(obj);
+                            el = null;
+                        } catch(err) {
+                            obj = null;
+                        }
+                    break;
                     case 'script':
                     break;
                     case 'jsonp':
