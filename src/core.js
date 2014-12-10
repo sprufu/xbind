@@ -278,8 +278,8 @@ function bindModel(model, str, parsefn, updatefn) {
 
     var fn = new Function('$model', 'return ' + expr),
     observer = {
-        update: function(model, value, oldValue) {
-            updatefn(fn(model, value, oldValue));
+        update: function(model, value) {
+            updatefn(fn(model, value));
         }
     };
 
