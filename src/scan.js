@@ -79,7 +79,7 @@ function scanAttrs(element, model) {
 }
 
 function scanText(element, parentModel) {
-    bindModel(parentModel, element.data, parseString, function(res, value, oldValue) {
+    bindModel(parentModel, element.data, parseString, function(res) {
         element.data = res;
     });
 }
