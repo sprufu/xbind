@@ -619,7 +619,8 @@ function validItem(input) {
         attr = input.attributes[name];
 
         // 没有的属性, 不做处理
-        if (!attr || !attr.specified) {
+        // if (!attr || !attr.specified) {
+        if (!attr /* ie678( */ || !attr.specified /* ie678) */) {
             continue;
         }
 
