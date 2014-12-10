@@ -119,7 +119,7 @@ extend(exports, {
 
         
 
-        return s.substring(8, s.length-1).toLowerCase();
+        return s.slice(8, -1).toLowerCase();
     },
 
     /**
@@ -234,6 +234,8 @@ Array.prototype.remove = function(item) {
     }
 };
 
+var camelizeRegExp = /-[^-]/g;
+
 /**
  * 转换为驼峰风格
  */
@@ -241,7 +243,7 @@ function camelize(target) {
     if (target.indexOf("-") == -1) {
         return target;
     }
-    return target.replace(/-[^-]/g, function(match) {
+    return target.replace(camelizeRegExp, function(match) {
         return match.charAt(1).toUpperCase();
     });
 }
@@ -255,8 +257,8 @@ function bindModel(model, str, parsefn, updatefn) {
 
     var fn = new Function('$model', 'return ' + expr),
     observer = {
-        update: function(model, value, oldValue) {
-            updatefn(fn(model, value, oldValue));
+        update: function(model, value) {
+            updatefn(fn(model, value));
         }
     };
 
@@ -382,7 +384,7 @@ var MODELS = {
  * 是model.$set的底层实现
  */
 function setFieldValue(model, field, value) {
-    var oldValue, i, v, sub, subs, key, keys;
+    var i, v, sub, subs, key, keys;
     if (~field.indexOf('.')) {
         // 深层的数据, 如: user.name, user.job.type
         keys = field.split('.');
@@ -390,7 +392,6 @@ function setFieldValue(model, field, value) {
         for (i=0; i<keys.length; i++) {
             key = keys[i];
             if (i == keys.length - 1) {
-                oldValue = v[key];
                 v[key] = value;
             } else if (!v[key]) {
                 v[key] = {};
@@ -399,11 +400,8 @@ function setFieldValue(model, field, value) {
             }
         }
     } else {
-        oldValue = model[field];
         model[field] = value;
     }
-
-    return oldValue;
 }
 
 /**
@@ -502,7 +500,7 @@ Model.prototype = {
      *    3. 这会触发视图更新
      */
     $set: function(field, value) {
-        var oldValue = setFieldValue(this, field, value);
+        setFieldValue(this, field, value);
         this.$notifySubscribes(field, value);
     },
 
@@ -782,7 +780,7 @@ function scanAttrs(element, model) {
 }
 
 function scanText(element, parentModel) {
-    bindModel(parentModel, element.data, parseString, function(res, value, oldValue) {
+    bindModel(parentModel, element.data, parseString, function(res) {
         element.data = res;
     });
 }
@@ -829,7 +827,7 @@ function getScanAttrList(attrs) {
             index: attr.name,
             type: type,
             param: param,
-            priority: optPriority[type] || 1000
+            priority: options.priorities[type] || 1000
         });
     }
 
@@ -863,7 +861,7 @@ var optIgonreTag = {
 };
 
 // 扫描优先级, 没有定义的都在1000
-var optPriority = {
+options.priorities = {
     'x-skip': 0,
     'x-controller': 10,
     'x-each': 20,
@@ -895,7 +893,7 @@ function booleanHandler (data, attr) {
         return;
     }
 
-    bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+    bindModel(data.model, data.value, parseExpress, function(res) {
         if (res) {
             data.element.setAttribute(data.type, data.type);
         } else {
@@ -905,7 +903,7 @@ function booleanHandler (data, attr) {
 }
 
 function stringBindHandler (data, attr) {
-    bindModel(data.model, data.value, parseString, function(res, value, oldValue) {
+    bindModel(data.model, data.value, parseString, function(res) {
         attr.value = res;
     });
 }
@@ -913,7 +911,7 @@ function stringBindHandler (data, attr) {
 function stringXBindHandler(data, attr) {
     var attrName = data.type.substr(2);
     data.element.removeAttribute(attr.name);
-    bindModel(data.model, data.value, parseString, function(res, value, oldValue) {
+    bindModel(data.model, data.value, parseString, function(res) {
         data.element.setAttribute(attrName, res);
     });
 }
@@ -1044,17 +1042,15 @@ exports.extend(exports.scanners, {
     },
     'x-controller': function(data, attr) {
         var id = data.value,
-        vmodel = MODELS[id];
+        model = MODELS[id];
         data.element.removeAttribute(attr.name);
-        if (vmodel && !vmodel.element) {
-            vmodel.$element = data.element;
-            vmodel.$parent = exports.getParentModel(data.element);
-            data.element.$modelId = id;
+        if (model && !model.element) {
+            model.$bindElement(data.element);
         } else {
             // throw new Error('未定义vmodel');
             return;
         }
-        return vmodel;
+        return model;
     },
 
     /**
@@ -1171,7 +1167,7 @@ exports.extend(exports.scanners, {
             model.$bindElement(element);
         }
 
-        bindModel(parentModel, data.value, parseExpress, function(res, value, oldValue) {
+        bindModel(parentModel, data.value, parseExpress, function(res) {
             if (res) {
                 element.parentElement || parent.replaceChild(element, replaceElement);
                 model.$freeze = false;
@@ -1189,7 +1185,7 @@ exports.extend(exports.scanners, {
     'x-show': function(data, attr) {
         var model = exports.getExtModel(data.element);
         data.element.removeAttribute(attr.name);
-        bindModel(model, data.value, parseExpress, function(res, value, oldValue) {
+        bindModel(model, data.value, parseExpress, function(res) {
             data.element.style.display = res ? "" : "none";
         });
     },
@@ -1197,7 +1193,7 @@ exports.extend(exports.scanners, {
     'x-bind': function(data, attr) {
         var model = exports.getExtModel(data.element);
         data.element.removeAttribute(attr.name);
-        bindModel(model, data.value, parseExpress, function(res, value, field) {
+        bindModel(model, data.value, parseExpress, function(res) {
             var el = data.element,
             flag = true;
             if (el.tagName == 'INPUT') {
@@ -1302,7 +1298,7 @@ exports.extend(exports.scanners, {
     'x-class': function(data, attr) {
         var element = data.element;
         element.removeAttribute(attr.name);
-        bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+        bindModel(data.model, data.value, parseExpress, function(res) {
             if (res) {
                 exports.addClass(data.element, data.param);
             } else {
@@ -1369,7 +1365,7 @@ exports.extend(exports.scanners, {
     'x-style': function(data, attr) {
         var cssName = camelize(data.param);
         data.element.removeAttribute(attr.name);
-        bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+        bindModel(data.model, data.value, parseExpress, function(res) {
             data.element.style[cssName] = res;
         });
     },
@@ -1451,7 +1447,8 @@ function validItem(input) {
         attr = input.attributes[name];
 
         // 没有的属性, 不做处理
-        if (!attr || !attr.specified) {
+        // if (!attr || !attr.specified) {
+        if (!attr ) {
             continue;
         }
 
@@ -1477,17 +1474,6 @@ function validItem(input) {
     if (fmodel.$get(field) != valid) {
         fmodel.$set(field, valid);
     }
-
-    // 更新class
-    if (valid) {
-        exports.addClass(input, 'x-valid');
-        exports.removeClass(input, 'x-invalid');
-    } else {
-        exports.addClass(input, 'x-invalid');
-        exports.removeClass(input, 'x-valid');
-    }
-
-    exports.addClass(input, 'x-dirty');
 }
 
 /**
