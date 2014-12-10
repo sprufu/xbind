@@ -417,9 +417,7 @@ exports.extend(exports.scanners, {
                         });
                     break;
                     case 'radio':
-                        exports.on(element, 'click', function(e) {
-                            model.$set(value, element.value);
-                        });
+                        addListen('click');
                     break;
                     default:
                         addListen('keyup');
@@ -428,9 +426,7 @@ exports.extend(exports.scanners, {
                 }
             break;
             case 'SELECT':
-                exports.on(element, 'change', function(e) {
-                    model.$set(value, element.value);
-                });
+                addListen('change');
             break;
             case 'TEXTAREA':
                 addListen('keyup');
