@@ -68,8 +68,22 @@ function eventBindHandler(model, element, value, attr, type) {
     fn = new Function('$model', expr);
 
     element.removeAttribute(attr.name);
-    exports.on(element, eventType, function() {
-        fn(model);
+    exports.on(element, eventType, function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (fn(model) === false) {
+            /* ie678( */
+            if (ie678) {
+                event.cancelBubble = true;
+                event.returnValue = false;
+            } else {
+                /* ie678) */
+                event.stopPropagation();
+                event.preventDefault();
+                /* ie678( */
+            }
+            /* ie678) */
+        }
     });
 }
 
