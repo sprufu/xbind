@@ -191,17 +191,15 @@ exports.extend(exports.scanners, {
     },
     'x-controller': function(data, attr) {
         var id = data.value,
-        vmodel = MODELS[id];
+        model = MODELS[id];
         data.element.removeAttribute(attr.name);
-        if (vmodel && !vmodel.element) {
-            vmodel.$element = data.element;
-            vmodel.$parent = exports.getParentModel(data.element);
-            data.element.$modelId = id;
+        if (model && !model.element) {
+            model.$bindElement(data.element);
         } else {
             // throw new Error('未定义vmodel');
             return;
         }
-        return vmodel;
+        return model;
     },
 
     /**
