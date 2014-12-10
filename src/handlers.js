@@ -214,7 +214,7 @@ exports.extend(exports.scanners, {
         var element = data.element,
         tplId = data.value,
         parentModel = exports.getParentModel(element),
-        tpl = new Template(tplId, element, parentModel);
+        tpl = new Template(tplId, element);
 
         element.$nextSibling = element.nextSibling;
         element.$noScanChild = true;
@@ -658,10 +658,9 @@ var TEMPLATES = {
      */
 };
 
-function Template(id, element, parentModel) {
+function Template(id, element) {
     this.id = id;
     this.element = element;
-    this.parentModel = parentModel;
     TEMPLATES[id] = this;
 }
 
