@@ -133,7 +133,7 @@ extend(exports, {
         }
         /* ie678) */
 
-        return s.substring(8, s.length-1).toLowerCase();
+        return s.slice(8, -1).toLowerCase();
     },
 
     /**
