@@ -24,7 +24,7 @@ var MODELS = {
  * 是model.$set的底层实现
  */
 function setFieldValue(model, field, value) {
-    var oldValue, i, v, sub, subs, key, keys;
+    var i, v, sub, subs, key, keys;
     if (~field.indexOf('.')) {
         // 深层的数据, 如: user.name, user.job.type
         keys = field.split('.');
@@ -32,7 +32,6 @@ function setFieldValue(model, field, value) {
         for (i=0; i<keys.length; i++) {
             key = keys[i];
             if (i == keys.length - 1) {
-                oldValue = v[key];
                 v[key] = value;
             } else if (!v[key]) {
                 v[key] = {};
@@ -41,11 +40,8 @@ function setFieldValue(model, field, value) {
             }
         }
     } else {
-        oldValue = model[field];
         model[field] = value;
     }
-
-    return oldValue;
 }
 
 /**
