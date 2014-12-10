@@ -33,45 +33,42 @@ exports.scanners = {
     */
 };
 
-function booleanHandler (data, attr) {
-    var value = data.value.toLowerCase(),
-    type = data.type;
-
+function booleanHandler (model, element, value, attr, type) {
     // 如果是类似: disabled="disabled"或disabled="true", 不处理
     if (value == type || value == "true") {
         return;
     }
 
-    bindModel(data.model, data.value, parseExpress, function(res) {
+    bindModel(model, value, parseExpress, function(res) {
         if (res) {
-            data.element.setAttribute(data.type, data.type);
+            element.setAttribute(type, type);
         } else {
-            data.element.removeAttribute(data.type);
+            element.removeAttribute(type);
         }
     });
 }
 
-function stringBindHandler (data, attr) {
-    bindModel(data.model, data.value, parseString, function(res) {
+function stringBindHandler (model, element, value, attr) {
+    bindModel(model, value, parseString, function(res) {
         attr.value = res;
     });
 }
 
-function stringXBindHandler(data, attr) {
-    var attrName = data.type.substr(2);
-    data.element.removeAttribute(attr.name);
-    bindModel(data.model, data.value, parseString, function(res) {
-        data.element.setAttribute(attrName, res);
+function stringXBindHandler(model, element, value, attr, type) {
+    var attrName = type.substr(2);
+    element.removeAttribute(attr.name);
+    bindModel(model, value, parseString, function(res) {
+        element.setAttribute(attrName, res);
     });
 }
 
-function eventBindHandler(data, attr) {
-    var model = exports.getExtModel(data.element),
-    eventType = data.type.substr(2),
-    expr = parseExecute(data.value),
+function eventBindHandler(model, element, value, attr, type) {
+    var eventType = type.substr(2),
+    expr = parseExecute(value),
     fn = new Function('$model', expr);
-    data.element.removeAttribute(attr.name);
-    exports.on(data.element, eventType, function() {
+
+    element.removeAttribute(attr.name);
+    exports.on(element, eventType, function() {
         fn(model);
     });
 }
@@ -185,18 +182,16 @@ options.eventBindAttrs.forEach(function(type) {
 });
 
 exports.extend(exports.scanners, {
-    'x-skip': function(data, attr) {
-        data.element.removeAttribute(attr.name);
-        data.element.$noScanChild = true;
+    'x-skip': function(model, element, value, attr) {
+        element.removeAttribute(attr.name);
+        element.$noScanChild = true;
     },
-    'x-controller': function(data, attr) {
-        var id = data.value,
-        model = MODELS[id];
-        data.element.removeAttribute(attr.name);
+    'x-controller': function(model, element, value, attr) {
+        model = MODELS[value];
+        element.removeAttribute(attr.name);
         if (model && !model.element) {
-            model.$bindElement(data.element);
+            model.$bindElement(element);
         } else {
-            // throw new Error('未定义vmodel');
             return;
         }
         return model;
@@ -210,15 +205,12 @@ exports.extend(exports.scanners, {
      * 扫描后会移出这个结点, 并移出这个属性及x-template的class
      * 可以设置.x-template{display:none}避免没有扫描到时显示错乱
      */
-    'x-template': function(data, attr) {
-        var element = data.element,
-        tplId = data.value,
-        parentModel = exports.getParentModel(element),
-        tpl = new Template(tplId, element);
-
+    'x-template': function(model, element, value, attr) {
         element.$nextSibling = element.nextSibling;
         element.$noScanChild = true;
         element.removeAttribute(attr.name);
+
+        new Template(value, element);
         element.parentNode.removeChild(element);
     },
 
@@ -230,24 +222,23 @@ exports.extend(exports.scanners, {
      * 从url加载的模板加载一次后也会收集到TEMPLATES中
      * 优先从TEMPLATES中查找, 如果没有就从url中加载.
      */
-    'x-include': function(data, attr) {
-        var element = data.element,
-        model = exports.getExtModel(element);
+    'x-include': function(model, element, value, attr) {
         element.$noScanChild = true;
         element.removeAttribute(attr.name);
-        bindModel(model, data.value, parseExpress, function(res) {
-            element.innerHTML = '';
-            var copyEl = TEMPLATES[res].element.cloneNode(true);
+        bindModel(model, value, parseExpress, function(res) {
 
-            /* ie678( */
-            // ie678的cloneNode会连同自定义属性一起拷贝
-            // 且ie67还不能delete
-            if (ie678) {
-                copyEl.$noScanChild = false;
-            }
-            /* ie678) */
+            if (TEMPLATES[res]) {
+                var copyEl = TEMPLATES[res].element.cloneNode(true);
 
-            if (copyEl) {
+                /* ie678( */
+                // ie678的cloneNode会连同自定义属性一起拷贝
+                // 且ie67还不能delete
+                if (ie678) {
+                    copyEl.$noScanChild = false;
+                }
+                /* ie678) */
+
+                element.innerHTML = '';
                 element.appendChild(copyEl);
                 scan(copyEl, model);
             } else {
@@ -258,6 +249,7 @@ exports.extend(exports.scanners, {
                     success: function(html) {
                         var tpl = new Template(res, html),
                         copyEl = tpl.element.cloneNode(true);
+                        element.innerHTML = '';
                         element.appendChild(copyEl);
                         scan(copyEl, model);
                     },
@@ -269,12 +261,8 @@ exports.extend(exports.scanners, {
         });
     },
 
-    'x-repeat': function(data, attr) {
-        var id = data.value,
-        param = data.param,
-        element = data.element,
-        parent = element.parentNode,
-        model = exports.getExtModel(element),
+    'x-repeat': function(model, element, value, attr, type, param) {
+        var parent = element.parentNode,
         startElement = document.createComment('x-repeat-start:' + param),
         endElement = document.createComment('x-repeat-end:' + param);
 
@@ -288,7 +276,7 @@ exports.extend(exports.scanners, {
         element.removeAttribute(attr.name);
         element.parentNode.removeChild(element);
 
-        bindModel(model, data.value, parseExpress, function(res) {
+        bindModel(model, value, parseExpress, function(res) {
             if (!exports.isArray(res)) {
                 return;
             }
@@ -329,21 +317,20 @@ exports.extend(exports.scanners, {
         });
     },
 
-    'x-if': function(data, attr) {
-        var element = data.element,
-        parent = element.parentElement,
-        model = exports.getModel(element) || new Model(),
+    'x-if': function(model, element, value, attr) {
+        var parent = element.parentElement,
         parentModel = exports.getParentModel(element),
         replaceElement = document.createComment('x-if:' + model.$id);
 
         element.$nextSibling = element.nextSibling;
         element.removeAttribute(attr.name);
 
+        model = exports.getModel(element) || new Model();
         if (!element.$modelId) {
             model.$bindElement(element);
         }
 
-        bindModel(parentModel, data.value, parseExpress, function(res) {
+        bindModel(parentModel, value, parseExpress, function(res) {
             if (res) {
                 element.parentElement || parent.replaceChild(element, replaceElement);
                 model.$freeze = false;
@@ -358,87 +345,80 @@ exports.extend(exports.scanners, {
         return model;
     },
 
-    'x-show': function(data, attr) {
-        var model = exports.getExtModel(data.element);
-        data.element.removeAttribute(attr.name);
-        bindModel(model, data.value, parseExpress, function(res) {
-            data.element.style.display = res ? "" : "none";
+    'x-show': function(model, element, value, attr) {
+        element.removeAttribute(attr.name);
+        bindModel(model, value, parseExpress, function(res) {
+            element.style.display = res ? "" : "none";
         });
     },
 
-    'x-bind': function(data, attr) {
-        var model = exports.getExtModel(data.element);
-        data.element.removeAttribute(attr.name);
-        bindModel(model, data.value, parseExpress, function(res) {
-            var el = data.element,
-            flag = true;
-            if (el.tagName == 'INPUT') {
-                if (el.type == 'radio') {
+    'x-bind': function(model, element, value, attr) {
+        element.removeAttribute(attr.name);
+        bindModel(model, value, parseExpress, function(res) {
+            var flag = true;
+            if (element.tagName == 'INPUT') {
+                if (element.type == 'radio') {
                     flag = false;
-                    if (res == el.value) {
-                        el.checked = true;
+                    if (res == element.value) {
+                        element.checked = true;
                     } else {
-                        el.checked = false;
+                        element.checked = false;
                     }
-                } else if (el.type == 'checkbox') {
+                } else if (element.type == 'checkbox') {
                     flag = false;
-                    if (~res.indexOf(el.value)) {
-                        el.checked = true;
+                    if (~res.indexOf(element.value)) {
+                        element.checked = true;
                     } else {
-                        el.checked = false;
+                        element.checked = false;
                     }
                 }
             }
 
             if (flag) {
-                el.value = res;
+                element.value = res;
             }
 
-            if (el.name && el.form && el.form.$xform) {
-                validItem(el);
+            if (element.name && element.form && element.form.$xform) {
+                validItem(element);
             }
         });
 
 
-        var model = exports.getExtModel(data.element);
         function addListen(type) {
-            exports.on(data.element, type, function(e) {
-                model.$set(data.value, data.element.value);
+            exports.on(element, type, function(e) {
+                model.$set(value, element.value);
             });
         }
-        switch(data.element.tagName) {
+        switch(element.tagName) {
             case 'INPUT':
-                switch(data.element.type) {
+                switch(element.type) {
                     case 'checkbox':
-                        var v = model.$get(data.value);
+                        var v = model.$get(value);
                         if (v && !exports.isArray(v)) {
                             throw new TypeError('Checkbox bind must be array.');
                         }
 
                         if (!v) {
-                            model.$set(data.value, []);
+                            model.$set(value, []);
                         }
 
-                        exports.on(data.element, 'click', function(e) {
-                            // var el = ie678 ? e.srcElement : this
-                            var el = /* ie678( */ ie678 ? e.srcElement : /* ie678) */ this,
-                            value = model.$get(data.value),
-                            item = el.value;
+                        exports.on(element, 'click', function(e) {
+                            var $value = model.$get(value),
+                            item = element.value;
 
                             if (el.checked) {
-                                value.push(item);
+                                $value.push(item);
                             } else {
                                 // 删除掉元素
-                                value.remove(item);
+                                $value.remove(item);
                             }
 
-                            model.$set(data.value, value);
+                            model.$set(value, $value);
                         });
                     break;
                     case 'radio':
-                        exports.on(data.element, 'click', function(e) {
-                            // model.$set(data.value, ie678 ? e.srcElement.value : this.value);
-                            model.$set(data.value, /* ie678( */ ie678 ? e.srcElement.value : /* ie678) */ this.value);
+                        exports.on(element, 'click', function(e) {
+                            model.$set(value, element.value);
                         });
                     break;
                     default:
@@ -448,25 +428,8 @@ exports.extend(exports.scanners, {
                 }
             break;
             case 'SELECT':
-                exports.on(data.element, 'change', function(e) {
-                    var value, el;
-                    /* ie678( */
-                    if (ie67) {
-                        el = data.element.options[data.element.selectedIndex];
-                        if (el.attributes.value.specified) {
-                            value = el.value;
-                        } else {
-                            value = el.text;
-                        }
-                    } else if (ie678) {
-                        value = data.element.options[data.element.selectedIndex].value;
-                    } else {
-                        /* ie678) */
-                        value = this.value;
-                        /* ie678( */
-                    }
-                    /* ie678) */
-                    model.$set(data.value, value);
+                exports.on(element, 'change', function(e) {
+                    model.$set(value, element.value);
                 });
             break;
             case 'TEXTAREA':
@@ -484,23 +447,21 @@ exports.extend(exports.scanners, {
      * 但这样有个问题, 就是类名只能用小写, 因为属性名都会转化为小写的
      * 当expr结果为真时添加class, 否则移出
      */
-    'x-class': function(data, attr) {
-        var element = data.element;
+    'x-class': function(model, element, value, attr, type, param) {
         element.removeAttribute(attr.name);
-        bindModel(data.model, data.value, parseExpress, function(res) {
+        bindModel(model, value, parseExpress, function(res) {
             if (res) {
-                exports.addClass(data.element, data.param);
+                exports.addClass(element, param);
             } else {
-                exports.removeClass(data.element, data.param);
+                exports.removeClass(element, param);
             }
         });
     },
-    'x-ajax': function(data, attr) {
-        var element = data.element,
-        model = exports.getModel(element) || new Model();
+    'x-ajax': function(model, element, value, attr, type, param) {
         element.removeAttribute(attr.name);
 
         if (!element.$modelId) {
+            model = new Model();
             model.$bindElement(element);
         }
 
@@ -509,53 +470,51 @@ exports.extend(exports.scanners, {
                 type: 'GET',
                 dataType: 'json',
                 cache: false,
-                url: data.value,
+                url: value,
                 success: function(res) {
                     for (var key in res) {
-                        model.$set(data.param + '.' + key, res[key]);
+                        model.$set(param + '.' + key, res[key]);
                     }
                 },
                 error: function(xhr, err) {
-                    model.$set(data.param + '.$error', err);
+                    model.$set(param + '.$error', err);
                 }
             });
         }
         read();
 
-        model[data.param] = {
+        model[param] = {
             $read: read
         };
 
         return model;
     },
-    'x-grid': function(data, attr) {
-        var el= data.element,
-        model = exports.getModel(el) || new Model();
-        el.removeAttribute(attr.name);
+    'x-grid': function(model, element, value, attr, type, param) {
+        element.removeAttribute(attr.name);
 
-        if (!el.$modelId) {
-            model.$bindElement(el);
+        if (!element.$modelId) {
+            model = new Model();
+            model.$bindElement(element);
         }
 
-        var name = data.param,
         opt = {
-            name: name,
-            url: attr.value,
-            page: el.getAttribute('page'),
-            pageSize: el.getAttribute('page-size')
+            name: param,
+            url: value,
+            page: element.getAttribute('page'),
+            pageSize: element.getAttribute('page-size')
         };
 
-        model[name] = new DataGrid(opt);
-        model[name].$$model = model;
+        model[param] = new DataGrid(opt);
+        model[param].$$model = model;
 
         return model;
     },
 
-    'x-style': function(data, attr) {
-        var cssName = camelize(data.param);
-        data.element.removeAttribute(attr.name);
-        bindModel(data.model, data.value, parseExpress, function(res) {
-            data.element.style[cssName] = res;
+    'x-style': function(model, element, value, attr, type, param) {
+        var cssName = camelize(param);
+        element.removeAttribute(attr.name);
+        bindModel(model, value, parseExpress, function(res) {
+            element.style[cssName] = res;
         });
     },
 
@@ -565,18 +524,13 @@ exports.extend(exports.scanners, {
      *      <input name="name" x-bind="name" />
      * </form>
      */
-    'x-form': function(data, attr) {
-        var model = exports.getExtModel(data.element);
-        data.element.removeAttribute(attr.name);
-        if (!model) {
-            model = new Model();
-            model.$bindElement(data.element);
-        }
+    'x-form': function(model, element, value, attr, type, param) {
+        element.removeAttribute(attr.name);
         extend(model, {
             $dirty: false, // 是否更改过
             $valid: true // 是不验证通过
         });
-        data.element.$xform = data.param;
+        element.$xform = param;
         return model;
     }
 });

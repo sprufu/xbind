@@ -22,18 +22,25 @@ function parseString(str, fields) {
             pos2 = str.indexOf(interpolate2, pos1 + len1);
             if (~pos2) {
                 flag = true;
-                txt += '+"' + str.substring(pos, pos1) + '" +' + parseExpress(str.substring(pos1 + len1, pos2), fields);
+                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '" +' + parseExpress(str.substring(pos1 + len1, pos2), fields);
                 pos = pos1 = pos2 = pos2 + len2;
             } else {
-                txt += '+"' + str.substr(pos) + '"';
+                txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';
                 break;
             }
         } else {
-            txt += '+"' + str.substr(pos) + '"';
+            txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';
             break;
         }
     }
     return flag ? txt : false;
+}
+
+var lineWrapExpReg = /[\r\n]/g;
+function replaceWrapLineString(str) {
+    return str.replace(lineWrapExpReg, function(it) {
+        return it == '\r' ? '\\r' : '\\n';
+    })
 }
 
 /**
