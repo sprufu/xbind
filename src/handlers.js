@@ -526,10 +526,6 @@ exports.extend(exports.scanners, {
      */
     'x-form': function(model, element, value, attr, type, param) {
         element.removeAttribute(attr.name);
-        if (!element.$modelId) {
-            model = new Model();
-            model.$bindElement(element);
-        }
         extend(model, {
             $dirty: false, // 是否更改过
             $valid: true // 是不验证通过
