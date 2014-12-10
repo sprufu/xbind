@@ -69,8 +69,6 @@ function eventBindHandler(model, element, value, attr, type) {
 
     element.removeAttribute(attr.name);
     exports.on(element, eventType, function(event) {
-        event.stopPropagation();
-        event.preventDefault();
         if (fn(model) === false) {
             /* ie678( */
             if (ie678) {
