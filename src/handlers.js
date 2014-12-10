@@ -42,7 +42,7 @@ function booleanHandler (data, attr) {
         return;
     }
 
-    bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+    bindModel(data.model, data.value, parseExpress, function(res) {
         if (res) {
             data.element.setAttribute(data.type, data.type);
         } else {
@@ -52,7 +52,7 @@ function booleanHandler (data, attr) {
 }
 
 function stringBindHandler (data, attr) {
-    bindModel(data.model, data.value, parseString, function(res, value, oldValue) {
+    bindModel(data.model, data.value, parseString, function(res) {
         attr.value = res;
     });
 }
@@ -60,7 +60,7 @@ function stringBindHandler (data, attr) {
 function stringXBindHandler(data, attr) {
     var attrName = data.type.substr(2);
     data.element.removeAttribute(attr.name);
-    bindModel(data.model, data.value, parseString, function(res, value, oldValue) {
+    bindModel(data.model, data.value, parseString, function(res) {
         data.element.setAttribute(attrName, res);
     });
 }
@@ -326,7 +326,7 @@ exports.extend(exports.scanners, {
             model.$bindElement(element);
         }
 
-        bindModel(parentModel, data.value, parseExpress, function(res, value, oldValue) {
+        bindModel(parentModel, data.value, parseExpress, function(res) {
             if (res) {
                 element.parentElement || parent.replaceChild(element, replaceElement);
                 model.$freeze = false;
@@ -344,7 +344,7 @@ exports.extend(exports.scanners, {
     'x-show': function(data, attr) {
         var model = exports.getExtModel(data.element);
         data.element.removeAttribute(attr.name);
-        bindModel(model, data.value, parseExpress, function(res, value, oldValue) {
+        bindModel(model, data.value, parseExpress, function(res) {
             data.element.style.display = res ? "" : "none";
         });
     },
@@ -352,7 +352,7 @@ exports.extend(exports.scanners, {
     'x-bind': function(data, attr) {
         var model = exports.getExtModel(data.element);
         data.element.removeAttribute(attr.name);
-        bindModel(model, data.value, parseExpress, function(res, value, field) {
+        bindModel(model, data.value, parseExpress, function(res) {
             var el = data.element,
             flag = true;
             if (el.tagName == 'INPUT') {
@@ -470,7 +470,7 @@ exports.extend(exports.scanners, {
     'x-class': function(data, attr) {
         var element = data.element;
         element.removeAttribute(attr.name);
-        bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+        bindModel(data.model, data.value, parseExpress, function(res) {
             if (res) {
                 exports.addClass(data.element, data.param);
             } else {
@@ -537,7 +537,7 @@ exports.extend(exports.scanners, {
     'x-style': function(data, attr) {
         var cssName = camelize(data.param);
         data.element.removeAttribute(attr.name);
-        bindModel(data.model, data.value, parseExpress, function(res, value, oldValue) {
+        bindModel(data.model, data.value, parseExpress, function(res) {
             data.element.style[cssName] = res;
         });
     },
