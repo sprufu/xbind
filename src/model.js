@@ -144,7 +144,7 @@ Model.prototype = {
      *    3. 这会触发视图更新
      */
     $set: function(field, value) {
-        var oldValue = setFieldValue(this, field, value);
+        setFieldValue(this, field, value);
         this.$notifySubscribes(field, value);
     },
 
