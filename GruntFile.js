@@ -31,7 +31,7 @@ module.exports = function(grunt) {
                     footer: '',
                     wrap:'global',
                     process: function(src) {
-                        return src.replace(/\/\/ vim\:.*\r\n/g, '');
+                        return src.replace('"use strict";', '').replace(/\/\/ vim\:.*\r\n/g, '');
                     }
                 },
                 files: {

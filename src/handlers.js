@@ -1,6 +1,7 @@
 /**
  * 属性扫描定义的回调
  */
+"use strict";
 
 // 忽略的标签
 var optIgonreTag = {
@@ -368,14 +369,12 @@ exports.extend(exports.scanners, {
         bindModel(model, value, parseExpress, function(res) {
             if (element.tagName == 'INPUT') {
                 if (element.type == 'radio') {
-                    flag = false;
                     if (res == element.value) {
                         element.checked = true;
                     } else {
                         element.checked = false;
                     }
                 } else if (element.type == 'checkbox') {
-                    flag = false;
                     if (~res.indexOf(element.value)) {
                         element.checked = true;
                     } else {
@@ -497,7 +496,7 @@ exports.extend(exports.scanners, {
             model.$bindElement(element);
         }
 
-        opt = {
+        var opt = {
             name: param,
             url: value,
             page: element.getAttribute('page'),

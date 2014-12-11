@@ -3,6 +3,7 @@
  * <div attr-name="data" scan-guid="scanGuid"> ... </div>
  * 扫描后可以生成很多信息, 这些信息与结点相关, 每个信息是一个回调函数, 连接时只需要执行这个回调函数就行
  */
+"use strict";
 var SCANS_INFO = {
     /*
     * someScanGuid: [ callback array ],

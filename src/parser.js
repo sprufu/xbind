@@ -2,6 +2,7 @@
  * @file 表达式字符串解析
  * @author jcode
  */
+"use strict";
 
 /**
  * 解析插值字符串

@@ -3,6 +3,8 @@
  * 如果不考虑ie678, 可以去掉这个文件
  * @author jcode
  */
+"use strict";
+
 /* ie678( */
 if (!''.trim) {
     var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g

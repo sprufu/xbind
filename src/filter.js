@@ -2,6 +2,7 @@
  * @file 过滤器
  * @author jcode
  */
+"use strict";
 
 exports.filters = {
 	/**

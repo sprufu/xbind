@@ -2,6 +2,7 @@
  * @file 表单处理
  * @author jcode
  */
+"use strict";
 
 extend(exports.scanners, {
     /**

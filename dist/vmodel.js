@@ -4,6 +4,7 @@
  * @author jcode
  */
 
+
 /**********************************/
 /*         全局变量定义区         */
 /**********************************/
@@ -292,6 +293,7 @@ function bindModel(model, str, parsefn, updatefn) {
     }
 }
 
+
 function ajax(opt) {
     opt = exports.extend({}, options.ajax, opt);
     // var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP')
@@ -396,6 +398,7 @@ function object2UrlSearch(object) {
  * 所有通过工厂函数加工过的数据, 都是以这个为原型
  * @author jcode
  */
+
 
 /**
  * 存储所有的数据
@@ -737,6 +740,7 @@ extend(exports, {
  * <div attr-name="data" scan-guid="scanGuid"> ... </div>
  * 扫描后可以生成很多信息, 这些信息与结点相关, 每个信息是一个回调函数, 连接时只需要执行这个回调函数就行
  */
+
 var SCANS_INFO = {
     /*
     * someScanGuid: [ callback array ],
@@ -879,6 +883,8 @@ function getScanAttrList(attrs) {
  * 如果不考虑ie678, 可以去掉这个文件
  * @author jcode
  */
+
+
 /* ie678( */
 if (!''.trim) {
     var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
@@ -931,6 +937,7 @@ if (!Function.prototype.bind) {
 /**
  * 属性扫描定义的回调
  */
+
 
 // 忽略的标签
 var optIgonreTag = {
@@ -1298,14 +1305,12 @@ exports.extend(exports.scanners, {
         bindModel(model, value, parseExpress, function(res) {
             if (element.tagName == 'INPUT') {
                 if (element.type == 'radio') {
-                    flag = false;
                     if (res == element.value) {
                         element.checked = true;
                     } else {
                         element.checked = false;
                     }
                 } else if (element.type == 'checkbox') {
-                    flag = false;
                     if (~res.indexOf(element.value)) {
                         element.checked = true;
                     } else {
@@ -1427,7 +1432,7 @@ exports.extend(exports.scanners, {
             model.$bindElement(element);
         }
 
-        opt = {
+        var opt = {
             name: param,
             url: value,
             page: element.getAttribute('page'),
@@ -1579,6 +1584,7 @@ DataGrid.prototype = {
  * @file 表达式字符串解析
  * @author jcode
  */
+
 
 /**
  * 解析插值字符串
@@ -1858,6 +1864,7 @@ var parseJSON = window.JSON ? window.JSON.parse : function(str) {
  * @author jcode
  */
 
+
 exports.filters = {
 	/**
 	 * name: function(obj, arg...),
@@ -2021,6 +2028,7 @@ exports.filters.date.format = function(match, handler) {
  * @file 表单处理
  * @author jcode
  */
+
 
 extend(exports.scanners, {
     /**
