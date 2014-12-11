@@ -366,7 +366,6 @@ exports.extend(exports.scanners, {
     'x-bind': function(model, element, value, attr) {
         element.removeAttribute(attr.name);
         bindModel(model, value, parseExpress, function(res) {
-            var flag = true;
             if (element.tagName == 'INPUT') {
                 if (element.type == 'radio') {
                     flag = false;
@@ -383,14 +382,8 @@ exports.extend(exports.scanners, {
                         element.checked = false;
                     }
                 }
-            }
-
-            if (flag) {
+            } else if (element.tagName == 'SELECT') {
                 element.value = res;
-            }
-
-            if (element.name && element.form && element.form.$xform) {
-                validItem(element);
             }
         });
 
@@ -417,7 +410,7 @@ exports.extend(exports.scanners, {
                             var $value = model.$get(value),
                             item = element.value;
 
-                            if (el.checked) {
+                            if (element.checked) {
                                 $value.push(item);
                             } else {
                                 // 删除掉元素

@@ -998,8 +998,20 @@ function eventBindHandler(model, element, value, attr, type) {
     fn = new Function('$model', expr);
 
     element.removeAttribute(attr.name);
-    exports.on(element, eventType, function() {
-        fn(model);
+    exports.on(element, eventType, function(event) {
+        if (fn(model) === false) {
+            /* ie678( */
+            if (ie678) {
+                event.cancelBubble = true;
+                event.returnValue = false;
+            } else {
+                /* ie678) */
+                event.stopPropagation();
+                event.preventDefault();
+                /* ie678( */
+            }
+            /* ie678) */
+        }
     });
 }
 
@@ -1054,7 +1066,6 @@ options.stringBindAttrs = [
     'cellspacing',
     'method',
     'color',
-    'type',
     'border',
     'size',
     'face',
@@ -1285,7 +1296,6 @@ exports.extend(exports.scanners, {
     'x-bind': function(model, element, value, attr) {
         element.removeAttribute(attr.name);
         bindModel(model, value, parseExpress, function(res) {
-            var flag = true;
             if (element.tagName == 'INPUT') {
                 if (element.type == 'radio') {
                     flag = false;
@@ -1302,14 +1312,8 @@ exports.extend(exports.scanners, {
                         element.checked = false;
                     }
                 }
-            }
-
-            if (flag) {
+            } else if (element.tagName == 'SELECT') {
                 element.value = res;
-            }
-
-            if (element.name && element.form && element.form.$xform) {
-                validItem(element);
             }
         });
 
@@ -1336,7 +1340,7 @@ exports.extend(exports.scanners, {
                             var $value = model.$get(value),
                             item = element.value;
 
-                            if (el.checked) {
+                            if (element.checked) {
                                 $value.push(item);
                             } else {
                                 // 删除掉元素
@@ -1347,9 +1351,7 @@ exports.extend(exports.scanners, {
                         });
                     break;
                     case 'radio':
-                        exports.on(element, 'click', function(e) {
-                            model.$set(value, element.value);
-                        });
+                        addListen('click');
                     break;
                     default:
                         addListen('keyup');
@@ -1358,9 +1360,7 @@ exports.extend(exports.scanners, {
                 }
             break;
             case 'SELECT':
-                exports.on(element, 'change', function(e) {
-                    model.$set(value, element.value);
-                });
+                addListen('change');
             break;
             case 'TEXTAREA':
                 addListen('keyup');
@@ -1446,108 +1446,8 @@ exports.extend(exports.scanners, {
         bindModel(model, value, parseExpress, function(res) {
             element.style[cssName] = res;
         });
-    },
-
-    /**
-     * 表单操作
-     * <form x-form-frmname="action" action="actionUrl" method="post">
-     *      <input name="name" x-bind="name" />
-     * </form>
-     */
-    'x-form': function(model, element, value, attr, type, param) {
-        element.removeAttribute(attr.name);
-        extend(model, {
-            $dirty: false, // 是否更改过
-            $valid: true // 是不验证通过
-        });
-        element.$xform = param;
-        return model;
     }
 });
-
-var VALIDATTRIBUTES = {
-    /**
-     * 最小长度验证
-     */
-    min: function(num, value) {
-        return value.length >= +num;
-    },
-
-    /**
-     * 最大长度验证
-     */
-    max: function(num, value) {
-        return value.length <= +num;
-    },
-
-    /**
-     * 正则验证
-     */
-    pattern: function(regexp, value) {
-        return new RegExp(regexp).test(value);
-    },
-
-    /**
-     * 类型验证, 如type="url", type="email", type="number"
-     */
-    type: function(type, value) {
-        var reg = REGEXPS[type.toLowerCase()];
-        if (reg) {
-            return ret.test(value);
-        }
-        return true;
-    },
-
-    /**
-     * 必填验证
-     */
-    required: function(_, value) {
-        return !!value;
-    }
-}
-
-/**
- * 验证输入表单数据
- * @param {Element} input 输入结点, 如input, textarea, select
- */
-function validItem(input) {
-    var name, fn, attr, field,
-    valid = true, error,
-    frm = input.form,   // 表单
-    fname = frm.$xform, // 表单绑定名
-    fmodel = exports.getExtModel(frm); // 表单数据
-    for (name in VALIDATTRIBUTES) {
-        attr = input.attributes[name];
-
-        // 没有的属性, 不做处理
-        // if (!attr || !attr.specified) {
-        if (!attr /* ie678( */ || !attr.specified /* ie678) */) {
-            continue;
-        }
-
-        // 计算验证结果
-        fn = VALIDATTRIBUTES[name];
-        if (fn.call(input, attr.value, input.value)) {
-            error = false;
-        } else {
-            error = true;
-            valid = false;
-        }
-
-        // 更新验证出错信息
-        // 验证出错信息是区分开的
-        field = fname + '.' + input.name + '.$error.' + name;
-        if (fmodel.$get(field) != error) {
-            fmodel.$set(field, error);
-        }
-    }
-
-    // 更新验证结果
-    field = fname + '.' + input.name + '.valid';
-    if (fmodel.$get(field) != valid) {
-        fmodel.$set(field, valid);
-    }
-}
 
 /**
  * 注册的模板列表
@@ -2115,6 +2015,169 @@ function fix0Number(num) {
 
 exports.filters.date.format = function(match, handler) {
     dateFormatter[match] = handler;
+}
+
+/**
+ * @file 表单处理
+ * @author jcode
+ */
+
+extend(exports.scanners, {
+    /**
+     * 表单操作
+     * <form x-form-frmname="action" action="actionUrl" method="post">
+     *      <input name="name" x-bind="name" />
+     * </form>
+     */
+    'x-form': function(model, element, value, attr, type, param) {
+        element.removeAttribute(attr.name);
+        extend(model, {
+            $xform: param,
+            $dirty: false, // 是否更改过
+            $valid: true // 是不验证通过
+        });
+        return model;
+    },
+
+    /**
+     * 最小值限制验证
+     */
+    min: function(model, element, value) {
+        if (!element.form) {
+            return;
+        }
+
+        var minValue = +value;
+        function onevent() {
+            updateFormItem(element, 'max', +element.value >= minValue)
+        }
+
+        exports.on(element, 'keyup', onevent);
+        exports.on(element, 'change', onevent);
+    },
+
+    /**
+     * 最大值限制验证
+     */
+    max: function(model, element, value) {
+        if (!element.form) {
+            return;
+        }
+
+        var maxValue = +value;
+        function onevent() {
+            updateFormItem(element, 'max', +element.value <= maxValue)
+        }
+
+        exports.on(element, 'keyup', onevent);
+        exports.on(element, 'change', onevent);
+    },
+
+    /**
+     * 最小长度验证
+     */
+    minlength: function(model, element, value) {
+        if (!element.form) {
+            return;
+        }
+
+        var minValue = +value;
+        function onevent() {
+            updateFormItem(element, 'minlength', element.value.length >= minValue)
+        }
+
+        exports.on(element, 'keyup', onevent);
+        exports.on(element, 'change', onevent);
+    },
+
+    /**
+     * 最大长度验证
+     */
+    maxlength: function(model, element, value) {
+        if (!element.form) {
+            return;
+        }
+
+        var maxValue = +value;
+        function onevent() {
+            updateFormItem(element, 'maxlength', element.value.length <= maxValue)
+        }
+
+        exports.on(element, 'keyup', onevent);
+        exports.on(element, 'change', onevent);
+    },
+
+    /**
+     * 正则验证
+     */
+    pattern: function(model, element, value) {
+        if (!element.form) {
+            return;
+        }
+
+        var regexp = new RegExp(value),
+        fn = function() {
+            updateFormItem(element, 'pattern', element.value.test(regexp));
+        };
+
+        exports.on(element, 'keyup', onevent);
+        exports.on(element, 'change', onevent);
+    },
+
+    /**
+     * 必填验证
+     */
+    required: function(model, element, value) {
+        if (!element.form) {
+            return;
+        }
+
+        var fn = function() {
+            updateFormItem(element, 'required', !!value);
+        };
+
+        exports.on(element, 'keyup', onevent);
+        exports.on(element, 'change', onevent);
+    },
+
+    /**
+     * 类型判断
+     */
+    type: function(model, element, value) {
+        value = value.toLowerCase();
+
+        if (!element.form || !REGEXPS[value]) {
+            return;
+        }
+
+        var fn = function() {
+            updateFormItem(element, 'type', element.value.test(REGEXPS[value]));
+        }
+
+        exports.on(element, 'keyup', onevent);
+        exports.on(element, 'change', onevent);
+    }
+});
+
+/**
+ * 更新表单验证信息
+ * @param {Element} element 表单项, 如: <input name="name" />
+ * @param {String} type 验证类型
+ * @param {boolean} res 验证结果
+ */
+function updateFormItem(element, type, res) {
+    var frm = element.form,
+    model = exports.getExtModel(frm),
+    name, prefix;
+
+    if (!model) {
+        return;
+    }
+
+    name = element.name;
+    prefix = model.$xform + '.' + element.name;
+    model.$set(prefix + '.$valid', res);
+    model.$set(prefix + '.$error.' + type, !res);
 }
 
 exports.ready(scan);
