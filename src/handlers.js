@@ -381,10 +381,10 @@ exports.extend(exports.scanners, {
                         element.checked = false;
                     }
                 } else {
-                    element.value = res;
+                    element.value = res || '';
                 }
             } else {
-                element.value = res;
+                element.value = res || '';
             }
         });
 
