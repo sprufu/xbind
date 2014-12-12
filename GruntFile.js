@@ -13,9 +13,10 @@ module.exports = function(grunt) {
         'src/handlers.js',
         'src/parser.js',
         'src/filter.js',
-		
-		'src/form.js',
-		
+
+        'src/grid.js',
+        'src/form.js',
+
         'src/exports.js',
 
     'src/wrap/footer'];
