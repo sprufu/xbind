@@ -470,7 +470,7 @@ Model.prototype = {
             i = 0;
             for (; i<keys.length; i++) {
                 key = keys[i];
-                if (!v) {
+                if (!v[key]) {
                     if (i || noExtend) {
                         return '';
                     } else {
@@ -713,19 +713,7 @@ extend(exports, {
         model = null;
     }
 });
-/**
- * 扫描信息存储
- * <div attr-name="data" scan-guid="scanGuid"> ... </div>
- * 扫描后可以生成很多信息, 这些信息与结点相关, 每个信息是一个回调函数, 连接时只需要执行这个回调函数就行
- */
 
-var SCANS_INFO = {
-    /*
-    * someScanGuid: [ callback array ],
-    * ...
-    * callback(element, model);
-    */
-};
 
 /**
  * 扫描结点, 添加绑定
@@ -737,17 +725,16 @@ function scan(element, model) {
     switch(element.nodeType) {
     // 普通结点
     case 1:
-        model = scanAttrs(element, model) || model;
-        if (!element.$noScanChild && element.childNodes.length) {
-            scanChildNodes(element, model);
+        if (!options.igonreTags[element.tagName]) {
+            model = scanAttrs(element, model) || model;
+            if (!element.$noScanChild && element.childNodes.length) {
+                scanChildNodes(element, model);
+            }
         }
     break;
     // 文本结点
     case 3:
         scanText(element, model);
-    break;
-    case 9:
-        scanChildNodes(element, model);
     break;
     }
 }
@@ -866,20 +853,18 @@ function getScanAttrList(attrs) {
 
 
 // 忽略的标签
-var optIgonreTag = {
-    script: true,
-    noscript: true,
-    iframe: true
+options.igonreTags = {
+    SCRIPT: true,
+    NOSCRIPT: true,
+    IFRAME: true
 };
 
 // 扫描优先级, 没有定义的都在1000
 options.priorities = {
     'x-skip': 0,
     'x-controller': 10,
-    'x-each': 20,
-    'x-with': 30,
-    'x-if': 50,
-    'href': 3000
+    'x-repeat': 20,
+    'x-if': 50
 };
 
 exports.scanners = {
@@ -1335,26 +1320,6 @@ exports.extend(exports.scanners, {
 
         return model;
     },
-    'x-grid': function(model, element, value, attr, type, param) {
-        element.removeAttribute(attr.name);
-
-        if (!element.$modelId) {
-            model = new Model();
-            model.$bindElement(element);
-        }
-
-        var opt = {
-            name: param,
-            url: value,
-            page: element.getAttribute('page'),
-            pageSize: element.getAttribute('page-size')
-        };
-
-        model[param] = new DataGrid(opt);
-        model[param].$$model = model;
-
-        return model;
-    },
 
     'x-style': function(model, element, value, attr, type, param) {
         var cssName = camelize(param);
@@ -1380,116 +1345,6 @@ function Template(id, element) {
     this.element = element;
     TEMPLATES[id] = this;
 }
-
-function DataGrid(opt) {
-    if (opt.page) {
-        if (REGEXPS.number.test(opt.page)) {
-            this.$$page = +opt.page;
-        } else {
-            this.$$page = +parseUrlParam(opt.page) || 1;
-        }
-    } else {
-        this.$$page = 1;
-    }
-
-    if (opt.pageSize) {
-        if (REGEXPS.number.test(opt.pageSize)) {
-            this.$$pageSize = +opt.pageSize;
-        } else {
-            this.$$pageSize = +parseUrlParam(opt.pageSize) || 20;
-        }
-    } else {
-        this.$$pageSize = 20;
-    }
-
-    this.$$sort = '';
-    this.$$order = '';
-    this.$$params = {
-        page: this.$$page,
-        pageSize: this.$$pageSize
-    };
-    this.$$url = opt.url;
-    this.$$name = opt.name;
-
-    this.$read();
-}
-
-DataGrid.prototype = {
-    /**
-     * 读取数据
-     */
-    $read: function(search) {
-        if (arguments.length) {
-            this.$$params = search;
-            this.$$page = 1;
-        }
-
-        var self = this,
-        data = this.$$params;
-        extend(data, {
-            page: this.$$page,
-            pageSize: this.$$pageSize
-        });
-        if (this.$$sort) {
-            data.sort = this.$$sort;
-        }
-
-        if (this.$$order) {
-            data.order = this.$$order;
-        }
-
-        ajax({
-            type: 'GET',
-            dataType: 'json',
-            cache: false,
-            url: this.$$url,
-            data: data,
-            success: function(res) {
-                for (var key in res) {
-                    self.$$model.$set(self.$$name + '.' + key, res[key]);
-                }
-            },
-            error: function(xhr, err) {
-                self.$$model.$set(self.$$name + '.$error', err);
-            }
-        });
-    },
-
-    /**
-     * 获取当前页码或跳到指定页码
-     */
-    $page: function(page) {
-        if (page) {
-            this.$$page = page;
-            this.$read();
-        } else {
-            return this.$$page;
-        }
-    },
-
-    /**
-     * 设置或更改每页显示记录数
-     * 更改时重新加载页面并跳到第一页
-     */
-    $pageSize: function(pageSize) {
-        if (pageSize) {
-            this.$$pageSize = pageSize;
-            this.$$page = 1;
-            this.$read();
-        } else {
-            return this.$$pageSize;
-        }
-    },
-
-    /**
-     * 重新排序
-     */
-    $sort: function(field, order) {
-        this.$$sort = field;
-        this.$$order = order || '';
-        this.$read();
-    }
-};
 
 /**
  * @file 表达式字符串解析
@@ -1727,10 +1582,19 @@ function parseExecuteItem(str, fields) {
     }
 }
 
+/**
+ * 编译用到的关键字
+ * 这些关键不编译, 其它转换成model变量
+ */
+options.keywords = {};
+'return if else true false null undefined NaN do while typeof instanceof function void with var this try throw catch new in for break continue switch default delete'.split(' ').forEach(function(item) {
+    options.keywords[item] = true;
+});
+
 var numberReg = /^\-?\d?\.?\d+$/;
 function parseStatic(str) {
     // 普通常量, 常量有很多, 这里只处理几个常用的
-    if (str == 'true' || str == 'false' || str == 'null' || str == 'undefined' || str == 'NaN') {
+    if (options.keywords[str]) {
         return str;
     }
 
@@ -1883,6 +1747,137 @@ exports.filters.date.format = function(match, handler) {
     dateFormatter[match] = handler;
 }
 
+exports.scanners['x-grid'] = function(model, element, value, attr, type, param) {
+    element.removeAttribute(attr.name);
+
+    if (!element.$modelId) {
+        model = new Model();
+        model.$bindElement(element);
+    }
+
+    var opt = {
+        name: param,
+        url: value,
+        page: element.getAttribute('page'),
+        pageSize: element.getAttribute('page-size')
+    };
+
+    model[param] = new DataGrid(opt);
+    model[param].$$model = model;
+
+    return model;
+};
+
+function DataGrid(opt) {
+    if (opt.page) {
+        if (REGEXPS.number.test(opt.page)) {
+            this.$$page = +opt.page;
+        } else {
+            this.$$page = +parseUrlParam(opt.page) || 1;
+        }
+    } else {
+        this.$$page = 1;
+    }
+
+    if (opt.pageSize) {
+        if (REGEXPS.number.test(opt.pageSize)) {
+            this.$$pageSize = +opt.pageSize;
+        } else {
+            this.$$pageSize = +parseUrlParam(opt.pageSize) || 20;
+        }
+    } else {
+        this.$$pageSize = 20;
+    }
+
+    this.$$sort = '';
+    this.$$order = '';
+    this.$$params = {
+        page: this.$$page,
+        pageSize: this.$$pageSize
+    };
+    this.$$url = opt.url;
+    this.$$name = opt.name;
+
+    this.$read();
+}
+
+DataGrid.prototype = {
+    /**
+     * 读取数据
+     */
+    $read: function(search) {
+        if (arguments.length) {
+            this.$$params = search;
+            this.$$page = 1;
+        }
+
+        var self = this,
+        data = this.$$params;
+        extend(data, {
+            page: this.$$page,
+            pageSize: this.$$pageSize
+        });
+        if (this.$$sort) {
+            data.sort = this.$$sort;
+        }
+
+        if (this.$$order) {
+            data.order = this.$$order;
+        }
+
+        ajax({
+            type: 'GET',
+            dataType: 'json',
+            cache: false,
+            url: this.$$url,
+            data: data,
+            success: function(res) {
+                for (var key in res) {
+                    self.$$model.$set(self.$$name + '.' + key, res[key]);
+                }
+            },
+            error: function(xhr, err) {
+                self.$$model.$set(self.$$name + '.$error', err);
+            }
+        });
+    },
+
+    /**
+     * 获取当前页码或跳到指定页码
+     */
+    $page: function(page) {
+        if (page) {
+            this.$$page = page;
+            this.$read();
+        } else {
+            return this.$$page;
+        }
+    },
+
+    /**
+     * 设置或更改每页显示记录数
+     * 更改时重新加载页面并跳到第一页
+     */
+    $pageSize: function(pageSize) {
+        if (pageSize) {
+            this.$$pageSize = pageSize;
+            this.$$page = 1;
+            this.$read();
+        } else {
+            return this.$$pageSize;
+        }
+    },
+
+    /**
+     * 重新排序
+     */
+    $sort: function(field, order) {
+        this.$$sort = field;
+        this.$$order = order || '';
+        this.$read();
+    }
+};
+
 /**
  * @file 表单处理
  * @author jcode
@@ -1910,101 +1905,59 @@ extend(exports.scanners, {
      * 最小值限制验证
      */
     min: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
         var minValue = +value;
-        function onevent() {
-            updateFormItem(element, 'max', +element.value >= minValue)
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        bindValidModel(element, function() {
+            updateFormItem(element, 'min', +element.value >= minValue);
+        });
     },
 
     /**
      * 最大值限制验证
      */
     max: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
         var maxValue = +value;
-        function onevent() {
-            updateFormItem(element, 'max', +element.value <= maxValue)
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        bindValidModel(element, function() {
+            updateFormItem(element, 'max', +element.value <= maxValue);
+        });
     },
 
     /**
      * 最小长度验证
      */
     minlength: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
         var minValue = +value;
-        function onevent() {
-            updateFormItem(element, 'minlength', element.value.length >= minValue)
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        bindValidModel(element, function() {
+            updateFormItem(element, 'minlength', element.value.length >= minValue);
+        })
     },
 
     /**
      * 最大长度验证
      */
     maxlength: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
         var maxValue = +value;
-        function onevent() {
-            updateFormItem(element, 'maxlength', element.value.length <= maxValue)
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        bindValidModel(element, function() {
+            updateFormItem(element, 'maxlength', element.value.length <= maxValue);
+        })
     },
 
     /**
      * 正则验证
      */
     pattern: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
-        var regexp = new RegExp(value),
-        fn = function() {
+        var regexp = new RegExp(value);
+        bindValidModel(element, function() {
             updateFormItem(element, 'pattern', element.value.test(regexp));
-        };
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        })
     },
 
     /**
      * 必填验证
      */
-    required: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
-        var fn = function() {
-            updateFormItem(element, 'required', !!value);
-        };
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+    required: function(model, element) {
+        bindValidModel(element, function() {
+            updateFormItem(element, 'required', !!element.value);
+        });
     },
 
     /**
@@ -2013,18 +1966,23 @@ extend(exports.scanners, {
     type: function(model, element, value) {
         value = value.toLowerCase();
 
-        if (!element.form || !REGEXPS[value]) {
+        if (!REGEXPS[value]) {
             return;
         }
 
-        var fn = function() {
+        bindValidModel(element, function() {
             updateFormItem(element, 'type', element.value.test(REGEXPS[value]));
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        });
     }
 });
+
+function bindValidModel(element, fn) {
+    if (!element.form) {
+        return;
+    }
+    exports.on(element, 'keyup', fn);
+    exports.on(element, 'change', fn);
+}
 
 /**
  * 更新表单验证信息
