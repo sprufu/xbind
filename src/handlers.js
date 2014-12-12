@@ -5,9 +5,9 @@
 
 // 忽略的标签
 options.igonreTags = {
-    script: true,
-    noscript: true,
-    iframe: true
+    SCRIPT: true,
+    NOSCRIPT: true,
+    IFRAME: true
 };
 
 // 扫描优先级, 没有定义的都在1000
