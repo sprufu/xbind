@@ -57,6 +57,9 @@ function Model(vm) {
     this.$childs = [];
     this.$element = null;
     this.$freeze = false;
+
+    // 存放临时字段结果
+    this.$cache = {};
     this.$subscribes = {
         /**
          * 以字段为键
@@ -84,7 +87,9 @@ Model.prototype = {
      * @returns {object} 从当前数据查找, 如果不存在指定的键, 则向上查找, 除非明确指定noExtend
      */
     $get: function(field, noExtend) {
-        if (~field.indexOf('.')) {
+        if (this.$cache.hasOwnProperty(field)) {
+            return this.$cache[field];
+        } else if (~field.indexOf('.')) {
             // 深层处理, 如: user.name
             var v = this,
             key,
@@ -142,7 +147,9 @@ Model.prototype = {
      */
     $set: function(field, value) {
         setFieldValue(this, field, value);
+        this.$cache[field] = value;
         this.$notifySubscribes(field, value);
+        delete this.$cache[field];
     },
 
     /**
