@@ -25,101 +25,59 @@ extend(exports.scanners, {
      * 最小值限制验证
      */
     min: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
         var minValue = +value;
-        function onevent() {
-            updateFormItem(element, 'max', +element.value >= minValue)
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        bindValidModel(element, function() {
+            updateFormItem(element, 'min', +element.value >= minValue);
+        });
     },
 
     /**
      * 最大值限制验证
      */
     max: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
         var maxValue = +value;
-        function onevent() {
-            updateFormItem(element, 'max', +element.value <= maxValue)
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        bindValidModel(element, function() {
+            updateFormItem(element, 'max', +element.value <= maxValue);
+        });
     },
 
     /**
      * 最小长度验证
      */
     minlength: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
         var minValue = +value;
-        function onevent() {
-            updateFormItem(element, 'minlength', element.value.length >= minValue)
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        bindValidModel(element, function() {
+            updateFormItem(element, 'minlength', element.value.length >= minValue);
+        })
     },
 
     /**
      * 最大长度验证
      */
     maxlength: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
         var maxValue = +value;
-        function onevent() {
-            updateFormItem(element, 'maxlength', element.value.length <= maxValue)
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        bindValidModel(element, function() {
+            updateFormItem(element, 'maxlength', element.value.length <= maxValue);
+        })
     },
 
     /**
      * 正则验证
      */
     pattern: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
-        var regexp = new RegExp(value),
-        fn = function() {
+        var regexp = new RegExp(value);
+        bindValidModel(element, function() {
             updateFormItem(element, 'pattern', element.value.test(regexp));
-        };
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        })
     },
 
     /**
      * 必填验证
      */
-    required: function(model, element, value) {
-        if (!element.form) {
-            return;
-        }
-
-        var fn = function() {
-            updateFormItem(element, 'required', !!value);
-        };
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+    required: function(model, element) {
+        bindValidModel(element, function() {
+            updateFormItem(element, 'required', !!element.value);
+        });
     },
 
     /**
@@ -128,18 +86,23 @@ extend(exports.scanners, {
     type: function(model, element, value) {
         value = value.toLowerCase();
 
-        if (!element.form || !REGEXPS[value]) {
+        if (!REGEXPS[value]) {
             return;
         }
 
-        var fn = function() {
+        bindValidModel(element, function() {
             updateFormItem(element, 'type', element.value.test(REGEXPS[value]));
-        }
-
-        exports.on(element, 'keyup', onevent);
-        exports.on(element, 'change', onevent);
+        });
     }
 });
+
+function bindValidModel(element, fn) {
+    if (!element.form) {
+        return;
+    }
+    exports.on(element, 'keyup', fn);
+    exports.on(element, 'change', fn);
+}
 
 /**
  * 更新表单验证信息
