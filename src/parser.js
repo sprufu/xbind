@@ -37,11 +37,8 @@ function parseString(str, fields) {
     return flag ? txt : false;
 }
 
-var lineWrapExpReg = /[\r\n]/g;
 function replaceWrapLineString(str) {
-    return str.replace(lineWrapExpReg, function(it) {
-        return it == '\r' ? '\\r' : '\\n';
-    })
+    return str.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
 }
 
 /**
