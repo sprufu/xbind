@@ -4,7 +4,7 @@
 "use strict";
 
 // 忽略的标签
-var optIgonreTag = {
+options.igonreTags = {
     script: true,
     noscript: true,
     iframe: true
