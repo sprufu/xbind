@@ -19,9 +19,6 @@ function scan(element, model) {
     case 3:
         scanText(element, model);
     break;
-    case 9:
-        scanChildNodes(element, model);
-    break;
     }
 }
 
