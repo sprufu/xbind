@@ -234,10 +234,14 @@ function parseExecuteItem(str, fields) {
     }
 }
 
+options.keywords = {};
+'return if else true false null undefined NaN do while typeof instanceof function void with var this try throw catch new in for break continue switch default delete'.split(' ').forEach(function(item) {
+    options.keywords[item] = true;
+})
 var numberReg = /^\-?\d?\.?\d+$/;
 function parseStatic(str) {
     // 普通常量, 常量有很多, 这里只处理几个常用的
-    if (str == 'return' || str == 'true' || str == 'false' || str == 'null' || str == 'undefined') {
+    if (options.keywords[str]) {
         return str;
     }
 
