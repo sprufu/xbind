@@ -97,7 +97,7 @@ Model.prototype = {
             i = 0;
             for (; i<keys.length; i++) {
                 key = keys[i];
-                if (!v) {
+                if (!v[key]) {
                     if (i || noExtend) {
                         return '';
                     } else {
