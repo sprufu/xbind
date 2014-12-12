@@ -380,8 +380,10 @@ exports.extend(exports.scanners, {
                     } else {
                         element.checked = false;
                     }
+                } else {
+                    element.value = res;
                 }
-            } else if (element.tagName == 'SELECT') {
+            } else {
                 element.value = res;
             }
         });
