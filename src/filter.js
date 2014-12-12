@@ -99,60 +99,24 @@ function parseDateNumber(num) {
  */
 function formatDate(date, format) {
     return format.replace(/[a-zA-Z]+/g, function(str) {
-        var fn = dateFormatter[str];
-        return fn ? fn(date) : fn;
-    })
-}
-
-/**
- * 时间格式化函数
- */
-var dateFormatter = {
-    yyyy: function(d) {
-        return d.getFullYear();
-    },
-    mm: function(date) {
-        return fix0Number(date.getMonth() + 1);
-    },
-    m: function(date) {
-        return date.getMonth() + 1;
-    },
-    dd: function(date) {
-        return fix0Number(date.getDate());
-    },
-    d: function(date) {
-        return date.getDate();
-    },
-    hh: function(date) {
-        return fix0Number(date.getHours());
-    },
-    h: function(date) {
-        return date.getHours();
-    },
-    MM: function(date) {
-        return fix0Number(date.getMinutes());
-    },
-    M: function(date) {
-        return date.getMinutes();
-    },
-    ss: function(date) {
-        return fix0Number(date.getSeconds());
-    },
-    s: function(date) {
-        return date.getSeconds();
-    },
-    l: function(date) {
-        // TODO 多少时间前
-        return '';
-    },
-    ww: function(date) {
-        var arr = '日一二三四五六'.split('');
-        return '星期' + arr[date.getDay()];
-    },
-    w: function(date) {
-        var arr = '日一二三四五六'.split('');
-        return '周' + arr[date.getDay()];
-    }
+        switch (str) {
+            case 'yyyy' : return date.getFullYear();
+            case 'mm'   : return fix0Number(date.getMonth() + 1);
+            case 'm'    : return date.getMonth() + 1;
+            case 'dd'   : return fix0Number(date.getDate());
+            case 'd'    : return date.getDate();
+            case 'hh'   : return fix0Number(date.getHours());
+            case 'h'    : return date.getHours();
+            case 'MM'   : return fix0Number(date.getMinutes());
+            case 'M'    : return date.getMinutes();
+            case 'ss'   : return fix0Number(date.getSeconds());
+            case 's'    : return date.getSeconds();
+            case 'ww'   : return '星期' + '日一二三四五六'.split('')[date.getDay()];
+            case 'w'    : return '周' + '日一二三四五六'.split('')[date.getDay()];
+            case 'l'    : return ''; // TODO
+            default     : return str;
+        }
+    });
 }
 
 function fix0Number(num) {
