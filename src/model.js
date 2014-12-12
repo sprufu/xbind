@@ -148,7 +148,7 @@ Model.prototype = {
     $set: function(field, value) {
         setFieldValue(this, field, value);
         this.$cache[field] = value;
-        this.$notifySubscribes(field, value);
+        this.$notifySubscribes(field);
         delete this.$cache[field];
     },
 
@@ -181,7 +181,7 @@ Model.prototype = {
      * @see $subscribe
      * @see $unsubscribe
      */
-    $notifySubscribes: function(field, value) {
+    $notifySubscribes: function(field) {
         if (this.$freeze) {
             return;
         }
@@ -191,7 +191,7 @@ Model.prototype = {
         subscribe;
 
         for(; i<subscribes.length; i++) {
-            subscribes[i].update(this, value, field);
+            subscribes[i].update(this, field);
         }
     },
 
@@ -210,9 +210,9 @@ Model.prototype = {
         if (model.$parent) {
             model.$parent.$childs.push(model);
             var observer = {
-                update: function(parentModel, value, field) {
+                update: function(parentModel, field) {
                     if (!model.hasOwnProperty(field)) {
-                        model.$notifySubscribes(field, value);
+                        model.$notifySubscribes(field);
                     }
                 }
             }
