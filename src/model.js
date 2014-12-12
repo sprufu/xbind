@@ -53,10 +53,10 @@ function Model(vm) {
     extend(this, vm);
 
     // 属性不能放到prototype里去定义, 那是公用的地方法.
-    this.$parent = null,
-    this.$childs = [],
-    this.$element = null,
-    this.$freeze = false,
+    this.$parent = null;
+    this.$childs = [];
+    this.$element = null;
+    this.$freeze = false;
     this.$subscribes = {
         /**
          * 以字段为键
