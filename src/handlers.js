@@ -14,10 +14,8 @@ var optIgonreTag = {
 options.priorities = {
     'x-skip': 0,
     'x-controller': 10,
-    'x-each': 20,
-    'x-with': 30,
-    'x-if': 50,
-    'href': 3000
+    'x-repeat': 20,
+    'x-if': 50
 };
 
 exports.scanners = {
