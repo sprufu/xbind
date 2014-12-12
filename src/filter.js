@@ -5,30 +5,30 @@
 "use strict";
 
 exports.filters = {
-	/**
-	 * name: function(obj, arg...),
-	 */
-	date: function(obj, format) {
+    /**
+     * name: function(obj, arg...),
+     */
+    date: function(obj, format) {
         var date = parseDate(obj);
         return formatDate(date, format);
-	},
+    },
 
-	/**
-	 * 输入长度限制
-	 */
-	limit: function(str, num, suffix) {
-		if (str.length <= num) {
-			return str;
-		}
+    /**
+     * 输入长度限制
+     */
+    limit: function(str, num, suffix) {
+        if (str.length <= num) {
+            return str;
+        }
 
-		suffix = suffix || '...';
-		return str.substring(0, num) + suffix;
-	},
+        suffix = suffix || '...';
+        return str.substring(0, num) + suffix;
+    },
 
-	"number": function(it, num) {
-		it = +it;
-		return it.toFixed(num);
-	}
+    "number": function(it, num) {
+        it = +it;
+        return it.toFixed(num);
+    }
 };
 
 /**
