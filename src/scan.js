@@ -10,9 +10,11 @@ function scan(element, model) {
     switch(element.nodeType) {
     // 普通结点
     case 1:
-        model = scanAttrs(element, model) || model;
-        if (!element.$noScanChild && element.childNodes.length) {
-            scanChildNodes(element, model);
+        if (!options.igonreTags[element.tagName]) {
+            model = scanAttrs(element, model) || model;
+            if (!element.$noScanChild && element.childNodes.length) {
+                scanChildNodes(element, model);
+            }
         }
     break;
     // 文本结点
