@@ -97,13 +97,13 @@ Model.prototype = {
             i = 0;
             for (; i<keys.length; i++) {
                 key = keys[i];
-                if (v && v.hasOwnProperty(key)) {
-                    if (i == keys.length - 1) {
-                        return v[key];
+                if (!v) {
+                    if (i || noExtend) {
+                        return '';
                     } else {
-                        v = v[key];
+                        return this.$parent ? this.$parent.$get(field) : '';
                     }
-                } else if (v[key]) {
+                } else if ('function' == typeof v[key]) {
                     // 当
                     // function User() {}
                     // User.prototype = {
@@ -122,10 +122,10 @@ Model.prototype = {
                         return v[key].apply(v, arguments);
                     }
                 } else {
-                    if (i || noExtend) {
-                        return '';
+                    if (i == keys.length - 1) {
+                        return v[key];
                     } else {
-                        return this.$parent ? this.$parent.$get(field) : '';
+                        v = v[key];
                     }
                 }
             }
