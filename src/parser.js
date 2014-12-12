@@ -237,7 +237,7 @@ function parseExecuteItem(str, fields) {
 var numberReg = /^\-?\d?\.?\d+$/;
 function parseStatic(str) {
     // 普通常量, 常量有很多, 这里只处理几个常用的
-    if (str == 'true' || str == 'false' || str == 'null' || str == 'undefined' || str == 'NaN') {
+    if (str == 'return' || str == 'true' || str == 'false' || str == 'null' || str == 'undefined') {
         return str;
     }
 

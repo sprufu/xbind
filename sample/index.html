@@ -99,7 +99,7 @@ setTimeout(function() {
     </table>
     
     <table x-grid-users="data.json" page="3">
-        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} <button x-click="users.$page(2)">page 2</button></a></caption>
+        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} <button x-click="users.$page(2);return false;">page 2</button></a></caption>
         <tr>
             <th>ID</th>
             <th>姓名</th>
