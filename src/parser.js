@@ -23,7 +23,7 @@ function parseString(str, fields) {
             pos2 = str.indexOf(interpolate2, pos1 + len1);
             if (~pos2) {
                 flag = true;
-                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '" +' + parseExpress(str.substring(pos1 + len1, pos2), fields);
+                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '" +(' + parseExpress(str.substring(pos1 + len1, pos2), fields) + ' || "")';
                 pos = pos1 = pos2 = pos2 + len2;
             } else {
                 txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';

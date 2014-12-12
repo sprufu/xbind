@@ -6,7 +6,7 @@
 <!--[if IE 6]>
 <script type="text/javascript" src="firebug-lite/build/firebug-lite.js"></script>
 <![endif]-->
-<script src="../dist/vmodel.js"></script>
+<script src="../dist/vmodel.min.js"></script>
 <script>
 var model = vmodel.define({
     $id: 'test',
@@ -39,9 +39,9 @@ setTimeout(function() {
 	
 	<form x-form-fuser="">
 		<div>
-			<input type="TEXT" id="in" name="name" x-bind="user.name" min="4" max="14" />
-			<span x-show="fuser.name.$error.min">长度要大于4位</span>
-			<span x-show="fuser.name.$error.max">长度要小于14位</span>
+			<input type="TEXT" id="in" name="name" x-bind="user.name" minlength="4" maxlength="14" />
+			<span x-show="fuser.name.$error.minlength">长度要大于4位</span>
+			<span x-show="fuser.name.$error.maxlength">长度要小于14位</span>
 		</div>
 		<div>
 			<label><input type="radio" name="sex" x-bind="user.sex" value="先生" /> 男</label>
@@ -68,7 +68,7 @@ setTimeout(function() {
     </div>
     
     <table x-ajax-users="data.json">
-        <caption> 总共: {{ users.total }} <a href="{{ url }}"> {{ test }} </a></caption>
+        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} </a></caption>
         <tr>
             <th>ID</th>
             <th>姓名</th>
@@ -80,14 +80,14 @@ setTimeout(function() {
             <td></td>
             <td>{{ user.title }}</td>
             <td></td>
-            <td> {{ user.publishDate }} </td>
+            <td> {{ user.publishDate | date 'yyyy-mm-dd(w)' }} </td>
             <td> <button x-click="users.$read()"> read() </button> </td>
         </tr>
 
     </table>
     
     <table x-grid-users="data.json" page="3">
-        <caption> 总共: {{ users.total }} <a href="{{ url }}"> {{ test }} <button x-click="users.$page(2)">page 2</button></a></caption>
+        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} <button x-click="users.$page(2)">page 2</button></a></caption>
         <tr>
             <th>ID</th>
             <th>姓名</th>

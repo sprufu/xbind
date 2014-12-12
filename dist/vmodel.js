@@ -448,10 +448,13 @@ function Model(vm) {
     extend(this, vm);
 
     // 属性不能放到prototype里去定义, 那是公用的地方法.
-    this.$parent = null,
-    this.$childs = [],
-    this.$element = null,
-    this.$freeze = false,
+    this.$parent = null;
+    this.$childs = [];
+    this.$element = null;
+    this.$freeze = false;
+
+    // 存放临时字段结果
+    this.$cache = {};
     this.$subscribes = {
         /**
          * 以字段为键
@@ -479,7 +482,9 @@ Model.prototype = {
      * @returns {object} 从当前数据查找, 如果不存在指定的键, 则向上查找, 除非明确指定noExtend
      */
     $get: function(field, noExtend) {
-        if (~field.indexOf('.')) {
+        if (this.$cache.hasOwnProperty(field)) {
+            return this.$cache[field];
+        } else if (~field.indexOf('.')) {
             // 深层处理, 如: user.name
             var v = this,
             key,
@@ -487,13 +492,13 @@ Model.prototype = {
             i = 0;
             for (; i<keys.length; i++) {
                 key = keys[i];
-                if (v && v.hasOwnProperty(key)) {
-                    if (i == keys.length - 1) {
-                        return returnValue(v[key]);
+                if (!v) {
+                    if (i || noExtend) {
+                        return '';
                     } else {
-                        v = v[key];
+                        return this.$parent ? this.$parent.$get(field) : '';
                     }
-                } else if (v[key]) {
+                } else if ('function' == typeof v[key]) {
                     // 当
                     // function User() {}
                     // User.prototype = {
@@ -512,16 +517,16 @@ Model.prototype = {
                         return v[key].apply(v, arguments);
                     }
                 } else {
-                    if (i || noExtend) {
-                        return '';
+                    if (i == keys.length - 1) {
+                        return v[key];
                     } else {
-                        return this.$parent ? this.$parent.$get(field) : '';
+                        v = v[key];
                     }
                 }
             }
         } else {
             if (this.hasOwnProperty(field)) {
-                return returnValue(this[field]);
+                return this[field];
             } else {
                 return this.$parent ? this.$parent.$get(field) : '';
             }
@@ -537,7 +542,9 @@ Model.prototype = {
      */
     $set: function(field, value) {
         setFieldValue(this, field, value);
-        this.$notifySubscribes(field, value);
+        this.$cache[field] = value;
+        this.$notifySubscribes(field);
+        delete this.$cache[field];
     },
 
     /**
@@ -569,7 +576,7 @@ Model.prototype = {
      * @see $subscribe
      * @see $unsubscribe
      */
-    $notifySubscribes: function(field, value) {
+    $notifySubscribes: function(field) {
         if (this.$freeze) {
             return;
         }
@@ -579,7 +586,7 @@ Model.prototype = {
         subscribe;
 
         for(; i<subscribes.length; i++) {
-            subscribes[i].update(this, value, field);
+            subscribes[i].update(this, field);
         }
     },
 
@@ -598,9 +605,9 @@ Model.prototype = {
         if (model.$parent) {
             model.$parent.$childs.push(model);
             var observer = {
-                update: function(parentModel, value, field) {
+                update: function(parentModel, field) {
                     if (!model.hasOwnProperty(field)) {
-                        model.$notifySubscribes(field, value);
+                        model.$notifySubscribes(field);
                     }
                 }
             }
@@ -632,13 +639,6 @@ Model.prototype = {
 
         return fn.apply(null, args);
     }
-}
-
-function returnValue(val) {
-    if (val === null || val === undefined) {
-        return val;
-    }
-    return val;
 }
 
 /**
@@ -1316,9 +1316,11 @@ exports.extend(exports.scanners, {
                     } else {
                         element.checked = false;
                     }
+                } else {
+                    element.value = res || '';
                 }
-            } else if (element.tagName == 'SELECT') {
-                element.value = res;
+            } else {
+                element.value = res || '';
             }
         });
 
@@ -1605,7 +1607,7 @@ function parseString(str, fields) {
             pos2 = str.indexOf(interpolate2, pos1 + len1);
             if (~pos2) {
                 flag = true;
-                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '" +' + parseExpress(str.substring(pos1 + len1, pos2), fields);
+                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '" +(' + parseExpress(str.substring(pos1 + len1, pos2), fields) + ' || "")';
                 pos = pos1 = pos2 = pos2 + len2;
             } else {
                 txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';
@@ -1619,11 +1621,8 @@ function parseString(str, fields) {
     return flag ? txt : false;
 }
 
-var lineWrapExpReg = /[\r\n]/g;
 function replaceWrapLineString(str) {
-    return str.replace(lineWrapExpReg, function(it) {
-        return it == '\r' ? '\\r' : '\\n';
-    })
+    return str.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
 }
 
 /**
@@ -1960,60 +1959,24 @@ function parseDateNumber(num) {
  */
 function formatDate(date, format) {
     return format.replace(/[a-zA-Z]+/g, function(str) {
-        var fn = dateFormatter[str];
-        return fn ? fn(date) : fn;
-    })
-}
-
-/**
- * 时间格式化函数
- */
-var dateFormatter = {
-    yyyy: function(d) {
-        return d.getFullYear();
-    },
-    mm: function(date) {
-        return fix0Number(date.getMonth() + 1);
-    },
-    m: function(date) {
-        return date.getMonth() + 1;
-    },
-    dd: function(date) {
-        return fix0Number(date.getDate());
-    },
-    d: function(date) {
-        return date.getDate();
-    },
-    hh: function(date) {
-        return fix0Number(date.getHours());
-    },
-    h: function(date) {
-        return date.getHours();
-    },
-    MM: function(date) {
-        return fix0Number(date.getMinutes());
-    },
-    M: function(date) {
-        return date.getMinutes();
-    },
-    ss: function(date) {
-        return fix0Number(date.getSeconds());
-    },
-    s: function(date) {
-        return date.getSeconds();
-    },
-    l: function(date) {
-        // TODO 多少时间前
-        return '';
-    },
-    ww: function(date) {
-        var arr = '日一二三四五六'.split('');
-        return '星期' + arr[date.getDay()];
-    },
-    w: function(date) {
-        var arr = '日一二三四五六'.split('');
-        return '周' + arr[date.getDay()];
-    }
+        switch (str) {
+            case 'yyyy' : return date.getFullYear();
+            case 'mm'   : return fix0Number(date.getMonth() + 1);
+            case 'm'    : return date.getMonth() + 1;
+            case 'dd'   : return fix0Number(date.getDate());
+            case 'd'    : return date.getDate();
+            case 'hh'   : return fix0Number(date.getHours());
+            case 'h'    : return date.getHours();
+            case 'MM'   : return fix0Number(date.getMinutes());
+            case 'M'    : return date.getMinutes();
+            case 'ss'   : return fix0Number(date.getSeconds());
+            case 's'    : return date.getSeconds();
+            case 'ww'   : return '星期' + '日一二三四五六'.split('')[date.getDay()];
+            case 'w'    : return '周' + '日一二三四五六'.split('')[date.getDay()];
+            case 'l'    : return ''; // TODO
+            default     : return str;
+        }
+    });
 }
 
 function fix0Number(num) {
