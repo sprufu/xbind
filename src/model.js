@@ -86,7 +86,7 @@ Model.prototype = {
      * @param {string} field 字段, 可以是深层的, 如: user.name
      * @returns {object} 从当前数据查找, 如果不存在指定的键, 则向上查找, 除非明确指定noExtend
      */
-    $get: function(field, noExtend) {
+    $get: function(field, noExtend, isDisplayResult) {
         if (this.$cache.hasOwnProperty(field)) {
             return this.$cache[field];
         } else if (~field.indexOf('.')) {
@@ -98,10 +98,12 @@ Model.prototype = {
             for (; i<keys.length; i++) {
                 key = keys[i];
                 if (!v[key]) {
-                    if (i || noExtend) {
-                        return '';
+                    if (v.hasOwnProperty(key)) {
+                        return isDisplayResult ? '' : v[key];
+                    } else if (noExtend) {
+                        return isDisplayResult ? '' : undefined;
                     } else {
-                        return this.$parent ? this.$parent.$get(field) : '';
+                        return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
                     }
                 } else if ('function' == typeof v[key]) {
                     // 当
@@ -133,7 +135,7 @@ Model.prototype = {
             if (this.hasOwnProperty(field)) {
                 return this[field];
             } else {
-                return this.$parent ? this.$parent.$get(field) : '';
+                return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
             }
         }
     },
