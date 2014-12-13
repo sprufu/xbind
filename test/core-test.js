@@ -46,7 +46,7 @@ describe('REGEXPS test', function() {
     })
 })
 
-describe('extend()', function() {
+describe('exports.extend()', function() {
     it('base', function() {
         var a = {a:'a'},
         b = {a:'b', b:'2'};
@@ -65,61 +65,67 @@ describe('extend()', function() {
     })
 })
 
-describe('isFunction()', function() {
-    it('base', function() {
-        assert(exports.isFunction(function(){}));
-        assert(exports.isFunction(''.toString));
-        assert(exports.isFunction(null) == false);
-        assert(exports.isFunction({}) == false);
-        assert(exports.isFunction([]) == false);
-        assert(exports.isFunction(false) == false);
-        assert(exports.isFunction(1) == false);
-    });
-})
+describe('type', function() {
+    it('isFunction()', function() {
+        it('base', function() {
+            assert(exports.isFunction(function(){}));
+            assert(exports.isFunction(''.toString));
+            assert(exports.isFunction(null) == false);
+            assert(exports.isFunction({}) == false);
+            assert(exports.isFunction([]) == false);
+            assert(exports.isFunction(false) == false);
+            assert(exports.isFunction(1) == false);
+        });
+    })
 
-describe('isArray()', function() {
-    it('base', function() {
-        assert(exports.isArray([]));
-        assert(exports.isArray(1) == false);
-        assert(exports.isArray(false) == false);
-        assert(exports.isArray(null) == false);
-        assert(exports.isArray({}) == false);
-        assert(exports.isArray('') == false);
-        assert(exports.isArray(new Date) == false);
+    it('isArray()', function() {
+        it('base', function() {
+            assert(exports.isArray([]));
+            assert(exports.isArray(1) == false);
+            assert(exports.isArray(false) == false);
+            assert(exports.isArray(null) == false);
+            assert(exports.isArray({}) == false);
+            assert(exports.isArray('') == false);
+            assert(exports.isArray(new Date) == false);
+        })
+    })
+
+    it('isPlainObject()', function() {
+        it('base', function() {
+            assert(exports.isPlainObject({}));
+            assert(exports.isPlainObject(new Date) == false);
+            assert(exports.isPlainObject(null) == false);
+            assert(exports.isPlainObject(false) == false);
+            assert(exports.isPlainObject(2) == false);
+            assert(exports.isPlainObject('') == false);
+        })
+    })
+
+    it('isEmptyObject()', function() {
+        it('base', function() {
+            assert(exports.isEmptyObject({}));
+            assert(exports.isEmptyObject({a:false}) == false);
+            assert(exports.isEmptyObject(null) == false);
+            assert(exports.isEmptyObject(new Date) == false);
+        })
+    })
+
+    it('type()', function() {
+        it('base', function() {
+            assert(exports.type(0) == 'number');
+            assert(exports.type(false) == 'boolean');
+            assert(exports.type(null) == 'null');
+            assert(exports.type([]) == 'array');
+            assert(exports.type(new Date) == 'date');
+            assert(exports.type(/a/) == 'regexp');
+            assert(exports.type({}) == 'object');
+            assert(exports.type('') == 'string');
+        })
     })
 })
 
-describe('isPlainObject()', function() {
-    it('base', function() {
-        assert(exports.isPlainObject({}));
-        assert(exports.isPlainObject(new Date) == false);
-        assert(exports.isPlainObject(null) == false);
-        assert(exports.isPlainObject(false) == false);
-        assert(exports.isPlainObject(2) == false);
-        assert(exports.isPlainObject('') == false);
-    })
-})
-
-describe('isEmptyObject()', function() {
-    it('base', function() {
-        assert(exports.isEmptyObject({}));
-        assert(exports.isEmptyObject({a:false}) == false);
-        assert(exports.isEmptyObject(null) == false);
-        assert(exports.isEmptyObject(new Date) == false);
-    })
-})
-
-describe('type()', function() {
-    it('base', function() {
-        assert(exports.type(0) == 'number');
-        assert(exports.type(false) == 'boolean');
-        assert(exports.type(null) == 'null');
-        assert(exports.type([]) == 'array');
-        assert(exports.type(new Date) == 'date');
-        assert(exports.type(/a/) == 'regexp');
-        assert(exports.type({}) == 'object');
-        assert(exports.type('') == 'string');
-    })
+describe('exports.ready', function() {
+    // TODO
 })
 
 describe('camelize', function() {
@@ -152,6 +158,48 @@ describe('class', function() {
         assert(el.className == cls2);
         exports.removeClass(el, cls2);
         assert(el.className == '');
+    })
+})
+
+describe('css', function() {
+    // TODO
+})
+
+describe('event', function() {
+    var docCount = 0;
+
+    exports.on(document, 'click', function() {
+        docCount++;
+    });
+
+    beforeEach(function() {
+        docCount = 0;
+    });
+
+    it('base', function() {
+        var event = new Event('click');
+        document.dispatchEvent(event);
+        assert(docCount == 1);
+    })
+})
+
+describe('config', function() {
+    // TODO
+})
+
+describe('String.prototype.startsWith()', function() {
+    it('base', function() {
+        assert('abcd'.startsWith('a'));
+        assert('abcd'.startsWith('ab'));
+        assert('abcd'.startsWith('abd') == false);
+    })
+})
+
+describe('Array.prototype.remove()', function() {
+    it('base', function() {
+        var arr = [1,2,3,4];
+        arr.remove(2);
+        assert(arr[1] == 3);
     })
 })
 

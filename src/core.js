@@ -270,26 +270,4 @@ function camelize(target) {
     });
 }
 
-function bindModel(model, str, parsefn, updatefn) {
-    var fields = {},
-    expr = parsefn(str, fields);
-    if (exports.isEmptyObject(fields)) {
-        return;
-    }
-
-    var fn = new Function('$model', 'return ' + expr),
-    observer = {
-        update: function(model, value) {
-            updatefn(fn(model, value));
-        }
-    };
-
-    for (var field in fields) {
-        if (model) {
-            model.$subscribe(field, observer);
-            observer.update(model);
-        }
-    }
-}
-
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
