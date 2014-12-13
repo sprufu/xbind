@@ -144,6 +144,7 @@ function parseFilter(str) {
  *
  * 从上面情况来看, 虽然复杂, 但就只有两种情况: 赋值和执行函数操作
  * 表达式由各个操作元素(变量或常量)和操作符(+, -, *, /, '%', 等)组合在一起
+ * TODO fields是否应该收集
  */
 function parseExecute(str, fields, isDisplayResult) {
     fields = fields || {};
@@ -166,7 +167,7 @@ function parseExecute(str, fields, isDisplayResult) {
         if (~str.indexOf('=')) {
             // 含有"=", 是赋值操作
             var part = str.split('=');
-            ret = '$model.$set("' + part[0].trim() + '", ' + parseExecuteItem(part[1].trim(), fields, isDisplayResult) + ')';
+            ret = '$model.$set("' + part[0].trim() + '",' + parseExecuteItem(part[1].trim(), fields, isDisplayResult) + ')';
         } else {
             ret = parseExecuteItem(str, fields, isDisplayResult) + ';';
         }

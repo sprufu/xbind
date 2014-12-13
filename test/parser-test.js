@@ -81,8 +81,25 @@ describe('parseExpress()', function() {
     });
 
     it('user.addTime | date "yyyy-mm-dd" | limit', function() {
-        assert(parseExpress('user.addTime | date "yyyy-mm-dd" | limit', fields) == '(function(expr){expr=$model.$filter("date",expr, "yyyy-mm-dd" );expr=$model.$filter("limit",expr);return expr;}($model.$get("user.addTime")))');
+        assert(parseExpress('user.addTime | date "yyyy-mm-dd" | limit ', fields) == '(function(expr){expr=$model.$filter("date",expr, "yyyy-mm-dd" );expr=$model.$filter("limit",expr);return expr;}($model.$get("user.addTime")))');
         assert(fields['user.addTime'])
+    })
+})
+
+describe('parseExecute()', function() {
+    var fields;
+    beforeEach(function() {
+        fields = {};
+    });
+
+    it('user.name = "jcode"', function() {
+        assert(parseExecute('user.name = "jcode"', fields) == '$model.$set("user.name","jcode")');
+        assert(fields.hasOwnProperty('user.name') == false);
+    })
+
+    it('user.age = user.age + 1', function() {
+        assert(parseExecute('user.age = user.age + 1', fields) == '$model.$set("user.age",$model.$get("user.age") + 1)');
+        assert(fields['user.age']);
     })
 })
 
