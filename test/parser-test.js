@@ -43,4 +43,25 @@ describe('parseString()', function() {
     });
 })
 
+describe('parseExpress()', function() {
+    var fields = {};
+
+    beforeEach(function() {
+        fields = {};
+    });
+
+    it('user.name', function() {
+        var str = 'user.name';
+        assert(parseExpress(str, fields) == '$model.$get("user.name")');
+        assert(fields['user.name'] === true);
+        fields = {};
+        assert(parseExpress(str, fields, true) == '$model.$get("user.name",0,1)');
+        assert(fields['user.name'] === true);
+    });
+
+    it('user.age + 1', function() {
+        assert(parseExpress('user.age + 1', fields) == '$model.$get("user.age") + 1');
+    })
+})
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
