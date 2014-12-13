@@ -69,7 +69,7 @@ function parseExpress(str, fields, isDisplayResult) {
             var filter, ifn = '(function(expr){';
             for (var i=0; i<filters.length; i++) {
                 filter = filters[i];
-                ifn += 'expr = $model.$filter("' + filter.name + '", expr, ' + filter.args + ');'
+                ifn += 'expr=$model.$filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');'
             }
             expr = ifn + 'return expr;}(' + expr + '))'
         }
