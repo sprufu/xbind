@@ -257,7 +257,7 @@ function parseStatic(str, isDisplayResult) {
         return str;
     }
 
-    return '$model.$get("' + str + '"' + (isDisplayResult ? ',true':'') +')';
+    return '$model.$get("' + str + '"' + (isDisplayResult ? ',0,1':'') +')';
 }
 
 /**

@@ -25,20 +25,20 @@ describe('replaceWrapLineString', function() {
 describe('parseString()', function() {
     it('hello {{ user.name }}!', function() {
         var fields = {};
-        assert(parseString('hello {{ user.name }}!', fields) == '""+"hello "+$model.$get("user.name",true)+"!"');
+        assert(parseString('hello {{ user.name }}!', fields) == '""+"hello "+$model.$get("user.name",0,1)+"!"');
         assert(fields['user.name'] === true);
     });
 
     it('My name is {{ user.name }}, I\'m {{ user.age }}.', function() {
         var fields = {};
-        assert(parseString('My name is {{ user.name }}, I\'m {{ user.age }}.', fields) == '""+"My name is "+$model.$get("user.name",true)+", I\'m "+$model.$get("user.age",true)+"."');
+        assert(parseString('My name is {{ user.name }}, I\'m {{ user.age }}.', fields) == '""+"My name is "+$model.$get("user.name",0,1)+", I\'m "+$model.$get("user.age",0,1)+"."');
         assert(fields['user.name'] === true);
         assert(fields['user.age'] === true);
     })
 
     it('mutil line.', function() {
         var fields = {};
-        assert(parseString('hello \r\n {{ user.name }}!', fields) == '""+"hello \\r\\n "+$model.$get("user.name",true)+"!"');
+        assert(parseString('hello \r\n {{ user.name }}!', fields) == '""+"hello \\r\\n "+$model.$get("user.name",0,1)+"!"');
         assert(fields['user.name'] === true);
     });
 })
