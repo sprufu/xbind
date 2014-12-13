@@ -61,6 +61,28 @@ describe('parseExpress()', function() {
 
     it('user.age + 1', function() {
         assert(parseExpress('user.age + 1', fields) == '$model.$get("user.age") + 1');
+        assert(fields['user.age'])
+    });
+
+    it('user.method() + 2', function() {
+        assert(parseExpress('user.method() + 2', fields) == '$model.$get("user.method")() + 2');
+        assert(fields.hasOwnProperty('user.method') == false);
+    });
+
+    it('user.method(user.age)', function() {
+        assert(parseExpress('user.method(user.age)', fields) == '$model.$get("user.method")($model.$get("user.age"))');
+        assert(fields.hasOwnProperty('user.method') == false);
+        assert(fields['user.age']);
+    });
+
+    it('user.addTime | date "yyyy-mm-dd"', function() {
+        assert(parseExpress('user.addTime | date "yyyy-mm-dd"', fields) == '(function(expr){expr=$model.$filter("date",expr, "yyyy-mm-dd");return expr;}($model.$get("user.addTime")))');
+        assert(fields['user.addTime'])
+    });
+
+    it('user.addTime | date "yyyy-mm-dd" | limit', function() {
+        assert(parseExpress('user.addTime | date "yyyy-mm-dd" | limit', fields) == '(function(expr){expr=$model.$filter("date",expr, "yyyy-mm-dd" );expr=$model.$filter("limit",expr);return expr;}($model.$get("user.addTime")))');
+        assert(fields['user.addTime'])
     })
 })
 
