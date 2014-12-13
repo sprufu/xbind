@@ -23,7 +23,7 @@ function parseString(str, fields) {
             pos2 = str.indexOf(interpolate2, pos1 + len1);
             if (~pos2) {
                 flag = true;
-                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '" +(' + parseExpress(str.substring(pos1 + len1, pos2), fields) + ' || "")';
+                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '"+' + parseExpress(str.substring(pos1 + len1, pos2), fields, true);
                 pos = pos1 = pos2 = pos2 + len2;
             } else {
                 txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';
@@ -56,12 +56,14 @@ function replaceWrapLineString(str) {
  *    2. 取得其对应的源表达式
  *    3. 取得源表达式变量并收集依赖
  *    任何步骤出错将返回空串
+ *
+ * @param {boolean} isDisplayResult 标识这个取值结果是否用于显示, 如果为真, null及undefined将替换为空字符串, 避免在页面上显示这些字符串.
  */
-function parseExpress(str, fields) {
+function parseExpress(str, fields, isDisplayResult) {
     try {
         var filters = [],
         str = divExpress(str, filters),
-        expr = parseExecuteItem(str.trim(), fields);
+        expr = parseExecuteItem(str.trim(), fields, isDisplayResult);
 
         if (filters.length) {
             var filter, ifn = '(function(expr){';
@@ -143,7 +145,7 @@ function parseFilter(str) {
  * 从上面情况来看, 虽然复杂, 但就只有两种情况: 赋值和执行函数操作
  * 表达式由各个操作元素(变量或常量)和操作符(+, -, *, /, '%', 等)组合在一起
  */
-function parseExecute(str, fields) {
+function parseExecute(str, fields, isDisplayResult) {
     fields = fields || {};
     var ret = '';
 
@@ -158,15 +160,15 @@ function parseExecute(str, fields) {
             if (i) {
                 ret += ';';
             }
-            ret += parseExecute(strs[i], fields);
+            ret += parseExecute(strs[i], fields, isDisplayResult);
         }
     } else {
         if (~str.indexOf('=')) {
             // 含有"=", 是赋值操作
             var part = str.split('=');
-            ret = '$model.$set("' + part[0].trim() + '", ' + parseExecuteItem(part[1].trim(), fields) + ')';
+            ret = '$model.$set("' + part[0].trim() + '", ' + parseExecuteItem(part[1].trim(), fields, isDisplayResult) + ')';
         } else {
-            ret = parseExecuteItem(str, fields) + ';';
+            ret = parseExecuteItem(str, fields, isDisplayResult) + ';';
         }
     }
     return ret;
@@ -186,7 +188,7 @@ var exprActionReg = /[^\w\$\.]+/g;
  *
  * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
  */
-function parseExecuteItem(str, fields) {
+function parseExecuteItem(str, fields, isDisplayResult) {
     var c = str.charAt(0);
     if (c == '"' || c == "'") {
         return str;
@@ -205,7 +207,7 @@ function parseExecuteItem(str, fields) {
         for (; i<actions.length; i++) {
             pos = str.indexOf(actions[i], pos0);
             field = str.substring(pos0, pos);
-            ret += parseStatic(field) + actions[i];
+            ret += parseStatic(field, isDisplayResult) + actions[i];
             pos0 = pos + actions[i].length;
 
             // 不是方法, 而是属性的话, 要加到监听列表里
@@ -217,7 +219,7 @@ function parseExecuteItem(str, fields) {
         // 处理最后结尾部分
         if (str.length > pos0) {
             field = str.substr(pos0);
-            var res = parseStatic(field);
+            var res = parseStatic(field, isDisplayResult);
             if (res != field) {
                 fields[field] = true;
             }
@@ -226,7 +228,7 @@ function parseExecuteItem(str, fields) {
 
         return ret;
     } else {
-        ret = parseStatic(str);
+        ret = parseStatic(str, isDisplayResult);
         if (ret != str) {
             fields[str] = true;
         }
@@ -244,7 +246,7 @@ options.keywords = {};
 });
 
 var numberReg = /^\-?\d?\.?\d+$/;
-function parseStatic(str) {
+function parseStatic(str, isDisplayResult) {
     // 普通常量, 常量有很多, 这里只处理几个常用的
     if (options.keywords[str]) {
         return str;
@@ -255,7 +257,7 @@ function parseStatic(str) {
         return str;
     }
 
-    return '$model.$get("' + str + '")';
+    return '$model.$get("' + str + '"' + (isDisplayResult ? ',true':'') +')';
 }
 
 /**
