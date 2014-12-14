@@ -8,7 +8,7 @@
 /*         全局变量定义区         */
 /**********************************/
 
-var exports = function (vm) {
+function exports(vm) {
     return new Model(vm);
 }
 
