@@ -8,7 +8,9 @@
 /*         全局变量定义区         */
 /**********************************/
 
-var exports = {};
+var exports = function (vm) {
+    return new Model(vm);
+}
 
 /**
  * 配置参数, 通过exports.config供用户修改
@@ -48,13 +50,13 @@ function extend () {
         length = arguments.length,
         deep = false;
 
-    if ( typeof target === "boolean" ) {
+    if ( typeof target == "boolean" ) {
         deep = target;
         target = arguments[1] || {};
         i = 2;
     }
 
-    if ( typeof target !== "object" && !exports.isFunction(target) ) {
+    if ( typeof target != "object" && typeof target != 'function' ) {
         target = {};
     }
 
@@ -73,13 +75,13 @@ function extend () {
                     continue;
                 }
 
-                if ( deep && copy && ( exports.isPlainObject(copy) || (copyIsArray = exports.isArray(copy)) ) ) {
+                if ( deep && copy && ( exports.type(copy, 'object') || (copyIsArray = exports.type(copy, 'array')) ) ) {
                     if ( copyIsArray ) {
                         copyIsArray = false;
-                        clone = src && exports.isArray(src) ? src : [];
+                        clone = src && exports.type(src, 'object') ? src : [];
 
                     } else {
-                        clone = src && exports.isPlainObject(src) ? src : {};
+                        clone = src && exports.type(src, 'object') ? src : {};
                     }
 
                     target[ name ] = extend( deep, clone, copy );
@@ -97,18 +99,9 @@ function extend () {
 extend(exports, {
     extend: extend,
     noop: noop,
-    isFunction: function(fn) {
-        return 'function' == typeof fn;
-    },
-    isArray: function(arr) {
-        return exports.type(arr) == 'array';
-    },
-    isPlainObject: function(obj) {
-        return exports.type(obj) == 'object';
-    },
     isEmptyObject: function(obj) {
         var name;
-        if (exports.type(obj) != 'object') {
+        if (!exports.type(obj, 'object')) {
             return false;
         }
 
@@ -121,8 +114,14 @@ extend(exports, {
     /**
      * 判断一个对角的类型
      * 类型以小写字符串返回
+     *
+     * @param {string} matchType 如果给出这个值, 则用于判断obj是否是这个类型.
      */
-    type: function( obj ) {
+    type: function( obj, matchType ) {
+        if (matchType) {
+            return exports.type(obj) == matchType;
+        }
+
         var c = {}, s = c.toString.call(obj);
 
         /* ie678( */

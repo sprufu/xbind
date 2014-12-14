@@ -287,7 +287,7 @@ exports.extend(exports.scanners, {
         element.parentNode.removeChild(element);
 
         bindModel(model, value, parseExpress, function(res) {
-            if (!exports.isArray(res)) {
+            if (!exports.type(res, 'array')) {
                 return;
             }
 
@@ -397,7 +397,7 @@ exports.extend(exports.scanners, {
                 switch(element.type) {
                     case 'checkbox':
                         var v = model.$get(value);
-                        if (v && !exports.isArray(v)) {
+                        if (v && !exports.type(v, 'array')) {
                             throw new TypeError('Checkbox bind must be array.');
                         }
 
