@@ -113,7 +113,6 @@ function extend () {
 
 extend(exports, {
     extend: extend,
-    noop: noop,
     isEmptyObject: function(obj) {
         var name;
         if (!exports.type(obj, 'object')) {
@@ -251,8 +250,6 @@ extend(exports, {
         }
     }
 });
-
-function noop(){}
 
 // 修复浏览器字符串没有 startsWith方法
 if (!''.startsWith) {
