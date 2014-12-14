@@ -28,6 +28,26 @@ exports.filters = {
     "number": function(it, num) {
         it = +it;
         return it.toFixed(num);
+    },
+
+    /**
+     * 过滤html标签
+     */
+    text: function(html, removeTag) {
+        if (!html) {
+            return '';
+        }
+
+        var dom = document.createElement('div'), res;
+        if (removeTag) {
+            dom.innerHTML = html;
+            res = dom.innerText;
+        } else {
+            dom.innerText = html;
+            res = dom.innerHTML;
+        }
+        dom = null;
+        return res;
     }
 };
 
