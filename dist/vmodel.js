@@ -9,13 +9,30 @@
 /*         全局变量定义区         */
 /**********************************/
 
-var exports = {};
+var exports = function (vm) {
+    return new Model(vm);
+}
 
 /**
  * 配置参数, 通过exports.config供用户修改
  */
 var options = {
     interpolate: ['{{', '}}']
+};
+
+// 忽略的标签
+options.igonreTags = {
+    SCRIPT: true,
+    NOSCRIPT: true,
+    IFRAME: true
+};
+
+// 扫描优先级, 没有定义的都在1000
+options.priorities = {
+    'x-skip': 0,
+    'x-controller': 10,
+    'x-repeat': 20,
+    'x-if': 50
 };
 
 /* ie678( */
@@ -49,13 +66,13 @@ function extend () {
         length = arguments.length,
         deep = false;
 
-    if ( typeof target === "boolean" ) {
+    if ( typeof target == "boolean" ) {
         deep = target;
         target = arguments[1] || {};
         i = 2;
     }
 
-    if ( typeof target !== "object" && !exports.isFunction(target) ) {
+    if ( typeof target != "object" && typeof target != 'function' ) {
         target = {};
     }
 
@@ -74,13 +91,13 @@ function extend () {
                     continue;
                 }
 
-                if ( deep && copy && ( exports.isPlainObject(copy) || (copyIsArray = exports.isArray(copy)) ) ) {
+                if ( deep && copy && ( exports.type(copy, 'object') || (copyIsArray = exports.type(copy, 'array')) ) ) {
                     if ( copyIsArray ) {
                         copyIsArray = false;
-                        clone = src && exports.isArray(src) ? src : [];
+                        clone = src && exports.type(src, 'object') ? src : [];
 
                     } else {
-                        clone = src && exports.isPlainObject(src) ? src : {};
+                        clone = src && exports.type(src, 'object') ? src : {};
                     }
 
                     target[ name ] = extend( deep, clone, copy );
@@ -98,18 +115,9 @@ function extend () {
 extend(exports, {
     extend: extend,
     noop: noop,
-    isFunction: function(fn) {
-        return 'function' == typeof fn;
-    },
-    isArray: function(arr) {
-        return exports.type(arr) == 'array';
-    },
-    isPlainObject: function(obj) {
-        return exports.type(obj) == 'object';
-    },
     isEmptyObject: function(obj) {
         var name;
-        if (exports.type(obj) != 'object') {
+        if (!exports.type(obj, 'object')) {
             return false;
         }
 
@@ -122,8 +130,14 @@ extend(exports, {
     /**
      * 判断一个对角的类型
      * 类型以小写字符串返回
+     *
+     * @param {string} matchType 如果给出这个值, 则用于判断obj是否是这个类型.
      */
-    type: function( obj ) {
+    type: function( obj, matchType ) {
+        if (matchType) {
+            return exports.type(obj) == matchType;
+        }
+
         var c = {}, s = c.toString.call(obj);
 
         /* ie678( */
@@ -269,28 +283,6 @@ function camelize(target) {
     return target.replace(camelizeRegExp, function(match) {
         return match.charAt(1).toUpperCase();
     });
-}
-
-function bindModel(model, str, parsefn, updatefn) {
-    var fields = {},
-    expr = parsefn(str, fields);
-    if (exports.isEmptyObject(fields)) {
-        return;
-    }
-
-    var fn = new Function('$model', 'return ' + expr),
-    observer = {
-        update: function(model, value) {
-            updatefn(fn(model, value));
-        }
-    };
-
-    for (var field in fields) {
-        if (model) {
-            model.$subscribe(field, observer);
-            observer.update(model);
-        }
-    }
 }
 
 
@@ -481,7 +473,7 @@ Model.prototype = {
      * @param {string} field 字段, 可以是深层的, 如: user.name
      * @returns {object} 从当前数据查找, 如果不存在指定的键, 则向上查找, 除非明确指定noExtend
      */
-    $get: function(field, noExtend) {
+    $get: function(field, noExtend, isDisplayResult) {
         if (this.$cache.hasOwnProperty(field)) {
             return this.$cache[field];
         } else if (~field.indexOf('.')) {
@@ -493,10 +485,12 @@ Model.prototype = {
             for (; i<keys.length; i++) {
                 key = keys[i];
                 if (!v[key]) {
-                    if (i || noExtend) {
-                        return '';
+                    if (v.hasOwnProperty(key)) {
+                        return isDisplayResult ? '' : v[key];
+                    } else if (noExtend) {
+                        return isDisplayResult ? '' : undefined;
                     } else {
-                        return this.$parent ? this.$parent.$get(field) : '';
+                        return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
                     }
                 } else if ('function' == typeof v[key]) {
                     // 当
@@ -528,7 +522,7 @@ Model.prototype = {
             if (this.hasOwnProperty(field)) {
                 return this[field];
             } else {
-                return this.$parent ? this.$parent.$get(field) : '';
+                return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
             }
         }
     },
@@ -664,13 +658,6 @@ function getSubscribes (model, field) {
 }
 
 extend(exports, {
-    /**
-     * 暴露Model
-     */
-    define: function(vm) {
-        return new Model(vm);
-    },
-
     /**
     * 获取某个结点的model
     * 如果这结点没有定义model, 则返回null
@@ -925,21 +912,6 @@ if (!Function.prototype.bind) {
  * 属性扫描定义的回调
  */
 
-
-// 忽略的标签
-options.igonreTags = {
-    SCRIPT: true,
-    NOSCRIPT: true,
-    IFRAME: true
-};
-
-// 扫描优先级, 没有定义的都在1000
-options.priorities = {
-    'x-skip': 0,
-    'x-controller': 10,
-    'x-repeat': 20,
-    'x-if': 50
-};
 
 exports.scanners = {
     /**
@@ -1210,7 +1182,7 @@ exports.extend(exports.scanners, {
         element.parentNode.removeChild(element);
 
         bindModel(model, value, parseExpress, function(res) {
-            if (!exports.isArray(res)) {
+            if (!exports.type(res, 'array')) {
                 return;
             }
 
@@ -1320,7 +1292,7 @@ exports.extend(exports.scanners, {
                 switch(element.type) {
                     case 'checkbox':
                         var v = model.$get(value);
-                        if (v && !exports.isArray(v)) {
+                        if (v && !exports.type(v, 'array')) {
                             throw new TypeError('Checkbox bind must be array.');
                         }
 
@@ -1421,6 +1393,29 @@ exports.extend(exports.scanners, {
     }
 });
 
+function bindModel(model, str, parsefn, updatefn) {
+    var fields = {},
+    expr = parsefn(str, fields);
+    if (exports.isEmptyObject(fields)) {
+        return;
+    }
+
+    var fn = new Function('$model', 'return ' + expr),
+    observer = {
+        update: function(model, value) {
+            updatefn(fn(model, value));
+        }
+    };
+
+    for (var field in fields) {
+        if (model) {
+            model.$subscribe(field, observer);
+            observer.update(model);
+        }
+    }
+}
+
+
 /**
  * 注册的模板列表
  */
@@ -1462,7 +1457,7 @@ function parseString(str, fields) {
             pos2 = str.indexOf(interpolate2, pos1 + len1);
             if (~pos2) {
                 flag = true;
-                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '" +(' + parseExpress(str.substring(pos1 + len1, pos2), fields) + ' || "")';
+                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '"+' + parseExpress(str.substring(pos1 + len1, pos2), fields, true);
                 pos = pos1 = pos2 = pos2 + len2;
             } else {
                 txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';
@@ -1495,18 +1490,20 @@ function replaceWrapLineString(str) {
  *    2. 取得其对应的源表达式
  *    3. 取得源表达式变量并收集依赖
  *    任何步骤出错将返回空串
+ *
+ * @param {boolean} isDisplayResult 标识这个取值结果是否用于显示, 如果为真, null及undefined将替换为空字符串, 避免在页面上显示这些字符串.
  */
-function parseExpress(str, fields) {
+function parseExpress(str, fields, isDisplayResult) {
     try {
         var filters = [],
         str = divExpress(str, filters),
-        expr = parseExecuteItem(str.trim(), fields);
+        expr = parseExecuteItem(str.trim(), fields, isDisplayResult);
 
         if (filters.length) {
             var filter, ifn = '(function(expr){';
             for (var i=0; i<filters.length; i++) {
                 filter = filters[i];
-                ifn += 'expr = $model.$filter("' + filter.name + '", expr, ' + filter.args + ');'
+                ifn += 'expr=$model.$filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');'
             }
             expr = ifn + 'return expr;}(' + expr + '))'
         }
@@ -1581,8 +1578,9 @@ function parseFilter(str) {
  *
  * 从上面情况来看, 虽然复杂, 但就只有两种情况: 赋值和执行函数操作
  * 表达式由各个操作元素(变量或常量)和操作符(+, -, *, /, '%', 等)组合在一起
+ * TODO fields是否应该收集
  */
-function parseExecute(str, fields) {
+function parseExecute(str, fields, isDisplayResult) {
     fields = fields || {};
     var ret = '';
 
@@ -1597,15 +1595,15 @@ function parseExecute(str, fields) {
             if (i) {
                 ret += ';';
             }
-            ret += parseExecute(strs[i], fields);
+            ret += parseExecute(strs[i], fields, isDisplayResult);
         }
     } else {
         if (~str.indexOf('=')) {
             // 含有"=", 是赋值操作
             var part = str.split('=');
-            ret = '$model.$set("' + part[0].trim() + '", ' + parseExecuteItem(part[1].trim(), fields) + ')';
+            ret = '$model.$set("' + part[0].trim() + '",' + parseExecuteItem(part[1].trim(), fields, isDisplayResult) + ')';
         } else {
-            ret = parseExecuteItem(str, fields) + ';';
+            ret = parseExecuteItem(str, fields, isDisplayResult) + ';';
         }
     }
     return ret;
@@ -1625,7 +1623,7 @@ var exprActionReg = /[^\w\$\.]+/g;
  *
  * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
  */
-function parseExecuteItem(str, fields) {
+function parseExecuteItem(str, fields, isDisplayResult) {
     var c = str.charAt(0);
     if (c == '"' || c == "'") {
         return str;
@@ -1644,7 +1642,7 @@ function parseExecuteItem(str, fields) {
         for (; i<actions.length; i++) {
             pos = str.indexOf(actions[i], pos0);
             field = str.substring(pos0, pos);
-            ret += parseStatic(field) + actions[i];
+            ret += parseStatic(field, isDisplayResult) + actions[i];
             pos0 = pos + actions[i].length;
 
             // 不是方法, 而是属性的话, 要加到监听列表里
@@ -1656,7 +1654,7 @@ function parseExecuteItem(str, fields) {
         // 处理最后结尾部分
         if (str.length > pos0) {
             field = str.substr(pos0);
-            var res = parseStatic(field);
+            var res = parseStatic(field, isDisplayResult);
             if (res != field) {
                 fields[field] = true;
             }
@@ -1665,7 +1663,7 @@ function parseExecuteItem(str, fields) {
 
         return ret;
     } else {
-        ret = parseStatic(str);
+        ret = parseStatic(str, isDisplayResult);
         if (ret != str) {
             fields[str] = true;
         }
@@ -1683,7 +1681,7 @@ options.keywords = {};
 });
 
 var numberReg = /^\-?\d?\.?\d+$/;
-function parseStatic(str) {
+function parseStatic(str, isDisplayResult) {
     // 普通常量, 常量有很多, 这里只处理几个常用的
     if (options.keywords[str]) {
         return str;
@@ -1694,7 +1692,7 @@ function parseStatic(str) {
         return str;
     }
 
-    return '$model.$get("' + str + '")';
+    return '$model.$get("' + str + '"' + (isDisplayResult ? ',0,1':'') +')';
 }
 
 /**
@@ -1729,30 +1727,30 @@ var parseJSON = window.JSON ? window.JSON.parse : function(str) {
 
 
 exports.filters = {
-	/**
-	 * name: function(obj, arg...),
-	 */
-	date: function(obj, format) {
+    /**
+     * name: function(obj, arg...),
+     */
+    date: function(obj, format) {
         var date = parseDate(obj);
         return formatDate(date, format);
-	},
+    },
 
-	/**
-	 * 输入长度限制
-	 */
-	limit: function(str, num, suffix) {
-		if (str.length <= num) {
-			return str;
-		}
+    /**
+     * 输入长度限制
+     */
+    limit: function(str, num, suffix) {
+        if (str.length <= num) {
+            return str;
+        }
 
-		suffix = suffix || '...';
-		return str.substring(0, num) + suffix;
-	},
+        suffix = suffix || '...';
+        return str.substring(0, num) + suffix;
+    },
 
-	"number": function(it, num) {
-		it = +it;
-		return it.toFixed(num);
-	}
+    "number": function(it, num) {
+        it = +it;
+        return it.toFixed(num);
+    }
 };
 
 /**

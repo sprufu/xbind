@@ -19,6 +19,21 @@ var options = {
     interpolate: ['{{', '}}']
 };
 
+// 忽略的标签
+options.igonreTags = {
+    SCRIPT: true,
+    NOSCRIPT: true,
+    IFRAME: true
+};
+
+// 扫描优先级, 没有定义的都在1000
+options.priorities = {
+    'x-skip': 0,
+    'x-controller': 10,
+    'x-repeat': 20,
+    'x-if': 50
+};
+
 /* ie678( */
 
 // 判断ie67很简单吧

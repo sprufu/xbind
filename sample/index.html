@@ -20,7 +20,7 @@
 <script src="../src/filter.js"></script>
 <script src="../src/exports.js"></script>
 <script>
-var model = vmodel.define({
+var model = vmodel({
     $id: 'test',
     url: 'http://www.baidu.com',
     my_tpl: 'full',
@@ -31,7 +31,7 @@ var model = vmodel.define({
     },
     test: 'Hello Word!'
 });
-var model2 = vmodel.define({
+var model2 = vmodel({
     $id: 'testa',
     test: '表1'
 });
