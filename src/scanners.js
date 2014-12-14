@@ -78,6 +78,7 @@ function eventBindHandler(model, element, value, attr, type) {
     "disabled",
     "checked",
     "selected",
+    "readonly",
     "contenteditable",
     "draggable",
     "dropzone"
