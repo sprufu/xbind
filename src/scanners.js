@@ -121,7 +121,7 @@ function eventBindHandler(model, element, value, attr, type) {
     'error',
     'contextmenu'
 ].forEach(function(type) {
-    exports.scanners[type] = stringBindHandler;
+    exports.scanners['x-' + type] = eventBindHandler;
 });
 
 ['x-src', 'x-href'].forEach(function(type) {
@@ -169,7 +169,7 @@ function eventBindHandler(model, element, value, attr, type) {
     'label',
     'wrap'
 ].forEach(function(type) {
-    exports.scanners['x-' + type] = eventBindHandler;
+    exports.scanners[type] = stringBindHandler;
 });
 
 exports.extend(exports.scanners, {
