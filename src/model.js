@@ -120,9 +120,7 @@ Model.prototype = {
                     //
                     // 上面代码中, model.$get("user.getName")时, 这里的实现使其调用者不变
                     // 灵感来自于Function.prototype.bind
-                    return function() {
-                        return v[key].apply(v, arguments);
-                    }
+                    return v[key].bind(v);
                 } else {
                     if (i == keys.length - 1) {
                         return v[key];
@@ -132,7 +130,9 @@ Model.prototype = {
                 }
             }
         } else {
-            if (this.hasOwnProperty(field)) {
+            if ('function' == typeof this[field]) {
+                return this[field].bind(this);
+            } if (this.hasOwnProperty(field) || this[field]) {
                 return this[field];
             } else {
                 return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
