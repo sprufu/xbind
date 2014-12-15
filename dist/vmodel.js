@@ -9,7 +9,7 @@
 /*         全局变量定义区         */
 /**********************************/
 
-var exports = function (vm) {
+function exports(vm) {
     return new Model(vm);
 }
 
@@ -114,7 +114,6 @@ function extend () {
 
 extend(exports, {
     extend: extend,
-    noop: noop,
     isEmptyObject: function(obj) {
         var name;
         if (!exports.type(obj, 'object')) {
@@ -252,8 +251,6 @@ extend(exports, {
         }
     }
 });
-
-function noop(){}
 
 // 修复浏览器字符串没有 startsWith方法
 if (!''.startsWith) {
@@ -984,60 +981,18 @@ function eventBindHandler(model, element, value, attr, type) {
  * 如:
  *      disabled="user.sex == 'F'"
  */
-options.booleanBindAttrs = [
+[
     "disabled",
     "checked",
     "selected",
+    "readonly",
     "contenteditable",
     "draggable",
     "dropzone"
-];
-
-options.booleanBindAttrs.forEach(function(type) {
+].forEach(function(type) {
     exports.scanners[type] = booleanHandler;
 });
 
-/**
- * 字符串插值扫描的属性名
- * 如:
- *      title="删除{{ rs.title }}记录."
- *
- * 提示: 不要把style和class属性用于字符串插值, 这两个属性经常被javascript改变
- * 插值会直接设置多个属性会导致某些不想要的设置
- * 应该使用相应的x-style及x-class
- *
- * src属性在没有扫描时就会加载, 从而加载一个不存在地地址, 应该使用x-src
- * href比src好一些, 但没扫描时点击也会跳到一个不存在的连接, 这是不想要的结果, 请使用x-href
- *
- * 对于value能用x-bind的就不要用value字符串插值, 保留这个是为了其它标签, 如option
- */
-options.stringBindAttrs = [
-    // 'src',
-    // 'href',
-    'target',
-    'title',
-    'width',
-    'height',
-    'name',
-    'alt',
-    'align',
-    'valign',
-    'clos',
-    'rows',
-    'clospan',
-    'rowspan',
-    'cellpadding',
-    'cellspacing',
-    'method',
-    'color',
-    'border',
-    'size',
-    'face',
-    'color',
-    'value',
-    'label',
-    'wrap'
-];
 
 /**
  * 事件绑定属性
@@ -1046,7 +1001,7 @@ options.stringBindAttrs = [
  *
  * 所有的属性都会自动加上前辍"x-"
  */
-options.eventBindAttrs = [
+[
     'blur',
     'focus',
     'focusin',
@@ -1072,17 +1027,55 @@ options.eventBindAttrs = [
     'keyup',
     'error',
     'contextmenu'
-];
-
-options.stringBindAttrs.forEach(function(type) {
+].forEach(function(type) {
     exports.scanners[type] = stringBindHandler;
 });
 
-'x-src x-href'.split(' ').forEach(function(type) {
+['x-src', 'x-href'].forEach(function(type) {
     exports.scanners[type] = stringXBindHandler;
 });
 
-options.eventBindAttrs.forEach(function(type) {
+/**
+ * 字符串插值扫描的属性名
+ * 如:
+ *      title="删除{{ rs.title }}记录."
+ *
+ * 提示: 不要把style和class属性用于字符串插值, 这两个属性经常被javascript改变
+ * 插值会直接设置多个属性会导致某些不想要的设置
+ * 应该使用相应的x-style及x-class
+ *
+ * src属性在没有扫描时就会加载, 从而加载一个不存在地地址, 应该使用x-src
+ * href比src好一些, 但没扫描时点击也会跳到一个不存在的连接, 这是不想要的结果, 请使用x-href
+ *
+ * 对于value能用x-bind的就不要用value字符串插值, 保留这个是为了其它标签, 如option
+ */
+[
+    // 'src',
+    // 'href',
+    'target',
+    'title',
+    'width',
+    'height',
+    'name',
+    'alt',
+    'align',
+    'valign',
+    'clos',
+    'rows',
+    'clospan',
+    'rowspan',
+    'cellpadding',
+    'cellspacing',
+    'method',
+    'color',
+    'border',
+    'size',
+    'face',
+    'color',
+    'value',
+    'label',
+    'wrap'
+].forEach(function(type) {
     exports.scanners['x-' + type] = eventBindHandler;
 });
 
@@ -1750,6 +1743,26 @@ exports.filters = {
     "number": function(it, num) {
         it = +it;
         return it.toFixed(num);
+    },
+
+    /**
+     * 过滤html标签
+     */
+    text: function(html, removeTag) {
+        if (!html) {
+            return '';
+        }
+
+        var dom = document.createElement('div'), res;
+        if (removeTag) {
+            dom.innerHTML = html;
+            res = dom.innerText;
+        } else {
+            dom.innerText = html;
+            res = dom.innerHTML;
+        }
+        dom = null;
+        return res;
     }
 };
 
