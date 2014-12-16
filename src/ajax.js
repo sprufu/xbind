@@ -25,6 +25,8 @@ function ajax(opt) {
         }
     }
     //xhr.overrideMimeType(opt.dataType); // 低版本IE不支持overrideMimeType
+    // post必须设置Content-Type, 否则服务器端无法解析参数.
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.onreadystatechange = function(e) {
         if (this.readyState == 4) {
             if (this.status >= 200 && this.status < 300) {
