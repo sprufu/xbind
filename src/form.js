@@ -112,7 +112,7 @@ function bindValidModel(element, fn) {
  */
 function updateFormItem(element, type, res) {
     var frm = element.form,
-    model = exports.getExtModel(frm),
+    model = getExtModel(frm),
     name, prefix;
 
     if (!model) {

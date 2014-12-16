@@ -276,8 +276,8 @@ exports.extend(exports.scanners, {
 
             // 循环删除已经有的结点
             while (el && el != endElement) {
-                model = exports.getModel(el);
-                exports.destroyModel(model, true);
+                model = getModel(el);
+                destroyModel(model, true);
                 el = startElement.nextSibling;
             }
 
@@ -293,7 +293,7 @@ exports.extend(exports.scanners, {
                 var model = new Model({
                     $index: i,
                     $remove: function() {
-                        exports.destroyModel(model, true);
+                        destroyModel(model, true);
                     },
                     $first: !i,
                     $last: i == res.length,
@@ -310,13 +310,13 @@ exports.extend(exports.scanners, {
 
     'x-if': function(model, element, value, attr) {
         var parent = element.parentElement,
-        parentModel = exports.getParentModel(element),
+        parentModel = getParentModel(element),
         replaceElement = document.createComment('x-if:' + model.$id);
 
         element.$nextSibling = element.nextSibling;
         element.removeAttribute(attr.name);
 
-        model = exports.getModel(element) || new Model();
+        model = getModel(element) || new Model();
         if (!element.$modelId) {
             model.$bindElement(element);
         }

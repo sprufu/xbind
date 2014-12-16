@@ -208,7 +208,7 @@ Model.prototype = {
 
         var model = this;
 
-        model.$parent = exports.getParentModel(element);
+        model.$parent = getParentModel(element);
         if (model.$parent) {
             model.$parent.$childs.push(model);
             var observer = {
@@ -270,69 +270,68 @@ function getSubscribes (model, field) {
     }
 }
 
-extend(exports, {
-    /**
-    * 获取某个结点的model
-    * 如果这结点没有定义model, 则返回null
-    */
-    getModel: function(el) {
-        try {
-            return MODELS[el.$modelId];
-        } catch (err) {
-            return null;
-        }
-    },
-
-    /**
-     * 从父级元素中获取数据
-     * 如果没有, 一直往上找.
-     */
-    getParentModel: function(el) {
-        var id = el.$modelId;
-        if (id) {
-            return MODELS[id];
-        }
-
-        while (el = el.parentNode) {
-            if (el.$modelId) {
-                return MODELS[el.$modelId];
-            }
-        }
-
+/**
+* 获取某个结点的model
+* 如果这结点没有定义model, 则返回null
+*/
+function getModel(el) {
+    try {
+        return MODELS[el.$modelId];
+    } catch (err) {
         return null;
-    },
-
-    /**
-     * 从元素中查看数据
-     * 如果没有, 一直往上查找
-     */
-    getExtModel: function(el) {
-        return exports.getModel(el) || exports.getParentModel(el);
-    },
-
-    /**
-     * 销毁数据
-     */
-    destroyModel: function(model, removeBindElement) {
-        if (model.$childs.length) {
-            model.$childs.forEach(function(m) {
-                exports.destroyModel(m, removeBindElement);
-            });
-        }
-
-        // 从MODELS中删除
-        delete MODELS[model.$id];
-
-        // 解除绑定
-        if (model.$element) {
-            if (removeBindElement) {
-                model.$element.parentNode.removeChild(model.$element);
-            } else {
-                model.$element.$modelId = undefined;
-            }
-        }
-
-        model = null;
     }
-});
+}
+
+/**
+ * 从父级元素中获取数据
+ * 如果没有, 一直往上找.
+ */
+function getParentModel(el) {
+    var id = el.$modelId;
+    if (id) {
+        return MODELS[id];
+    }
+
+    while (el = el.parentNode) {
+        if (el.$modelId) {
+            return MODELS[el.$modelId];
+        }
+    }
+
+    return null;
+}
+
+/**
+ * 从元素中查看数据
+ * 如果没有, 一直往上查找
+ */
+function getExtModel(el) {
+    return getModel(el) || getParentModel(el);
+}
+
+/**
+ * 销毁数据
+ */
+function destroyModel(model, removeBindElement) {
+    if (model.$childs.length) {
+        model.$childs.forEach(function(m) {
+            destroyModel(m, removeBindElement);
+        });
+    }
+
+    // 从MODELS中删除
+    delete MODELS[model.$id];
+
+    // 解除绑定
+    if (model.$element) {
+        if (removeBindElement) {
+            model.$element.parentNode.removeChild(model.$element);
+        } else {
+            model.$element.$modelId = undefined;
+        }
+    }
+
+    model = null;
+}
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile

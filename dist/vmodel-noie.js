@@ -482,9 +482,7 @@ Model.prototype = {
                     //
                     // 上面代码中, model.$get("user.getName")时, 这里的实现使其调用者不变
                     // 灵感来自于Function.prototype.bind
-                    return function() {
-                        return v[key].apply(v, arguments);
-                    }
+                    return v[key].bind(v);
                 } else {
                     if (i == keys.length - 1) {
                         return v[key];
@@ -494,7 +492,9 @@ Model.prototype = {
                 }
             }
         } else {
-            if (this.hasOwnProperty(field)) {
+            if ('function' == typeof this[field]) {
+                return this[field].bind(this);
+            } if (this.hasOwnProperty(field) || this[field]) {
                 return this[field];
             } else {
                 return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
@@ -570,7 +570,7 @@ Model.prototype = {
 
         var model = this;
 
-        model.$parent = exports.getParentModel(element);
+        model.$parent = getParentModel(element);
         if (model.$parent) {
             model.$parent.$childs.push(model);
             var observer = {
@@ -632,71 +632,70 @@ function getSubscribes (model, field) {
     }
 }
 
-extend(exports, {
-    /**
-    * 获取某个结点的model
-    * 如果这结点没有定义model, 则返回null
-    */
-    getModel: function(el) {
-        try {
-            return MODELS[el.$modelId];
-        } catch (err) {
-            return null;
-        }
-    },
-
-    /**
-     * 从父级元素中获取数据
-     * 如果没有, 一直往上找.
-     */
-    getParentModel: function(el) {
-        var id = el.$modelId;
-        if (id) {
-            return MODELS[id];
-        }
-
-        while (el = el.parentNode) {
-            if (el.$modelId) {
-                return MODELS[el.$modelId];
-            }
-        }
-
+/**
+* 获取某个结点的model
+* 如果这结点没有定义model, 则返回null
+*/
+function getModel(el) {
+    try {
+        return MODELS[el.$modelId];
+    } catch (err) {
         return null;
-    },
-
-    /**
-     * 从元素中查看数据
-     * 如果没有, 一直往上查找
-     */
-    getExtModel: function(el) {
-        return exports.getModel(el) || exports.getParentModel(el);
-    },
-
-    /**
-     * 销毁数据
-     */
-    destroyModel: function(model, removeBindElement) {
-        if (model.$childs.length) {
-            model.$childs.forEach(function(m) {
-                exports.destroyModel(m, removeBindElement);
-            });
-        }
-
-        // 从MODELS中删除
-        delete MODELS[model.$id];
-
-        // 解除绑定
-        if (model.$element) {
-            if (removeBindElement) {
-                model.$element.parentNode.removeChild(model.$element);
-            } else {
-                model.$element.$modelId = undefined;
-            }
-        }
-
-        model = null;
     }
-});
+}
+
+/**
+ * 从父级元素中获取数据
+ * 如果没有, 一直往上找.
+ */
+function getParentModel(el) {
+    var id = el.$modelId;
+    if (id) {
+        return MODELS[id];
+    }
+
+    while (el = el.parentNode) {
+        if (el.$modelId) {
+            return MODELS[el.$modelId];
+        }
+    }
+
+    return null;
+}
+
+/**
+ * 从元素中查看数据
+ * 如果没有, 一直往上查找
+ */
+function getExtModel(el) {
+    return getModel(el) || getParentModel(el);
+}
+
+/**
+ * 销毁数据
+ */
+function destroyModel(model, removeBindElement) {
+    if (model.$childs.length) {
+        model.$childs.forEach(function(m) {
+            destroyModel(m, removeBindElement);
+        });
+    }
+
+    // 从MODELS中删除
+    delete MODELS[model.$id];
+
+    // 解除绑定
+    if (model.$element) {
+        if (removeBindElement) {
+            model.$element.parentNode.removeChild(model.$element);
+        } else {
+            model.$element.$modelId = undefined;
+        }
+    }
+
+    model = null;
+}
+
 
 
 /**
@@ -947,7 +946,7 @@ function eventBindHandler(model, element, value, attr, type) {
     'error',
     'contextmenu'
 ].forEach(function(type) {
-    exports.scanners[type] = stringBindHandler;
+    exports.scanners['x-' + type] = eventBindHandler;
 });
 
 ['x-src', 'x-href'].forEach(function(type) {
@@ -995,7 +994,7 @@ function eventBindHandler(model, element, value, attr, type) {
     'label',
     'wrap'
 ].forEach(function(type) {
-    exports.scanners['x-' + type] = eventBindHandler;
+    exports.scanners[type] = stringBindHandler;
 });
 
 exports.extend(exports.scanners, {
@@ -1096,8 +1095,8 @@ exports.extend(exports.scanners, {
 
             // 循环删除已经有的结点
             while (el && el != endElement) {
-                model = exports.getModel(el);
-                exports.destroyModel(model, true);
+                model = getModel(el);
+                destroyModel(model, true);
                 el = startElement.nextSibling;
             }
 
@@ -1109,7 +1108,7 @@ exports.extend(exports.scanners, {
                 var model = new Model({
                     $index: i,
                     $remove: function() {
-                        exports.destroyModel(model, true);
+                        destroyModel(model, true);
                     },
                     $first: !i,
                     $last: i == res.length,
@@ -1126,13 +1125,13 @@ exports.extend(exports.scanners, {
 
     'x-if': function(model, element, value, attr) {
         var parent = element.parentElement,
-        parentModel = exports.getParentModel(element),
+        parentModel = getParentModel(element),
         replaceElement = document.createComment('x-if:' + model.$id);
 
         element.$nextSibling = element.nextSibling;
         element.removeAttribute(attr.name);
 
-        model = exports.getModel(element) || new Model();
+        model = getModel(element) || new Model();
         if (!element.$modelId) {
             model.$bindElement(element);
         }
@@ -2003,7 +2002,7 @@ function bindValidModel(element, fn) {
  */
 function updateFormItem(element, type, res) {
     var frm = element.form,
-    model = exports.getExtModel(frm),
+    model = getExtModel(frm),
     name, prefix;
 
     if (!model) {
