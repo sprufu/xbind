@@ -60,7 +60,7 @@ function ajax(opt) {
                 }
             } else {
                 if (opt.error) {
-                    opt.error.call(opt, this, this.responseText);
+                    opt.error.call(opt, this, decodeURIComponent(this.statusText));
                 }
             }
         }
