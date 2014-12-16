@@ -146,7 +146,7 @@ function parseFilter(str) {
  * 表达式由各个操作元素(变量或常量)和操作符(+, -, *, /, '%', 等)组合在一起
  * TODO fields是否应该收集
  */
-function parseExecute(str, fields, isDisplayResult) {
+function parseExecute(str) {
     fields = fields || {};
     var ret = '';
 
@@ -161,7 +161,7 @@ function parseExecute(str, fields, isDisplayResult) {
             if (i) {
                 ret += ';';
             }
-            ret += parseExecute(strs[i], fields, isDisplayResult);
+            ret += parseExecute(strs[i]);
         }
     } else {
         if (~str.indexOf('=')) {
