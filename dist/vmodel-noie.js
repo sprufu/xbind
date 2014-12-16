@@ -1226,7 +1226,7 @@ exports.extend(exports.scanners, {
                         element.checked = false;
                     }
                 } else if (element.type == 'checkbox') {
-                    if (~res.indexOf(element.value)) {
+                    if (!res || ~res.indexOf(element.value)) {
                         element.checked = true;
                     } else {
                         element.checked = false;
@@ -1536,9 +1536,9 @@ function parseFilter(str) {
  * 表达式由各个操作元素(变量或常量)和操作符(+, -, *, /, '%', 等)组合在一起
  * TODO fields是否应该收集
  */
-function parseExecute(str, fields, isDisplayResult) {
-    fields = fields || {};
-    var ret = '';
+function parseExecute(str) {
+    var fields = {},
+    ret = '';
 
     if (~str.indexOf(';')) {
         // 含有";", 如: user.name = 'jcode'; user.age = 31
@@ -1551,15 +1551,15 @@ function parseExecute(str, fields, isDisplayResult) {
             if (i) {
                 ret += ';';
             }
-            ret += parseExecute(strs[i], fields, isDisplayResult);
+            ret += parseExecute(strs[i]);
         }
     } else {
         if (~str.indexOf('=')) {
             // 含有"=", 是赋值操作
             var part = str.split('=');
-            ret = '$model.$set("' + part[0].trim() + '",' + parseExecuteItem(part[1].trim(), fields, isDisplayResult) + ')';
+            ret = '$model.$set("' + part[0].trim() + '",' + parseExecuteItem(part[1].trim(), fields) + ')';
         } else {
-            ret = parseExecuteItem(str, fields, isDisplayResult) + ';';
+            ret = parseExecuteItem(str, fields) + ';';
         }
     }
     return ret;

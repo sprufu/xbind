@@ -354,7 +354,7 @@ exports.extend(exports.scanners, {
                         element.checked = false;
                     }
                 } else if (element.type == 'checkbox') {
-                    if (~res.indexOf(element.value)) {
+                    if (!res || ~res.indexOf(element.value)) {
                         element.checked = true;
                     } else {
                         element.checked = false;
