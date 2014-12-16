@@ -36,9 +36,8 @@ function setFieldValue(model, field, value) {
                 v[key] = value;
             } else if (!v[key]) {
                 v[key] = {};
-            } else {
-                v = v[key];
             }
+            v = v[key];
         }
     } else {
         model[field] = value;
