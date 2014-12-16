@@ -452,9 +452,7 @@ exports.extend(exports.scanners, {
                 cache: false,
                 url: value,
                 success: function(res) {
-                    for (var key in res) {
-                        model.$set(param + '.' + key, res[key]);
-                    }
+                    model.$set(res, param + '.');
                 },
                 error: function(xhr, err) {
                     model.$set(param + '.$error', err);
