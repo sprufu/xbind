@@ -542,24 +542,48 @@ Model.prototype = {
             //
             // 批量模式不是单个模式的循环, 内部存在优化
             // 能用批量模式的尽量不要单个模式.
-            var k;
+            var k,
+
+            // 批量更新时, 第二个参数为每个key的前辍
+            // 如:
+            // model.$set({
+            //      name: 'jcode',
+            //      age: 30
+            // }, 'user.');
+            // 相当于:
+            // model.$set('user.name', 'jcode');
+            // model.$set('user.age', 30);
+            //
+            // key中如果存在"."则有特殊的意义, 如:
+            // model.$set({
+            //      "user.name": 'jcode'
+            // });
+            // 与
+            // model.$set({
+            //      user: {
+            //          name: 'jcode'
+            //      }
+            // });
+            // 不同, 前者如果user下有其它属性, 不会丢失(只更新属性),
+            // 后者是直接替换掉user, 所以user值是一个全新的值.
+            prefix = value || '';
 
             // 批量设置值
             this.$freeze = true;
             for(k in field) {
-                this.$cache[k] = field[k];
+                this.$cache[prefix + k] = field[k];
                 setFieldValue(this, k, field[k]);
             }
 
             // 依次更新视图
             this.$freeze = false;
             for(k in field) {
-                this.$notifySubscribes(k);
+                this.$notifySubscribes(prefix + k);
             }
 
             // 清空缓存
             for(k in field) {
-                delete this.$cache[k];
+                delete this.$cache[prefix + k];
             }
         } else {
             // 单个更新模式, 如:
@@ -1391,9 +1415,7 @@ exports.extend(exports.scanners, {
                 cache: false,
                 url: value,
                 success: function(res) {
-                    for (var key in res) {
-                        model.$set(param + '.' + key, res[key]);
-                    }
+                    model.$set(res, param + '.');
                 },
                 error: function(xhr, err) {
                     model.$set(param + '.$error', err);
@@ -1979,9 +2001,7 @@ DataGrid.prototype = {
             url: this.$$url,
             data: data,
             success: function(res) {
-                for (var key in res) {
-                    self.$$model.$set(self.$$name + '.' + key, res[key]);
-                }
+                self.$$model.$set(res, self.$$name + '.');
             },
             error: function(xhr, err) {
                 self.$$model.$set(self.$$name + '.$error', err);

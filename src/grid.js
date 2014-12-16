@@ -83,9 +83,7 @@ DataGrid.prototype = {
             url: this.$$url,
             data: data,
             success: function(res) {
-                for (var key in res) {
-                    self.$$model.$set(self.$$name + '.' + key, res[key]);
-                }
+                self.$$model.$set(res, self.$$name + '.');
             },
             error: function(xhr, err) {
                 self.$$model.$set(self.$$name + '.$error', err);
