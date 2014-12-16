@@ -360,6 +360,8 @@ function object2UrlSearch(object) {
     return ret.join('&');
 }
 
+exports.ajax = ajax;
+
 /**
  * @file 数据模型
  * 所有通过工厂函数加工过的数据, 都是以这个为原型

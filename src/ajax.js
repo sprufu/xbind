@@ -98,4 +98,6 @@ function object2UrlSearch(object) {
     return ret.join('&');
 }
 
+exports.ajax = ajax;
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
