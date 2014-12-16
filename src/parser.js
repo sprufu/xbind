@@ -147,8 +147,8 @@ function parseFilter(str) {
  * TODO fields是否应该收集
  */
 function parseExecute(str) {
-    fields = fields || {};
-    var ret = '';
+    var fields = {},
+    ret = '';
 
     if (~str.indexOf(';')) {
         // 含有";", 如: user.name = 'jcode'; user.age = 31
@@ -167,9 +167,9 @@ function parseExecute(str) {
         if (~str.indexOf('=')) {
             // 含有"=", 是赋值操作
             var part = str.split('=');
-            ret = '$model.$set("' + part[0].trim() + '",' + parseExecuteItem(part[1].trim(), fields, isDisplayResult) + ')';
+            ret = '$model.$set("' + part[0].trim() + '",' + parseExecuteItem(part[1].trim(), fields) + ')';
         } else {
-            ret = parseExecuteItem(str, fields, isDisplayResult) + ';';
+            ret = parseExecuteItem(str, fields) + ';';
         }
     }
     return ret;
