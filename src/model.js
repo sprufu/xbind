@@ -148,10 +148,43 @@ Model.prototype = {
      *    3. 这会触发视图更新
      */
     $set: function(field, value) {
-        setFieldValue(this, field, value);
-        this.$cache[field] = value;
-        this.$notifySubscribes(field);
-        delete this.$cache[field];
+        if (exports.type(field, 'object')) {
+            // 批量模式, 如:
+            // model.$set({
+            //      name: 'jcode',
+            //      age: 30,
+            //      job: 'IT'
+            // });
+            //
+            // 批量模式不是单个模式的循环, 内部存在优化
+            // 能用批量模式的尽量不要单个模式.
+            var k;
+
+            // 批量设置值
+            this.$freeze = true;
+            for(k in field) {
+                this.$cache[k] = field[k];
+                setFieldValue(this, k, field[k]);
+            }
+
+            // 依次更新视图
+            this.$freeze = false;
+            for(k in field) {
+                this.$notifySubscribes(k);
+            }
+
+            // 清空缓存
+            for(k in field) {
+                delete this.$cache[k];
+            }
+        } else {
+            // 单个更新模式, 如:
+            // model.$set('name', 'jcode');
+            setFieldValue(this, field, value);
+            this.$cache[field] = value;
+            this.$notifySubscribes(field);
+            delete this.$cache[field];
+        }
     },
 
     /**
