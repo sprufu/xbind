@@ -62,6 +62,10 @@ function parseDate(obj) {
         return null;
     }
 
+    if (/^\d{10}$|^\d{13}$/.test(obj)) {
+        obj = +obj;
+    }
+
     switch(exports.type(obj)) {
         case 'string': return parseDateString(obj);
         case 'date': return obj;
