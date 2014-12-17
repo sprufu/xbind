@@ -894,7 +894,7 @@ function getScanAttrList(attrs) {
     }
 
     res.sort(function(a,b) {
-        return a.priority > b.priority;
+        return a.priority < b.priority;
     });
 
     return res;
@@ -1085,6 +1085,20 @@ exports.extend(exports.scanners, {
             return;
         }
         return model;
+    },
+
+    /**
+     * 初始化数据
+     */
+    'x-init': function(model, element, value, attr) {
+        if (!model) {
+            return;
+        }
+
+        element.removeAttribute(attr.name);
+        var expr = parseExecute(value),
+        fn = new Function('$model', expr);
+        fn(model);
     },
 
     /**
@@ -1585,7 +1599,7 @@ function parseExecute(str) {
 /**
  * 表达式操作符
  */
-var exprActionReg = /[^\w\$\.]+/g;
+var exprActionReg = /[^\w\$\.\"\']+/g;
 
 /**
  * parseExecute的辅助函数, 用来解析单个表达式, str两边已经去掉无用的空白符
@@ -1662,6 +1676,11 @@ function parseStatic(str, isDisplayResult) {
 
     // 数字
     if (numberReg.test(str)) {
+        return str;
+    }
+
+    var c=str.charAt(0);
+    if (c == '"' || c == "'") {
         return str;
     }
 
@@ -1755,6 +1774,10 @@ exports.filters = {
 function parseDate(obj) {
     if (!obj) {
         return null;
+    }
+
+    if (/^\d{10}$|^\d{13}$/.test(obj)) {
+        obj = +obj;
     }
 
     switch(exports.type(obj)) {

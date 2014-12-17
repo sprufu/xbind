@@ -22,7 +22,7 @@
 <script>
 var model = vmodel({
     $id: 'test',
-    url: 'http://www.baidu.com',
+    url: 'test.html',
     my_tpl: 'full',
     user: {
         name: 'jcode',
@@ -45,7 +45,7 @@ setTimeout(function() {
 </script>
 
 </head>
-<body x-controller="test" class="x-controller">
+<body x-controller="test" class="x-controller" x-init="user.info = 'test'">
     <div x-template="full"><b>Hello</b> {{ user.name | limit 3 }}!</div>
     <div x-template="simple">Hi {{ user.name }}!</div>
 	
@@ -75,7 +75,7 @@ setTimeout(function() {
 		</div>
 	</form>
     
-    <div>
+    <div x-view="test">
         <textarea x-bind="user.info"></textarea>
     </div>
     
@@ -122,7 +122,7 @@ setTimeout(function() {
     <div x-style-background-color="user.bgColor">爱好: {{ user.ah }} </div>
     <div>职位: {{ user.job }} </div>
     <div>自我介绍: {{ user.info }}</div>
-    <a x-href="{{ url }}">主页: {{ user.name }} </a>
+    <a x-href="{{ url }}" x-view="test">主页: {{ user.name }} </a>
     <div id="test2" x-if="user.sex == '先生'">TMD, 这家伙是男的, 喜欢{{ user.ah }}!!!</div>
     <div id="dd" x-show="user.sex == '女士'"> 这个MM很漂亮嘛, 很喜欢{{ user.ah }}. </div>
     <div x-include="my_tpl"></div>

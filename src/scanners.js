@@ -177,6 +177,20 @@ exports.extend(exports.scanners, {
     },
 
     /**
+     * 初始化数据
+     */
+    'x-init': function(model, element, value, attr) {
+        if (!model) {
+            return;
+        }
+
+        element.removeAttribute(attr.name);
+        var expr = parseExecute(value),
+        fn = new Function('$model', expr);
+        fn(model);
+    },
+
+    /**
      * 用来定义一个模板
      * <div x-template="tplId"> ... </div>
      *
