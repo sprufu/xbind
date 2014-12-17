@@ -301,7 +301,7 @@ function ajax(opt) {
         }
     }
 
-    xhr.open(opt.type, opt.url, true);
+    xhr.open(opt.type, opt.url, opt.async);
     if (opt.headers) {
         var key, header;
         for (key in opt.headers) {
@@ -309,6 +309,8 @@ function ajax(opt) {
         }
     }
     //xhr.overrideMimeType(opt.dataType); // 低版本IE不支持overrideMimeType
+    // post必须设置Content-Type, 否则服务器端无法解析参数.
+    xhr.setRequestHeader("Content-Type", opt.contentType);
     xhr.onreadystatechange = function(e) {
         if (this.readyState == 4) {
             if (this.status >= 200 && this.status < 300) {
@@ -342,7 +344,7 @@ function ajax(opt) {
                 }
             } else {
                 if (opt.error) {
-                    opt.error.call(opt, this, this.responseText);
+                    opt.error.call(opt, this, decodeURIComponent(this.statusText));
                 }
             }
         }
@@ -351,8 +353,10 @@ function ajax(opt) {
 }
 
 options.ajax = {
+    async: true,
     type: 'GET',
-    dataType: 'text'
+    dataType: 'text',
+    contentType: 'application/x-www-form-urlencoded'
 };
 
 /**
@@ -422,9 +426,8 @@ function setFieldValue(model, field, value) {
                 v[key] = value;
             } else if (!v[key]) {
                 v[key] = {};
-            } else {
-                v = v[key];
             }
+            v = v[key];
         }
     } else {
         model[field] = value;
