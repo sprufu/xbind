@@ -221,11 +221,27 @@ extend(exports, {
      * @param {Function} handler 事件句柄
      */
     on: function(el, type, handler) {
+        /* ie678( */
         if (el.addEventListener) {
-            el.addEventListener(type, handler, false);
+            /* ie678) */
+            el.addEventListener(type, function(event) {
+                var res = handler.call(el, event);
+                if (res === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }, false);
+            /* ie678( */
         } else if (el.attachEvent){
-            el.attachEvent('on' + type, handler);
+            el.attachEvent('on' + type, function(event) {
+                var res = handler.call(el, event);
+                if (res === false) {
+                    event.returnValue = false;
+                    event.cancelBubble = true;
+                }
+            });
         }
+        /* ie678) */
     },
 
     /**
@@ -780,6 +796,19 @@ function destroyModel(model, removeBindElement) {
     model = null;
 }
 
+/**
+ * 获取model数据的方法
+ * @param {string|Element} id 当为字符串时, 表示id, 否则表示结点
+ * @returns {Model|null}
+ */
+exports.model = function(id) {
+    if ('string' == typeof id) {
+        return MODELS[id] || null;
+    } else {
+        return getExtModel(id) || null;
+    }
+}
+
 
 
 /**
@@ -1021,19 +1050,7 @@ function eventBindHandler(model, element, value, attr, type) {
 
     element.removeAttribute(attr.name);
     exports.on(element, eventType, function(event) {
-        if (fn(model) === false) {
-            /* ie678( */
-            if (ie678) {
-                event.cancelBubble = true;
-                event.returnValue = false;
-            } else {
-                /* ie678) */
-                event.stopPropagation();
-                event.preventDefault();
-                /* ie678( */
-            }
-            /* ie678) */
-        }
+        return fn(model);
     });
 }
 

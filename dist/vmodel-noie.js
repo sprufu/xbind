@@ -199,11 +199,15 @@ extend(exports, {
      * @param {Function} handler 事件句柄
      */
     on: function(el, type, handler) {
-        if (el.addEventListener) {
-            el.addEventListener(type, handler, false);
-        } else if (el.attachEvent){
-            el.attachEvent('on' + type, handler);
-        }
+        
+            el.addEventListener(type, function(event) {
+                var res = handler.call(el, event);
+                if (res === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }, false);
+            
     },
 
     /**
@@ -758,6 +762,19 @@ function destroyModel(model, removeBindElement) {
     model = null;
 }
 
+/**
+ * 获取model数据的方法
+ * @param {string|Element} id 当为字符串时, 表示id, 否则表示结点
+ * @returns {Model|null}
+ */
+exports.model = function(id) {
+    if ('string' == typeof id) {
+        return MODELS[id] || null;
+    } else {
+        return getExtModel(id) || null;
+    }
+}
+
 
 
 /**
@@ -947,12 +964,7 @@ function eventBindHandler(model, element, value, attr, type) {
 
     element.removeAttribute(attr.name);
     exports.on(element, eventType, function(event) {
-        if (fn(model) === false) {
-            
-                event.stopPropagation();
-                event.preventDefault();
-                
-        }
+        return fn(model);
     });
 }
 

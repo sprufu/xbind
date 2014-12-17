@@ -390,4 +390,17 @@ function destroyModel(model, removeBindElement) {
     model = null;
 }
 
+/**
+ * 获取model数据的方法
+ * @param {string|Element} id 当为字符串时, 表示id, 否则表示结点
+ * @returns {Model|null}
+ */
+exports.model = function(id) {
+    if ('string' == typeof id) {
+        return MODELS[id] || null;
+    } else {
+        return getExtModel(id) || null;
+    }
+}
+
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
