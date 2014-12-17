@@ -178,7 +178,7 @@ function parseExecute(str) {
 /**
  * 表达式操作符
  */
-var exprActionReg = /[^\w\$\.]+/g;
+var exprActionReg = /[^\w\$\.\"\']+/g;
 
 /**
  * parseExecute的辅助函数, 用来解析单个表达式, str两边已经去掉无用的空白符
@@ -255,6 +255,11 @@ function parseStatic(str, isDisplayResult) {
 
     // 数字
     if (numberReg.test(str)) {
+        return str;
+    }
+
+    var c=str.charAt(0);
+    if (c == '"' || c == "'") {
         return str;
     }
 
