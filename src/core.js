@@ -220,11 +220,27 @@ extend(exports, {
      * @param {Function} handler 事件句柄
      */
     on: function(el, type, handler) {
+        /* ie678( */
         if (el.addEventListener) {
-            el.addEventListener(type, handler, false);
+            /* ie678) */
+            el.addEventListener(type, function(event) {
+                var res = handler.call(el, event);
+                if (res === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }, false);
+            /* ie678( */
         } else if (el.attachEvent){
-            el.attachEvent('on' + type, handler);
+            el.attachEvent('on' + type, function(event) {
+                var res = handler.call(el, event);
+                if (res === false) {
+                    event.returnValue = false;
+                    event.cancelBubble = true;
+                }
+            });
         }
+        /* ie678) */
     },
 
     /**
