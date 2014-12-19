@@ -483,7 +483,7 @@ function bindModel(model, str, parsefn, updatefn) {
     var fields = {},
     expr = parsefn(str, fields);
     if (exports.isEmptyObject(fields)) {
-        return;
+        return false;
     }
 
     var fn = new Function('$model', 'return ' + expr),
