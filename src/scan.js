@@ -5,7 +5,11 @@
  */
 function scan(element, model) {
     element = element || document.documentElement;
-    model = model || null;
+
+    if (!model) {
+        model = new Model();
+        model.$bindElement(element);
+    }
 
     switch(element.nodeType) {
     // 普通结点
