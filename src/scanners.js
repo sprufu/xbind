@@ -447,12 +447,13 @@ exports.extend(exports.scanners, {
             model.$bindElement(element);
         }
 
-        var read = function() {
+        var url,
+        read = function() {
             ajax({
                 type: 'GET',
                 dataType: 'json',
                 cache: false,
-                url: value,
+                url: url,
                 success: function(res) {
                     model.$set(res, param + '.');
                 },
@@ -460,12 +461,28 @@ exports.extend(exports.scanners, {
                     model.$set(param + '.$error', err);
                 }
             });
-        }
-        read();
+        };
 
+        // 暴露加载函数, 供外部需要时加载数据
         model[param] = {
             $read: read
         };
+
+        // 绑定url变化
+        // 当url发生改变时重新加载数据
+        // 调用这个时务必要给绑定赋初值, 否则加加载如: /ajax?id=undefined
+        // TODO 基于这个不正确加载, 后期考虑条件加载机制.
+        var bind = bindModel(model, value, parseString, function(res) {
+            url = res;
+            read();
+        });
+
+        // 如果没有字符串插值
+        // 也就是url一层不变, 那么加载一次数据
+        if (bind === false) {
+            url = value;
+            read();
+        }
 
         return model;
     },
