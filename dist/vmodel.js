@@ -1691,7 +1691,7 @@ function parseExecute(str) {
     if (~str.indexOf(';')) {
         // 含有";", 如: user.name = 'jcode'; user.age = 31
         // 表示由多个表达式组成
-        var strs = str.split(';'),
+        var strs = str.split(/\s*;\s*/g),
         i = 0;
 
         // 循环解析每个表达式, 把结果累加在一起
