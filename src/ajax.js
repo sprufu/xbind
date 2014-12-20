@@ -6,7 +6,7 @@ function ajax(opt) {
     data = null;
 
     if (opt.data) {
-        data = object2UrlSearch(opt.data);
+        data = exports.param(opt.data);
         if (opt.type.toLowerCase() == 'get') {
             if (~opt.url.indexOf('?')) {
                 opt.url += '&' + data;
@@ -82,7 +82,7 @@ options.ajax = {
  *    null                                      ===> 
  *    serach-string                             ===> serach-string
  */
-function object2UrlSearch(object) {
+exports.param = function(object) {
     if ('string' == typeof object) {
         return object;
     }
