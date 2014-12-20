@@ -248,6 +248,10 @@ options.keywords = {};
 
 var numberReg = /^\-?\d?\.?\d+$/;
 function parseStatic(str, isDisplayResult) {
+    if (!str) {
+        return '';
+    }
+
     // 普通常量, 常量有很多, 这里只处理几个常用的
     if (options.keywords[str]) {
         return str;
