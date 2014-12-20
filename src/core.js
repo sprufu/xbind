@@ -258,6 +258,23 @@ extend(exports, {
     },
 
     /**
+     * 触发事件
+     * 类似于jQuery的trigger
+     */
+    emit: function(el, type) {
+        /* ie678( */
+        if (ie678) {
+            el.fireEvent('on'+type);
+        } else {
+            /* ie678) */
+            var event = new Event(type);
+            el.dispatchEvent(event);
+        /* ie678( */
+        }
+        /* ie678) */
+    },
+
+    /**
      * 配置参数
      *
      * 设置单个参数
