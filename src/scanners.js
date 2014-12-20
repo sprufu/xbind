@@ -17,9 +17,10 @@ exports.scanners = {
     */
 };
 
-function booleanHandler (model, element, value, attr, type) {
-    // 如果是类似: disabled="disabled"或disabled="true", 不处理
-    if (value == type || value == "true") {
+function booleanHandler (model, element, value, attr) {
+    // 如果是类似: disabled="disabled"或disabled="", 不处理
+    var type = attr.name
+    if (value == type || value === "") {
         return;
     }
 
@@ -38,16 +39,16 @@ function stringBindHandler (model, element, value, attr) {
     });
 }
 
-function stringXBindHandler(model, element, value, attr, type) {
-    var attrName = type.substr(2);
+function stringXBindHandler(model, element, value, attr) {
+    var attrName = attr.name.substr(2);
     element.removeAttribute(attr.name);
     bindModel(model, value, parseString, function(res) {
         element.setAttribute(attrName, res);
     });
 }
 
-function eventBindHandler(model, element, value, attr, type) {
-    var eventType = type.substr(2),
+function eventBindHandler(model, element, value, attr) {
+    var eventType = attr.name.substr(2),
     expr = parseExecute(value),
     fn = new Function('$model', expr);
 
@@ -266,7 +267,7 @@ exports.extend(exports.scanners, {
         });
     },
 
-    'x-repeat': function(model, element, value, attr, type, param) {
+    'x-repeat': function(model, element, value, attr, param) {
         var parent = element.parentNode,
         startElement = document.createComment('x-repeat-start:' + param),
         endElement = document.createComment('x-repeat-end:' + param);
@@ -441,7 +442,7 @@ exports.extend(exports.scanners, {
      * 但这样有个问题, 就是类名只能用小写, 因为属性名都会转化为小写的
      * 当expr结果为真时添加class, 否则移出
      */
-    'x-class': function(model, element, value, attr, type, param) {
+    'x-class': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
         bindModel(model, value, parseExpress, function(res) {
             if (res) {
@@ -451,7 +452,7 @@ exports.extend(exports.scanners, {
             }
         });
     },
-    'x-ajax': function(model, element, value, attr, type, param) {
+    'x-ajax': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
 
         if (!element.$modelId) {
@@ -499,7 +500,7 @@ exports.extend(exports.scanners, {
         return model;
     },
 
-    'x-style': function(model, element, value, attr, type, param) {
+    'x-style': function(model, element, value, attr, param) {
         var cssName = camelize(param);
         element.removeAttribute(attr.name);
         bindModel(model, value, parseExpress, function(res) {
