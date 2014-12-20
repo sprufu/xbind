@@ -505,15 +505,15 @@ function bindModel(model, str, parsefn, updatefn) {
 
     var fn = new Function('$model,filter', 'return ' + expr),
     observer = {
-        update: function(model, value) {
-            updatefn(fn(model, value));
+        update: function(model) {
+            updatefn(fn(model, exports.filter));
         }
     };
 
     for (var field in fields) {
         if (model) {
             model.$subscribe(field, observer);
-            observer.update(model, exports.filter);
+            observer.update(model);
         }
     }
 }
