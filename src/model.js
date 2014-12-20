@@ -59,7 +59,7 @@ function Model(vm) {
 
     // 存放临时字段结果
     this.$cache = {};
-    this.$subscribes = {
+    this.$watchs = {
         /**
          * 以字段为键
          * 如: name, user.name, user.name.firstName
@@ -193,7 +193,7 @@ Model.prototype = {
             // 依次更新视图
             this.$freeze = false;
             for(k in field) {
-                this.$notifySubscribes(prefix + k);
+                this.$fire(prefix + k);
             }
 
             // 清空缓存
@@ -205,7 +205,7 @@ Model.prototype = {
             // model.$set('name', 'jcode');
             setFieldValue(this, field, value);
             this.$cache[field] = value;
-            this.$notifySubscribes(field);
+            this.$fire(field);
             delete this.$cache[field];
         }
     },
@@ -213,33 +213,33 @@ Model.prototype = {
     /**
      * 订阅数据更新
      * 相当于angular的$watch
-     * @see $notifySubscribes
-     * @see $unsubscribe
+     * @see $fire
+     * @see $unwatch
      */
-    $subscribe: function(field, observer) {
-        if (!this.$subscribes[field]) {
-            this.$subscribes[field] = [];
+    $watch: function(field, observer) {
+        if (!this.$watchs[field]) {
+            this.$watchs[field] = [];
         }
-        this.$subscribes[field].push(observer);
+        this.$watchs[field].push(observer);
     },
 
     /**
      * 取消订阅
-     * @see $subscribe
-     * @see $notifySubscribes
+     * @see $watch
+     * @see $fire
      */
-    $unsubscribe: function(field, observer) {
-        if (this.$subscribes[field]) {
-            this.$subscribes[field].remove(observer);
+    $unwatch: function(field, observer) {
+        if (this.$watchs[field]) {
+            this.$watchs[field].remove(observer);
         }
     },
 
     /**
      * 通知订阅者更新自己
-     * @see $subscribe
-     * @see $unsubscribe
+     * @see $watch
+     * @see $unwatch
      */
-    $notifySubscribes: function(field) {
+    $fire: function(field) {
         if (this.$freeze) {
             return;
         }
@@ -270,11 +270,11 @@ Model.prototype = {
             var observer = {
                 update: function(parentModel, field) {
                     if (!model.hasOwnProperty(field)) {
-                        model.$notifySubscribes(field);
+                        model.$fire(field);
                     }
                 }
             }
-            model.$parent.$subscribe('*', observer);
+            model.$parent.$watch('*', observer);
         }
 
         element.$modelId = model.$id;
@@ -295,9 +295,9 @@ Model.prototype = {
 function getSubscribes (model, field) {
     var ret = []
     try {
-        for (var key in model.$subscribes) {
+        for (var key in model.$watchs) {
             if (key == '*' || key.startsWith(field)) {
-                ret = ret.concat(model.$subscribes[key]);
+                ret = ret.concat(model.$watchs[key]);
             }
         }
     } finally {

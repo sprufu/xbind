@@ -339,8 +339,8 @@ exports.extend(exports.scanners, {
             if (res) {
                 element.parentElement || parent.replaceChild(element, replaceElement);
                 model.$freeze = false;
-                for (var field in model.$subscribes) {
-                    model.$notifySubscribes(field);
+                for (var field in model.$watchs) {
+                    model.$fire(field);
                 }
             } else {
                 element.parentElement && parent.replaceChild(replaceElement, element);
@@ -524,7 +524,7 @@ function bindModel(model, str, parsefn, updatefn) {
 
     for (var field in fields) {
         if (model) {
-            model.$subscribe(field, observer);
+            model.$watch(field, observer);
             observer.update(model);
         }
     }
