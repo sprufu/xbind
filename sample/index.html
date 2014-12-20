@@ -122,7 +122,7 @@ setTimeout(function() {
     <div x-style-background-color="user.bgColor">爱好: {{ user.ah }} </div>
     <div>职位: {{ user.job }} </div>
     <div>自我介绍: {{ user.info }}</div>
-    <a x-href="{{ url }}" x-view="test">主页: {{ user.name }} </a>
+    <a x-href="{{ url }}" href="">主页: {{ user.name }} </a>
     <div id="test2" x-if="user.sex == '先生'">TMD, 这家伙是男的, 喜欢{{ user.ah }}!!!</div>
     <div id="dd" x-show="user.sex == '女士'"> 这个MM很漂亮嘛, 很喜欢{{ user.ah }}. </div>
     <div x-include="my_tpl"></div>

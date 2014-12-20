@@ -165,6 +165,18 @@ exports.extend(exports.scanners, {
         element.removeAttribute(attr.name);
         element.$noScanChild = true;
     },
+
+    /**
+     * 当a[href=""]时, 阻止默认点击行为和事件冒泡
+     */
+    'href': function(model, element, value) {
+        if (element.tagName == 'A' && value === '') {
+            exports.on(element, 'click', function() {
+                return false;
+            });
+        }
+    },
+
     'x-controller': function(model, element, value, attr) {
         model = MODELS[value];
         element.removeAttribute(attr.name);
