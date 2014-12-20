@@ -503,7 +503,7 @@ function bindModel(model, str, parsefn, updatefn) {
         return false;
     }
 
-    var fn = new Function('$model', 'return ' + expr),
+    var fn = new Function('$model,filter', 'return ' + expr),
     observer = {
         update: function(model, value) {
             updatefn(fn(model, value));
@@ -513,7 +513,7 @@ function bindModel(model, str, parsefn, updatefn) {
     for (var field in fields) {
         if (model) {
             model.$subscribe(field, observer);
-            observer.update(model);
+            observer.update(model, model.$filter);
         }
     }
 }
