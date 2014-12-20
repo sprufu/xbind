@@ -82,9 +82,9 @@ options.ajax = {
  *    null                                      ===> 
  *    serach-string                             ===> serach-string
  */
-exports.param = function(object) {
+exports.param = function(object, prefix) {
     if ('string' == typeof object) {
-        return object;
+        return window.encodeURIComponent(object);
     }
 
     if ('number' == typeof object) {
@@ -95,10 +95,21 @@ exports.param = function(object) {
         return '';
     }
 
-    var key, ret = [];
+    var key, subpre, ret = [];
+    prefix = prefix || '';
     for (key in object) {
-        ret.push(key + '=' + window.encodeURIComponent(object[key] || ''));
+        if (!object.hasOwnProperty(key) || exports.type(object[key], 'function')) {
+            continue;
+        }
+
+        subpre = prefix ? prefix + '[' + key + ']' : key;
+        if ('object' == typeof object[key]) {
+            ret.push(exports.param(object[key], subpre));
+        } else {
+            ret.push(subpre + '=' + window.encodeURIComponent(object[key] || ''));
+        }
     }
+
     return ret.join('&');
 }
 
