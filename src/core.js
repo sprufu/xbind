@@ -222,27 +222,39 @@ extend(exports, {
      * @param {Function} handler 事件句柄
      */
     on: function(el, type, handler) {
-        /* ie678( */
-        if (el.addEventListener) {
-            /* ie678) */
-            el.addEventListener(type, function(event) {
-                var res = handler.call(el, event);
-                if (res === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-            }, false);
+        if (exports.type(type, 'object')) {
+            // 批量添加事件
+            // 如:
+            //  vmodel.on(el, {
+            //      mouseover: fn,
+            //      mouseout: fun2
+            //  });
+            for (var key in type) {
+                exports.on(el, key, type[key]);
+            }
+        } else {
             /* ie678( */
-        } else if (el.attachEvent){
-            el.attachEvent('on' + type, function(event) {
-                var res = handler.call(el, event);
-                if (res === false) {
-                    event.returnValue = false;
-                    event.cancelBubble = true;
-                }
-            });
+            if (el.addEventListener) {
+                /* ie678) */
+                el.addEventListener(type, function(event) {
+                    var res = handler.call(el, event);
+                    if (res === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                }, false);
+                /* ie678( */
+            } else if (el.attachEvent){
+                el.attachEvent('on' + type, function(event) {
+                    var res = handler.call(el, event);
+                    if (res === false) {
+                        event.returnValue = false;
+                        event.cancelBubble = true;
+                    }
+                });
+            }
+            /* ie678) */
         }
-        /* ie678) */
     },
 
     /**
