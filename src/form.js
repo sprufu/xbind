@@ -11,7 +11,7 @@ extend(exports.scanners, {
      *      <input name="name" x-bind="name" />
      * </form>
      */
-    'x-form': function(model, element, value, attr, type, param) {
+    'x-form': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
         extend(model, {
             $xform: param,
