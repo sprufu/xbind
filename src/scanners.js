@@ -513,7 +513,7 @@ function bindModel(model, str, parsefn, updatefn) {
     for (var field in fields) {
         if (model) {
             model.$subscribe(field, observer);
-            observer.update(model, model.$filter);
+            observer.update(model, exports.filter);
         }
     }
 }
