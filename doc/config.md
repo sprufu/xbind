@@ -38,15 +38,28 @@ vmodel.config({
 	}
 	```
 
-3. `stringBindAttrs`
-	> 可用于字符串插值的属性
-
-4. `booleanBindAttrs`
-	> 布尔属性绑定属性
-
-5. `eventBindAttrs`
-	> 事件绑定属性, 这些属性会自动添加前辍"x-"
-
-6. `priorities`
+3. `priorities`
 	> 扫描属性优先级顺序, 以属性名为键, 数字为值, 值越小优先级越高, 越早得到扫描, 没有设置的属性默认为3000
 	> 如: `vmodel.config({priorities:{"x-controller":50}})`
+
+4. `igonreTags`
+	> 忽略哪些标签不扫描, 默认:
+	```javascript
+	{
+		NOSCRIPT: true,
+		SCRIPT: true,
+		IFRAME: true
+	}
+	```
+	> 注意标签名要大写.
+
+5. `keywords`
+	> 编译关键字, 表达式中的字符串一般都要转换为model变量, 如果不想转换, 添加到这个列表里
+	> 默认添加了基本的javascript关键字
+	> 形如:
+	```javascript
+	{
+		"return": true,
+		"NaN": true
+	}
+	```
