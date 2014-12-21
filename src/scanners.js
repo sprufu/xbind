@@ -460,7 +460,18 @@ exports.extend(exports.scanners, {
             model.$bindElement(element);
         }
 
-        var url,
+        var
+
+        // 请求的地址, 这个参数可能在变, 因为可能会与数据绑定
+        url,
+
+        // 请求条件
+        // 根据 x-ajax-if 结果求得
+        // 用于条件加载
+        $if = true,
+        ifBindExpr = element.getAttribute('x-ajax-if'),
+
+        // 请求的方法
         read = function() {
             ajax({
                 type: 'GET',
@@ -481,20 +492,28 @@ exports.extend(exports.scanners, {
             $read: read
         };
 
+        // 绑定加载条件
+        if (ifBindExpr) {
+            element.removeAttribute('x-ajax-if');
+            bindModel(model, ifBindExpr, parseExpress, function(res) {
+                $if = res;
+            });
+        }
+
         // 绑定url变化
         // 当url发生改变时重新加载数据
         // 调用这个时务必要给绑定赋初值, 否则加加载如: /ajax?id=undefined
         // TODO 基于这个不正确加载, 后期考虑条件加载机制.
         var bind = bindModel(model, value, parseString, function(res) {
             url = res;
-            read();
+            $if && read();
         });
 
         // 如果没有字符串插值
         // 也就是url一层不变, 那么加载一次数据
         if (bind === false) {
             url = value;
-            read();
+            $if && read();
         }
 
         return model;
