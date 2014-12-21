@@ -1,1 +1,1 @@
-}(window, window.document, window.location, window.history);
+}(window, document, location, history);
