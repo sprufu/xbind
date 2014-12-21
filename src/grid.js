@@ -1,4 +1,4 @@
-exports.scanners['x-grid'] = function(model, element, value, attr, type, param) {
+exports.scanners['x-grid'] = function(model, element, value, attr, param) {
     element.removeAttribute(attr.name);
 
     if (!element.$modelId) {
