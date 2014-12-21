@@ -27,12 +27,19 @@ options.igonreTags = {
     IFRAME: true
 };
 
+// 过滤属性不扫描
+options.igonreAttrs = {
+    'x-ajax-if': true
+};
+
 // 扫描优先级, 没有定义的都在1000
 options.priorities = {
     'x-skip': 0,
     'x-controller': 10,
     'x-repeat': 20,
-    'x-if': 50
+    'x-if': 50,
+    'href': 200,
+    'x-href': 210
 };
 
 /* ie678( */
@@ -221,25 +228,54 @@ extend(exports, {
      * @param {Function} handler 事件句柄
      */
     on: function(el, type, handler) {
-        /* ie678( */
-        if (el.addEventListener) {
-            /* ie678) */
-            el.addEventListener(type, function(event) {
-                var res = handler.call(el, event);
-                if (res === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-            }, false);
+        if (exports.type(type, 'object')) {
+            // 批量添加事件
+            // 如:
+            //  vmodel.on(el, {
+            //      mouseover: fn,
+            //      mouseout: fun2
+            //  });
+            for (var key in type) {
+                exports.on(el, key, type[key]);
+            }
+        } else {
             /* ie678( */
-        } else if (el.attachEvent){
-            el.attachEvent('on' + type, function(event) {
-                var res = handler.call(el, event);
-                if (res === false) {
-                    event.returnValue = false;
-                    event.cancelBubble = true;
-                }
-            });
+            if (el.addEventListener) {
+                /* ie678) */
+                el.addEventListener(type, function(event) {
+                    var res = handler.call(el, event);
+                    if (res === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                }, false);
+                /* ie678( */
+            } else if (el.attachEvent){
+                el.attachEvent('on' + type, function(event) {
+                    var res = handler.call(el, event);
+                    if (res === false) {
+                        event.returnValue = false;
+                        event.cancelBubble = true;
+                    }
+                });
+            }
+            /* ie678) */
+        }
+    },
+
+    /**
+     * 触发事件
+     * 类似于jQuery的trigger
+     */
+    emit: function(el, type) {
+        /* ie678( */
+        if (ie678) {
+            el.fireEvent('on'+type);
+        } else {
+            /* ie678) */
+            var event = new Event(type);
+            el.dispatchEvent(event);
+        /* ie678( */
         }
         /* ie678) */
     },
@@ -306,7 +342,7 @@ function ajax(opt) {
     data = null;
 
     if (opt.data) {
-        data = object2UrlSearch(opt.data);
+        data = exports.param(opt.data);
         if (opt.type.toLowerCase() == 'get') {
             if (~opt.url.indexOf('?')) {
                 opt.url += '&' + data;
@@ -382,9 +418,9 @@ options.ajax = {
  *    null                                      ===> 
  *    serach-string                             ===> serach-string
  */
-function object2UrlSearch(object) {
+exports.param = function(object, prefix) {
     if ('string' == typeof object) {
-        return object;
+        return window.encodeURIComponent(object);
     }
 
     if ('number' == typeof object) {
@@ -395,10 +431,21 @@ function object2UrlSearch(object) {
         return '';
     }
 
-    var key, ret = [];
+    var key, subpre, ret = [];
+    prefix = prefix || '';
     for (key in object) {
-        ret.push(key + '=' + window.encodeURIComponent(object[key] || ''));
+        if (!object.hasOwnProperty(key) || exports.type(object[key], 'function')) {
+            continue;
+        }
+
+        subpre = prefix ? prefix + '[' + key + ']' : key;
+        if ('object' == typeof object[key]) {
+            ret.push(exports.param(object[key], subpre));
+        } else {
+            ret.push(subpre + '=' + window.encodeURIComponent(object[key] || ''));
+        }
     }
+
     return ret.join('&');
 }
 
@@ -465,7 +512,7 @@ function Model(vm) {
 
     // 存放临时字段结果
     this.$cache = {};
-    this.$subscribes = {
+    this.$watchs = {
         /**
          * 以字段为键
          * 如: name, user.name, user.name.firstName
@@ -508,7 +555,7 @@ Model.prototype = {
                     } else if (noExtend) {
                         return isDisplayResult ? '' : undefined;
                     } else {
-                        return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
+                        return this.$parent ? this.$parent.$get(field, noExtend, isDisplayResult) : isDisplayResult ? '' : undefined;
                     }
                 } else if ('function' == typeof v[key]) {
                     // 当
@@ -537,10 +584,14 @@ Model.prototype = {
         } else {
             if ('function' == typeof this[field]) {
                 return this[field].bind(this);
-            } if (this.hasOwnProperty(field) || this[field]) {
+            } if (this[field]) {
                 return this[field];
+            } if (this.hasOwnProperty(field)) {
+                return isDisplayResult ? '' : this[field];
+            } else if (noExtend) {
+                return isDisplayResult ? '' : undefined;
             } else {
-                return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
+                return this.$parent ? this.$parent.$get(field, noExtend, isDisplayResult) : isDisplayResult ? '' : undefined;
             }
         }
     },
@@ -599,7 +650,7 @@ Model.prototype = {
             // 依次更新视图
             this.$freeze = false;
             for(k in field) {
-                this.$notifySubscribes(prefix + k);
+                this.$fire(prefix + k);
             }
 
             // 清空缓存
@@ -611,7 +662,7 @@ Model.prototype = {
             // model.$set('name', 'jcode');
             setFieldValue(this, field, value);
             this.$cache[field] = value;
-            this.$notifySubscribes(field);
+            this.$fire(field);
             delete this.$cache[field];
         }
     },
@@ -619,33 +670,33 @@ Model.prototype = {
     /**
      * 订阅数据更新
      * 相当于angular的$watch
-     * @see $notifySubscribes
-     * @see $unsubscribe
+     * @see $fire
+     * @see $unwatch
      */
-    $subscribe: function(field, observer) {
-        if (!this.$subscribes[field]) {
-            this.$subscribes[field] = [];
+    $watch: function(field, observer) {
+        if (!this.$watchs[field]) {
+            this.$watchs[field] = [];
         }
-        this.$subscribes[field].push(observer);
+        this.$watchs[field].push(observer);
     },
 
     /**
      * 取消订阅
-     * @see $subscribe
-     * @see $notifySubscribes
+     * @see $watch
+     * @see $fire
      */
-    $unsubscribe: function(field, observer) {
-        if (this.$subscribes[field]) {
-            this.$subscribes[field].remove(observer);
+    $unwatch: function(field, observer) {
+        if (this.$watchs[field]) {
+            this.$watchs[field].remove(observer);
         }
     },
 
     /**
      * 通知订阅者更新自己
-     * @see $subscribe
-     * @see $unsubscribe
+     * @see $watch
+     * @see $unwatch
      */
-    $notifySubscribes: function(field) {
+    $fire: function(field) {
         if (this.$freeze) {
             return;
         }
@@ -676,38 +727,17 @@ Model.prototype = {
             var observer = {
                 update: function(parentModel, field) {
                     if (!model.hasOwnProperty(field)) {
-                        model.$notifySubscribes(field);
+                        model.$fire(field);
                     }
                 }
             }
-            model.$parent.$subscribe('*', observer);
+            model.$parent.$watch('*', observer);
         }
 
         element.$modelId = model.$id;
         this.$element = element;
-    },
-
-    /**
-     * 执行过滤器
-     * @param {string} filterName 过滤器名字
-     * @param {Object} obj 用于过滤器的对象
-     * @param {object...} args 过滤器参数
-     */
-    $filter: function(filterName, obj, args) {
-        var fn = exports.filters[filterName];
-        if (!fn) {
-            return obj;
-        }
-
-        if (arguments.length > 2) {
-            args = Array.prototype.slice.call(arguments);
-            args.shift();
-        } else {
-            args = [obj];
-        }
-
-        return fn.apply(null, args);
     }
+
 }
 
 /**
@@ -722,9 +752,9 @@ Model.prototype = {
 function getSubscribes (model, field) {
     var ret = []
     try {
-        for (var key in model.$subscribes) {
+        for (var key in model.$watchs) {
             if (key == '*' || key.startsWith(field)) {
-                ret = ret.concat(model.$subscribes[key]);
+                ret = ret.concat(model.$watchs[key]);
             }
         }
     } finally {
@@ -807,7 +837,7 @@ exports.model = function(id) {
     } else {
         return getExtModel(id) || null;
     }
-}
+};
 
 
 
@@ -868,7 +898,7 @@ function scanAttrs(element, model) {
         attr = attrs[item.index];
         fn = exports.scanners[item.type];
         if (fn) {
-            model = fn(model, element, attr.value, attr, item.type, item.param) || model;
+            model = fn(model, element, attr.value, attr, item.param) || model;
         }
     }
 
@@ -907,6 +937,11 @@ function getScanAttrList(attrs) {
             continue;
         }
         /* ie678) */
+
+        // 在过滤属性列表中的属性, 忽略不处理
+        if (options.igonreAttrs[attr.name]) {
+            continue;
+        }
 
         param = undefined;
 
@@ -1018,9 +1053,10 @@ exports.scanners = {
     */
 };
 
-function booleanHandler (model, element, value, attr, type) {
-    // 如果是类似: disabled="disabled"或disabled="true", 不处理
-    if (value == type || value == "true") {
+function booleanHandler (model, element, value, attr) {
+    // 如果是类似: disabled="disabled"或disabled="", 不处理
+    var type = attr.name
+    if (value == type || value === "") {
         return;
     }
 
@@ -1039,16 +1075,16 @@ function stringBindHandler (model, element, value, attr) {
     });
 }
 
-function stringXBindHandler(model, element, value, attr, type) {
-    var attrName = type.substr(2);
+function stringXBindHandler(model, element, value, attr) {
+    var attrName = attr.name.substr(2);
     element.removeAttribute(attr.name);
     bindModel(model, value, parseString, function(res) {
         element.setAttribute(attrName, res);
     });
 }
 
-function eventBindHandler(model, element, value, attr, type) {
-    var eventType = type.substr(2),
+function eventBindHandler(model, element, value, attr) {
+    var eventType = attr.name.substr(2),
     expr = parseExecute(value),
     fn = new Function('$model', expr);
 
@@ -1166,6 +1202,18 @@ exports.extend(exports.scanners, {
         element.removeAttribute(attr.name);
         element.$noScanChild = true;
     },
+
+    /**
+     * 当a[href=""]时, 阻止默认点击行为和事件冒泡
+     */
+    'href': function(model, element, value) {
+        if (element.tagName == 'A' && value === '') {
+            exports.on(element, 'click', function() {
+                return false;
+            });
+        }
+    },
+
     'x-controller': function(model, element, value, attr) {
         model = MODELS[value];
         element.removeAttribute(attr.name);
@@ -1255,7 +1303,7 @@ exports.extend(exports.scanners, {
         });
     },
 
-    'x-repeat': function(model, element, value, attr, type, param) {
+    'x-repeat': function(model, element, value, attr, param) {
         var parent = element.parentNode,
         startElement = document.createComment('x-repeat-start:' + param),
         endElement = document.createComment('x-repeat-end:' + param);
@@ -1328,8 +1376,8 @@ exports.extend(exports.scanners, {
             if (res) {
                 element.parentElement || parent.replaceChild(element, replaceElement);
                 model.$freeze = false;
-                for (var field in model.$subscribes) {
-                    model.$notifySubscribes(field);
+                for (var field in model.$watchs) {
+                    model.$fire(field);
                 }
             } else {
                 element.parentElement && parent.replaceChild(replaceElement, element);
@@ -1430,7 +1478,7 @@ exports.extend(exports.scanners, {
      * 但这样有个问题, 就是类名只能用小写, 因为属性名都会转化为小写的
      * 当expr结果为真时添加class, 否则移出
      */
-    'x-class': function(model, element, value, attr, type, param) {
+    'x-class': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
         bindModel(model, value, parseExpress, function(res) {
             if (res) {
@@ -1440,7 +1488,7 @@ exports.extend(exports.scanners, {
             }
         });
     },
-    'x-ajax': function(model, element, value, attr, type, param) {
+    'x-ajax': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
 
         if (!element.$modelId) {
@@ -1448,7 +1496,18 @@ exports.extend(exports.scanners, {
             model.$bindElement(element);
         }
 
-        var url,
+        var
+
+        // 请求的地址, 这个参数可能在变, 因为可能会与数据绑定
+        url,
+
+        // 请求条件
+        // 根据 x-ajax-if 结果求得
+        // 用于条件加载
+        $if = true,
+        ifBindExpr = element.getAttribute('x-ajax-if'),
+
+        // 请求的方法
         read = function() {
             ajax({
                 type: 'GET',
@@ -1469,26 +1528,34 @@ exports.extend(exports.scanners, {
             $read: read
         };
 
+        // 绑定加载条件
+        if (ifBindExpr) {
+            element.removeAttribute('x-ajax-if');
+            bindModel(model, ifBindExpr, parseExpress, function(res) {
+                $if = res;
+            });
+        }
+
         // 绑定url变化
         // 当url发生改变时重新加载数据
         // 调用这个时务必要给绑定赋初值, 否则加加载如: /ajax?id=undefined
         // TODO 基于这个不正确加载, 后期考虑条件加载机制.
         var bind = bindModel(model, value, parseString, function(res) {
             url = res;
-            read();
+            $if && read();
         });
 
         // 如果没有字符串插值
         // 也就是url一层不变, 那么加载一次数据
         if (bind === false) {
             url = value;
-            read();
+            $if && read();
         }
 
         return model;
     },
 
-    'x-style': function(model, element, value, attr, type, param) {
+    'x-style': function(model, element, value, attr, param) {
         var cssName = camelize(param);
         element.removeAttribute(attr.name);
         bindModel(model, value, parseExpress, function(res) {
@@ -1504,16 +1571,16 @@ function bindModel(model, str, parsefn, updatefn) {
         return false;
     }
 
-    var fn = new Function('$model', 'return ' + expr),
+    var fn = new Function('$model,filter', 'return ' + expr),
     observer = {
-        update: function(model, value) {
-            updatefn(fn(model, value));
+        update: function(model) {
+            updatefn(fn(model, exports.filter));
         }
     };
 
     for (var field in fields) {
         if (model) {
-            model.$subscribe(field, observer);
+            model.$watch(field, observer);
             observer.update(model);
         }
     }
@@ -1607,7 +1674,7 @@ function parseExpress(str, fields, isDisplayResult) {
             var filter, ifn = '(function(expr){';
             for (var i=0; i<filters.length; i++) {
                 filter = filters[i];
-                ifn += 'expr=$model.$filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');'
+                ifn += 'expr=filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');'
             }
             expr = ifn + 'return expr;}(' + expr + '))'
         }
@@ -1691,7 +1758,7 @@ function parseExecute(str) {
     if (~str.indexOf(';')) {
         // 含有";", 如: user.name = 'jcode'; user.age = 31
         // 表示由多个表达式组成
-        var strs = str.split(/\s*;\s*/g),
+        var strs = str.split(';'),
         i = 0;
 
         // 循环解析每个表达式, 把结果累加在一起
@@ -1699,7 +1766,7 @@ function parseExecute(str) {
             if (i) {
                 ret += ';';
             }
-            ret += parseExecute(strs[i]);
+            ret += parseExecute(strs[i].trim());
         }
     } else {
         if (~str.indexOf('=')) {
@@ -1786,6 +1853,10 @@ options.keywords = {};
 
 var numberReg = /^\-?\d?\.?\d+$/;
 function parseStatic(str, isDisplayResult) {
+    if (!str) {
+        return '';
+    }
+
     // 普通常量, 常量有很多, 这里只处理几个常用的
     if (options.keywords[str]) {
         return str;
@@ -1829,6 +1900,8 @@ var parseJSON = window.JSON ? window.JSON.parse : function(str) {
     return (new Function('', 'return ' + str.trim())());
 }
 
+exports.ready(scan);
+window.vmodel = exports;
 /**
  * @file 过滤器
  * @author jcode
@@ -1982,133 +2055,26 @@ exports.filters.date.format = function(match, handler) {
     dateFormatter[match] = handler;
 }
 
-exports.scanners['x-grid'] = function(model, element, value, attr, type, param) {
-    element.removeAttribute(attr.name);
-
-    if (!element.$modelId) {
-        model = new Model();
-        model.$bindElement(element);
+/**
+    * 执行过滤器
+    * @param {string} filterName 过滤器名字
+    * @param {Object} obj 用于过滤器的对象
+    * @param {object...} args 过滤器参数
+    */
+exports.filter = function(filterName, obj, args) {
+    var fn = exports.filters[filterName];
+    if (!fn) {
+        return obj;
     }
 
-    var opt = {
-        name: param,
-        url: value,
-        page: element.getAttribute('page'),
-        pageSize: element.getAttribute('page-size')
-    };
-
-    model[param] = new DataGrid(opt);
-    model[param].$$model = model;
-
-    return model;
-};
-
-function DataGrid(opt) {
-    if (opt.page) {
-        if (REGEXPS.number.test(opt.page)) {
-            this.$$page = +opt.page;
-        } else {
-            this.$$page = +parseUrlParam(opt.page) || 1;
-        }
+    if (arguments.length > 2) {
+        args = Array.prototype.slice.call(arguments);
+        args.shift();
     } else {
-        this.$$page = 1;
+        args = [obj];
     }
 
-    if (opt.pageSize) {
-        if (REGEXPS.number.test(opt.pageSize)) {
-            this.$$pageSize = +opt.pageSize;
-        } else {
-            this.$$pageSize = +parseUrlParam(opt.pageSize) || 20;
-        }
-    } else {
-        this.$$pageSize = 20;
-    }
-
-    this.$$sort = '';
-    this.$$order = '';
-    this.$$params = {
-        page: this.$$page,
-        pageSize: this.$$pageSize
-    };
-    this.$$url = opt.url;
-    this.$$name = opt.name;
-
-    this.$read();
-}
-
-DataGrid.prototype = {
-    /**
-     * 读取数据
-     */
-    $read: function(search) {
-        if (arguments.length) {
-            this.$$params = search;
-            this.$$page = 1;
-        }
-
-        var self = this,
-        data = this.$$params;
-        extend(data, {
-            page: this.$$page,
-            pageSize: this.$$pageSize
-        });
-        if (this.$$sort) {
-            data.sort = this.$$sort;
-        }
-
-        if (this.$$order) {
-            data.order = this.$$order;
-        }
-
-        ajax({
-            type: 'GET',
-            dataType: 'json',
-            cache: false,
-            url: this.$$url,
-            data: data,
-            success: function(res) {
-                self.$$model.$set(res, self.$$name + '.');
-            },
-            error: function(xhr, err) {
-                self.$$model.$set(self.$$name + '.$error', err);
-            }
-        });
-    },
-
-    /**
-     * 获取当前页码或跳到指定页码
-     */
-    $page: function(page) {
-        if (page) {
-            this.$$page = page;
-            this.$read();
-        } else {
-            return this.$$page;
-        }
-    },
-
-    /**
-     * 设置或更改每页显示记录数
-     * 更改时重新加载页面并跳到第一页
-     */
-    $pageSize: function(pageSize) {
-        if (pageSize) {
-            this.$$pageSize = pageSize;
-            this.$$page = 1;
-            this.$read();
-        } else {
-            return this.$$pageSize;
-        }
-    },
-
-    /**
-     * 重新排序
-     */
-    $sort: function(field, order) {
-        this.$$sort = field;
-        this.$$order = order || '';
-        this.$read();
-    }
+    return fn.apply(null, args);
 };
 
 /**
@@ -2124,7 +2090,7 @@ extend(exports.scanners, {
      *      <input name="name" x-bind="name" />
      * </form>
      */
-    'x-form': function(model, element, value, attr, type, param) {
+    'x-form': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
         extend(model, {
             $xform: param,
@@ -2238,6 +2204,4 @@ function updateFormItem(element, type, res) {
     model.$set(prefix + '.$error.' + type, !res);
 }
 
-exports.ready(scan);
-window.vmodel = exports;
-}(window, window.document, window.location, window.history);
+}(window, document, location, history);

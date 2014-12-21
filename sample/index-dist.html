@@ -34,7 +34,7 @@ setTimeout(function() {
 
 </head>
 <body x-controller="test" class="x-controller">
-    <div x-template="full"><b>Hello</b> {{ user.name | limit 3 }}!</div>
+    <div x-template="full"><b>Hello</b> {{ user.name }}!</div>
     <div x-template="simple">Hi {{ user.name }}!</div>
 	
 	<form x-form-fuser="">
@@ -80,7 +80,7 @@ setTimeout(function() {
             <td></td>
             <td>{{ user.title }}</td>
             <td></td>
-            <td> {{ user.publishDate | date 'yyyy-mm-dd(w)' }} </td>
+            <td> {{ user.publishDate }} </td>
             <td> <button x-click="users.$read()"> read() </button> </td>
         </tr>
 

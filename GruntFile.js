@@ -3,8 +3,6 @@ module.exports = function(grunt) {
     });
 
     var files = [
-        'src/wrap/header',
-
         'src/core.js',
         'src/ajax.js',
         'src/model.js',
@@ -12,14 +10,42 @@ module.exports = function(grunt) {
         'src/compat.js',
         'src/scanners.js',
         'src/parser.js',
-        'src/filter.js',
 
-        'src/grid.js',
-        'src/form.js',
+        'src/exports.js'
+    ],
 
-        'src/exports.js',
+    // 扩展部分
+    // 这部分可以不用
+    extfiles = {
+        filter: 'src/filter.js',
+        grid: 'src/grid.js',
+        form: 'src/form.js'
+    };
 
-    'src/wrap/footer'];
+    // TODO 处理自定义组件
+    //console.log(grunt.cli.options)
+    var opt = grunt.cli.options;
+
+    // 默认添加过滤器组件
+    if (!opt['without-filter']) {
+        files.push(extfiles.filter);
+    }
+
+    // 默认添加表单处理组件
+    if (!opt['without-form']) {
+        files.push(extfiles.form);
+    }
+
+    // 默认不添加datagrid组件
+    if (opt['with-grid']) {
+        files.push(extfiles.grid);
+    }
+
+    // 添加wrap
+    files.unshift('src/wrap/header');
+    files.push('src/wrap/footer');
+
+    //grunt.fatal('ag');
 
     // Project configuration.
     grunt.initConfig({
