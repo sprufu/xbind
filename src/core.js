@@ -26,6 +26,11 @@ options.igonreTags = {
     IFRAME: true
 };
 
+// 过滤属性不扫描
+options.igonreAttrs = {
+    'x-ajax-if': true
+};
+
 // 扫描优先级, 没有定义的都在1000
 options.priorities = {
     'x-skip': 0,

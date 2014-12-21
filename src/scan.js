@@ -97,6 +97,11 @@ function getScanAttrList(attrs) {
         }
         /* ie678) */
 
+        // 在过滤属性列表中的属性, 忽略不处理
+        if (options.igonreAttrs[attr.name]) {
+            continue;
+        }
+
         param = undefined;
 
         if (attr.name.startsWith('x-')) {
