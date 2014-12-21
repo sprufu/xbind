@@ -131,8 +131,10 @@ Model.prototype = {
         } else {
             if ('function' == typeof this[field]) {
                 return this[field].bind(this);
-            } if (this.hasOwnProperty(field) || this[field]) {
+            } if (this[field]) {
                 return this[field];
+            } if (this.hasOwnProperty(field)) {
+                return isDisplayResult ? '' : this[field];
             } else if (noExtend) {
                 return isDisplayResult ? '' : undefined;
             } else {
