@@ -102,7 +102,7 @@ Model.prototype = {
                     } else if (noExtend) {
                         return isDisplayResult ? '' : undefined;
                     } else {
-                        return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
+                        return this.$parent ? this.$parent.$get(field, noExtend, isDisplayResult) : isDisplayResult ? '' : undefined;
                     }
                 } else if ('function' == typeof v[key]) {
                     // 当
@@ -133,8 +133,10 @@ Model.prototype = {
                 return this[field].bind(this);
             } if (this.hasOwnProperty(field) || this[field]) {
                 return this[field];
+            } else if (noExtend) {
+                return isDisplayResult ? '' : undefined;
             } else {
-                return this.$parent ? this.$parent.$get(field) : isDisplayResult ? '' : undefined;
+                return this.$parent ? this.$parent.$get(field, noExtend, isDisplayResult) : isDisplayResult ? '' : undefined;
             }
         }
     },
