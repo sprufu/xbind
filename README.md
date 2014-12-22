@@ -8,6 +8,10 @@ vmodel是一款轻量级的MVVM框架, 旨在于轻量, 易用, 易于扩展.
 1. 微软的 [knockoutjs](http://knockoutjs.com/)
 3. 苹果的 [emberjs](http://emberjs.com/)
 4. 还有一个国产的 [avalonjs](http://rubylouvre.github.io/mvvm/)
+5. ractive [ractive](http://ractivejs.org)
+6. rivetsjs [rivetsjs](http://rivetsjs.com/)
+7. vuejs [vuejs](http://vuejs.org/)
+8. way.js [way.js](http://gwendall.github.io/way/)
 
 ## TODO
 
