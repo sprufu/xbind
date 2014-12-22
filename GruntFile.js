@@ -106,6 +106,7 @@ module.exports = function(grunt) {
         uglify: {
             options: {
                 ASCIIOnly: true,
+                sourceMap: true,
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             build: {
