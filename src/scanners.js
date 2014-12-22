@@ -479,7 +479,7 @@ exports.extend(exports.scanners, {
                 cache: false,
                 url: url,
                 success: function(res) {
-                    model.$set(res, param + '.');
+                    model.$set(res, param);
                 },
                 error: function(xhr, err) {
                     model.$set(param + '.$error', err);
