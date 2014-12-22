@@ -122,6 +122,10 @@ function parseDateNumber(num) {
  * 日期格式化函数
  */
 function formatDate(date, format) {
+    if (!date) {
+        return '';
+    }
+
     return format.replace(/[a-zA-Z]+/g, function(str) {
         switch (str) {
             case 'yyyy' : return date.getFullYear();
