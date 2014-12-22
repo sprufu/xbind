@@ -181,6 +181,7 @@ exports.extend(exports.scanners, {
     'x-controller': function(model, element, value, attr, param) {
         model = MODELS[value];
         element.removeAttribute(attr.name);
+        exports.removeClass(element, 'x-controller');
         if (model && !model.element) {
             model.$bindElement(element, param != 'top');
         } else {
@@ -215,6 +216,7 @@ exports.extend(exports.scanners, {
         element.$nextSibling = element.nextSibling;
         element.$noScanChild = true;
         element.removeAttribute(attr.name);
+        exports.removeClass(element, 'x-template');
 
         new Template(value, element);
         element.parentNode.removeChild(element);
@@ -231,6 +233,7 @@ exports.extend(exports.scanners, {
     'x-include': function(model, element, value, attr) {
         element.$noScanChild = true;
         element.removeAttribute(attr.name);
+        exports.removeClass(element, 'x-include');
         bindModel(model, value, parseExpress, function(res) {
 
             if (TEMPLATES[res]) {
@@ -280,6 +283,7 @@ exports.extend(exports.scanners, {
         element.$nextSibling = element.nextSibling;
         element.$noScanChild = true;
         element.removeAttribute(attr.name);
+        exports.removeClass(element, 'x-repeat');
         element.parentNode.removeChild(element);
 
         bindModel(model, value, parseExpress, function(res) {
@@ -330,6 +334,7 @@ exports.extend(exports.scanners, {
 
         element.$nextSibling = element.nextSibling;
         element.removeAttribute(attr.name);
+        exports.removeClass(element, 'x-if');
 
         model = getModel(element) || new Model();
         if (!element.$modelId) {
@@ -353,6 +358,7 @@ exports.extend(exports.scanners, {
 
     'x-show': function(model, element, value, attr) {
         element.removeAttribute(attr.name);
+        exports.removeClass(element, 'x-show');
         bindModel(model, value, parseExpress, function(res) {
             element.style.display = res ? "" : "none";
         });
@@ -444,6 +450,7 @@ exports.extend(exports.scanners, {
      */
     'x-class': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
+        exports.removeClass(element, 'x-class');
         bindModel(model, value, parseExpress, function(res) {
             if (res) {
                 exports.addClass(element, param);
@@ -454,6 +461,7 @@ exports.extend(exports.scanners, {
     },
     'x-ajax': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
+        exports.removeClass(element, 'x-ajax');
 
         if (!element.$modelId) {
             model = new Model();
@@ -522,6 +530,7 @@ exports.extend(exports.scanners, {
     'x-style': function(model, element, value, attr, param) {
         var cssName = camelize(param);
         element.removeAttribute(attr.name);
+        exports.removeClass(element, 'x-style');
         bindModel(model, value, parseExpress, function(res) {
             element.style[cssName] = res;
         });
