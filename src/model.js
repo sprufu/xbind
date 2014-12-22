@@ -260,25 +260,32 @@ Model.prototype = {
     /**
      * 绑定数据到结点上去
      * 一个结点只能绑定一个数据
+     * @param {Element} element 待绑定的结点
+     * @param {boolean} noExtend 是否不从上级继承数据, 一般情况下要继承
      */
-    $bindElement: function(element) {
+    $bindElement: function(element, noExtend) {
         if (element.$modelId) {
             throw new Error('不能重复绑定model.');
         }
 
         var model = this;
 
-        model.$parent = getParentModel(element);
-        if (model.$parent) {
-            model.$parent.$childs.push(model);
-            var observer = {
-                update: function(parentModel, field) {
-                    if (!model.hasOwnProperty(field)) {
-                        model.$fire(field);
+        // 如果没有指定是否继承上级数据, 表示默认继承
+        // 查找并设置当前数据的上级数据, 并监听上级数据的变化(当上级数据变化时, 可能会影响到自己)
+        // 如果不继承上级数据, 只简单的与结点绑定.
+        if (!noExtend) {
+            model.$parent = getParentModel(element);
+            if (model.$parent) {
+                model.$parent.$childs.push(model);
+                var observer = {
+                    update: function(parentModel, field) {
+                        if (!model.hasOwnProperty(field)) {
+                            model.$fire(field);
+                        }
                     }
                 }
+                model.$parent.$watch('*', observer);
             }
-            model.$parent.$watch('*', observer);
         }
 
         element.$modelId = model.$id;
