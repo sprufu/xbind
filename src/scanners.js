@@ -178,11 +178,11 @@ exports.extend(exports.scanners, {
         }
     },
 
-    'x-controller': function(model, element, value, attr) {
+    'x-controller': function(model, element, value, attr, param) {
         model = MODELS[value];
         element.removeAttribute(attr.name);
         if (model && !model.element) {
-            model.$bindElement(element);
+            model.$bindElement(element, param != 'top');
         } else {
             return;
         }
