@@ -34,8 +34,8 @@ options.igonreAttrs = {
 // 扫描优先级, 没有定义的都在1000
 options.priorities = {
     'x-skip': 0,
-    'x-controller': 10,
-    'x-repeat': 20,
+    'x-repeat': 10,
+    'x-controller': 20,
     'x-if': 50,
     'href': 200,
     'x-href': 210
