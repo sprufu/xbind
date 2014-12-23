@@ -16,6 +16,7 @@ vmodel是一款轻量级的MVVM框架, 旨在于轻量, 易用, 易于扩展.
 ## TODO
 
 1. 列表处理当前记录, 当前的内容与列表某条记录一至处理.
+2. x-ajax-error="express" ajax绑定请求错误时处理.
 
 ## Issue
 
