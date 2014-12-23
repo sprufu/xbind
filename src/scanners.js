@@ -282,6 +282,7 @@ exports.extend(exports.scanners, {
         // 设定下一个扫描结点
         element.$nextSibling = element.nextSibling;
         element.$noScanChild = true;
+        element.$skipOtherAttr = true;
         element.removeAttribute(attr.name);
         exports.removeClass(element, 'x-repeat');
         element.parentNode.removeChild(element);

@@ -35,8 +35,8 @@ options.igonreAttrs = {
 // 扫描优先级, 没有定义的都在1000
 options.priorities = {
     'x-skip': 0,
-    'x-controller': 10,
-    'x-repeat': 20,
+    'x-repeat': 10,
+    'x-controller': 20,
     'x-if': 50,
     'href': 200,
     'x-href': 210
@@ -907,6 +907,12 @@ function scanAttrs(element, model) {
         if (fn) {
             model = fn(model, element, attr.value, attr, item.param) || model;
         }
+
+        // 跳过扫描其它属性机制
+        if (element.$skipOtherAttr) {
+            delete element.$skipOtherAttr;
+            break;
+        }
     }
 
     return model;
@@ -1325,6 +1331,7 @@ exports.extend(exports.scanners, {
         // 设定下一个扫描结点
         element.$nextSibling = element.nextSibling;
         element.$noScanChild = true;
+        element.$skipOtherAttr = true;
         element.removeAttribute(attr.name);
         exports.removeClass(element, 'x-repeat');
         element.parentNode.removeChild(element);
