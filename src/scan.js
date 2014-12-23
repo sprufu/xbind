@@ -59,6 +59,12 @@ function scanAttrs(element, model) {
         if (fn) {
             model = fn(model, element, attr.value, attr, item.param) || model;
         }
+
+        // 跳过扫描其它属性机制
+        if (element.$skipOtherAttr) {
+            delete element.$skipOtherAttr;
+            break;
+        }
     }
 
     return model;
