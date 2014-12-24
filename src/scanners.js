@@ -460,6 +460,26 @@ exports.extend(exports.scanners, {
             }
         });
     },
+
+    /**
+     * 属性绑定
+     * 把结果设置属性值,
+     * 如果计算结果为空的字符串, 则删除属性
+     */
+    'x-attr': function(model, element, value, attr, param) {
+        element.removeAttribute(attr.name);
+        bindModel(model, value, parseString, function(res) {
+            if (res) {
+                element.setAttribute(param, res);
+            } else {
+                element.removeAttribute(param);
+            }
+        });
+    },
+
+    /**
+     * ajax数据绑定
+     */
     'x-ajax': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
         exports.removeClass(element, 'x-ajax');

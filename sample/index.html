@@ -45,7 +45,7 @@ setTimeout(function() {
 </script>
 
 </head>
-<body x-controller="test" class="x-controller" x-init="user.info = 'test'">
+<body x-controller="test" class="x-controller" x-init="user.info = 'test'" x-attr-id="{{ user.name | default 'abc' }}">
     <div x-template="full"><b>Hello</b> {{ user.name | limit 3 }}!</div>
     <div x-template="simple">Hi {{ user.name }}!</div>
 	
