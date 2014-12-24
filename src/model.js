@@ -119,7 +119,7 @@ Model.prototype = {
                     //
                     // 上面代码中, model.$get("user.getName")时, 这里的实现使其调用者不变
                     // 灵感来自于Function.prototype.bind
-                    return v[key].bind(v);
+                    return v[key].bind(this);
                 } else {
                     if (i == keys.length - 1) {
                         return v[key];
