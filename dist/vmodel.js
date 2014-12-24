@@ -1066,36 +1066,6 @@ exports.scanners = {
     */
 };
 
-function booleanHandler (model, element, value, attr) {
-    // 如果是类似: disabled="disabled"或disabled="", 不处理
-    var type = attr.name
-    if (value == type || value === "") {
-        return;
-    }
-
-    bindModel(model, value, parseExpress, function(res) {
-        if (res) {
-            element.setAttribute(type, type);
-        } else {
-            element.removeAttribute(type);
-        }
-    });
-}
-
-function stringBindHandler (model, element, value, attr) {
-    bindModel(model, value, parseString, function(res) {
-        attr.value = res;
-    });
-}
-
-function stringXBindHandler(model, element, value, attr) {
-    var attrName = attr.name.substr(2);
-    element.removeAttribute(attr.name);
-    bindModel(model, value, parseString, function(res) {
-        element.setAttribute(attrName, res);
-    });
-}
-
 function eventBindHandler(model, element, value, attr) {
     var eventType = attr.name.substr(2),
     expr = parseExecute(value),
@@ -1106,23 +1076,6 @@ function eventBindHandler(model, element, value, attr) {
         return fn(model);
     });
 }
-
-/**
- * 布尔插值扫描属性名
- * 如:
- *      disabled="user.sex == 'F'"
- */
-[
-    "disabled",
-    "checked",
-    "selected",
-    "readonly",
-    "contenteditable",
-    "draggable",
-    "dropzone"
-].forEach(function(type) {
-    exports.scanners[type] = booleanHandler;
-});
 
 
 /**
@@ -1160,54 +1113,6 @@ function eventBindHandler(model, element, value, attr) {
     'contextmenu'
 ].forEach(function(type) {
     exports.scanners['x-' + type] = eventBindHandler;
-});
-
-['x-src', 'x-href'].forEach(function(type) {
-    exports.scanners[type] = stringXBindHandler;
-});
-
-/**
- * 字符串插值扫描的属性名
- * 如:
- *      title="删除{{ rs.title }}记录."
- *
- * 提示: 不要把style和class属性用于字符串插值, 这两个属性经常被javascript改变
- * 插值会直接设置多个属性会导致某些不想要的设置
- * 应该使用相应的x-style及x-class
- *
- * src属性在没有扫描时就会加载, 从而加载一个不存在地地址, 应该使用x-src
- * href比src好一些, 但没扫描时点击也会跳到一个不存在的连接, 这是不想要的结果, 请使用x-href
- *
- * 对于value能用x-bind的就不要用value字符串插值, 保留这个是为了其它标签, 如option
- */
-[
-    // 'src',
-    // 'href',
-    'target',
-    'title',
-    'width',
-    'height',
-    'name',
-    'alt',
-    'align',
-    'valign',
-    'clos',
-    'rows',
-    'clospan',
-    'rowspan',
-    'cellpadding',
-    'cellspacing',
-    'method',
-    'color',
-    'border',
-    'size',
-    'face',
-    'color',
-    'value',
-    'label',
-    'wrap'
-].forEach(function(type) {
-    exports.scanners[type] = stringBindHandler;
 });
 
 exports.extend(exports.scanners, {
@@ -1509,6 +1414,26 @@ exports.extend(exports.scanners, {
             }
         });
     },
+
+    /**
+     * 属性绑定
+     * 把结果设置属性值,
+     * 如果计算结果为空的字符串, 则删除属性
+     */
+    'x-attr': function(model, element, value, attr, param) {
+        element.removeAttribute(attr.name);
+        bindModel(model, value, parseString, function(res) {
+            if (res) {
+                element.setAttribute(param, res);
+            } else {
+                element.removeAttribute(param);
+            }
+        });
+    },
+
+    /**
+     * ajax数据绑定
+     */
     'x-ajax': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
         exports.removeClass(element, 'x-ajax');
@@ -1955,6 +1880,15 @@ exports.filters = {
     "number": function(it, num) {
         it = +it;
         return it.toFixed(num);
+    },
+
+    /**
+     * 默认值过滤器
+     * 当给定的对象不可用时, 采用默认值做结果
+     * @param {boolean} strict 采用严格模式, 在严格模式下, 只有obj严格为undefined时才用默认值
+     */
+    "default": function(obj, def, strict) {
+        return (strict && obj === undefined) || !obj ? def : obj;
     },
 
     /**
