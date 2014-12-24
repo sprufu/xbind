@@ -20,3 +20,14 @@ vmodel是一款轻量级的MVVM框架, 旨在于轻量, 易用, 易于扩展.
 
 ## Issue
 
+## Change
+
+#### v0.4.0 2014-12-24
+1. add: 添加ajax条件加载机制, 避免数据没有准备好时加载数据, 也能让用户手工按需要加载数据.
+2. add: 添加属性操作统一方式x-attr
+3. add: 添加default默认值过滤器.
+4. remove: 删除字符串属性绑定, 布尔属性绑定, 其功能统一由x-attr处理
+5. fix: 修复repeat绑定与其它绑定共同使用时预先扫描问题.
+6. change: 分离出filter, form, grid模块, 可自由使用或移出.
+7. change: 重命名watch, unwatch, fire方法.
+
