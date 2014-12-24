@@ -62,7 +62,17 @@ function scanAttrs(element, model) {
 
         // 跳过扫描其它属性机制
         if (element.$skipOtherAttr) {
-            delete element.$skipOtherAttr;
+            // ie67不能delete
+            //delete element.$skipOtherAttr;
+            /* ie678( */
+            if (ie67) {
+                element.$skipOtherAttr = false;
+            } else {
+                /* ie678) */
+                delete element.$skipOtherAttr;
+                /* ie678( */
+            }
+            /* ie678) */
             break;
         }
     }
