@@ -1,6 +1,6 @@
 {
   "name": "vmodel",
-  "version": "0.0.0",
+  "version": "0.4.0",
   "description": "javascript simple ui.",
   "main": "index.js",
   "scripts": {
