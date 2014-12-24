@@ -107,7 +107,7 @@ module.exports = function(grunt) {
             options: {
                 ASCIIOnly: true,
                 sourceMap: true,
-                banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                banner: '/*!\r\n * <%= pkg.description %> v<%= pkg.version %>\r\n * <%= pkg.repository.url %>\r\n */'
             },
             build: {
                 src: 'dist/<%= pkg.name %>.js',
