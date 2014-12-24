@@ -31,6 +31,15 @@ exports.filters = {
     },
 
     /**
+     * 默认值过滤器
+     * 当给定的对象不可用时, 采用默认值做结果
+     * @param {boolean} strict 采用严格模式, 在严格模式下, 只有obj严格为undefined时才用默认值
+     */
+    "default": function(obj, def, strict) {
+        return (strict && obj === undefined) || !obj ? def : obj;
+    },
+
+    /**
      * 过滤html标签
      */
     text: function(html, removeTag) {
