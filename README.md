@@ -2,6 +2,29 @@ vmodel是一款轻量级的MVVM框架, 旨在于轻量, 易用, 易于扩展.
 
 > 在使用angularjs及avalonjs的过程中, 发现angularjs的过滤规范化, 很难入手, 其条条款款太多, 同时, 其强大的功能背后使其失去了轻量概念, 而avalonjs过度追求完美, 导致最后一点都不完美, 使用vbscript使其预先定义属性才能使用, 与javascript的理念不同, 难让javascript用户信服.
 
+## 自定义压缩javascript
+
+用git拷贝项目源文件到本地:
+```bash
+git clone https://github.com/sprufu/vmodel.git
+```
+
+进入vmodel目录并压缩javascript
+```bash
+cd vmodel && npm run build
+```
+
+### 自定义组件选择
+
+如以下组件可以自由选择是否压缩到你的最终版本里:
+
+- **filter**: 过滤器组件, 如果你的项目中用不到过滤器, 可以去掉这组件: `grunt --without-filter=true`
+- **form**: 表单处理组件, 目前这个组件仅处理表单验证, 如果你有更好的验证模块, 可以忽略这组件: `grunt --without-form=true`
+- **grid**: 表格数据组件, 类似于ajax组件, 但对表格数据加强, 默认情况下没有加入这组件, 可以用 `grunt --with-grid=true` 加入.
+- **store**: 小数据存储组件, 还在开发中.
+- **view**: 单页应用组件, 还在开发中.
+
+
 ## 一些其它的mvvm框架
 
 1. google的 [argularjs](https://angularjs.org/)
