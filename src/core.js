@@ -36,9 +36,7 @@ options.priorities = {
     'x-skip': 0,
     'x-repeat': 10,
     'x-controller': 20,
-    'x-if': 50,
-    'href': 200,
-    'x-href': 210
+    'x-if': 50
 };
 
 /* ie678( */
