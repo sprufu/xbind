@@ -89,10 +89,8 @@ exports.extend(exports.scanners, {
         exports.removeClass(element, 'x-controller');
         if (model && !model.element) {
             model.$bindElement(element, param != 'top');
-        } else {
-            return;
+            return model;
         }
-        return model;
     },
 
     /**
