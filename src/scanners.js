@@ -265,9 +265,9 @@ exports.extend(exports.scanners, {
             } else {
                 /* ie678) */
                 if (res) {
-                    element.setAttribute('hidden', 'hidden');
-                } else {
                     element.removeAttribute('hidden');
+                } else {
+                    element.setAttribute('hidden', 'hidden');
                 }
                 /* ie678( */
             }

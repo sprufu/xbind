@@ -1206,9 +1206,9 @@ exports.extend(exports.scanners, {
         bindModel(model, value, parseExpress, function(res) {
             
                 if (res) {
-                    element.setAttribute('hidden', 'hidden');
-                } else {
                     element.removeAttribute('hidden');
+                } else {
+                    element.setAttribute('hidden', 'hidden');
                 }
                 
         });
