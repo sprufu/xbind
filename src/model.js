@@ -185,22 +185,22 @@ Model.prototype = {
             // });
             // 不同, 前者如果user下有其它属性, 不会丢失(只更新属性),
             // 后者是直接替换掉user, 所以user值是一个全新的值.
-            prefix = value ? value + '.' : '';
+            namespace = value ? value + '.' : '';
 
             // 批量设置值
             for(k in field) {
-                this.$cache[prefix + k] = field[k];
-                setFieldValue(this, prefix + k, field[k]);
+                this.$cache[namespace + k] = field[k];
+                setFieldValue(this, namespace + k, field[k]);
             }
 
             // 依次更新视图
             for(k in field) {
-                this.$fire(prefix + k);
+                this.$fire(namespace + k);
             }
 
             // 清空缓存
             for(k in field) {
-                delete this.$cache[prefix + k];
+                delete this.$cache[namespace + k];
             }
         } else {
             // 单个更新模式, 如:
