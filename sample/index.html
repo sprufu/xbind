@@ -28,7 +28,11 @@ var model = vmodel({
     user: {
         name: 'jcode',
         sex: '先生',
-        ah: ['体育', '游戏']
+        ah: ['体育', '游戏'],
+		say: function(element) {
+			console.log('My name is %s', this.user.name);
+			console.log(element)
+		}
     },
     test: 'Hello Word!'
 });
@@ -121,7 +125,7 @@ setTimeout(function() {
     <div id="test" class="man woman" x-class-woman="user.sex == '女士'">hello {{ user.name }}{{ user.sex }}!</div>
     <div x-click="user.sex = '先生'"> visible </div>
     <div x-style-background-color="user.bgColor">爱好: {{ user.ah }} </div>
-    <div>职位: {{ user.job }} </div>
+    <div x-watch-user.name="user.say(this)">职位: {{ user.job }} </div>
     <div>自我介绍: {{ user.info }}</div>
     <a x-href="{{ url }}" href="">主页: {{ user.name }} </a>
     <div id="test2" x-if="user.sex == '先生'">TMD, 这家伙是男的, 喜欢{{ user.ah }}!!!</div>
