@@ -66,10 +66,17 @@ function eventBindHandler(model, element, value, attr) {
     exports.scanners['x-' + type] = eventBindHandler;
 });
 
+function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
+    removeAttrbuteName  && element.removeAttribute(removeAttrbuteName);
+    removeClassName     && exports.removeClass(removeClassName);
+    noScanChild         && (element.$noScanChild = true);
+    skipNextSibling     && (element.$nextSibling = element.nextSibling);
+    skipScanOtherAttrs  && (element.$skipOtherAttr = true);
+}
+
 exports.extend(exports.scanners, {
     'x-skip': function(model, element, value, attr) {
-        element.removeAttribute(attr.name);
-        element.$noScanChild = true;
+        compileElement(element, attr.name, 0, 1, 0, 1);
     },
 
     /**
@@ -85,8 +92,7 @@ exports.extend(exports.scanners, {
 
     'x-controller': function(model, element, value, attr, param) {
         model = MODELS[value];
-        element.removeAttribute(attr.name);
-        exports.removeClass(element, 'x-controller');
+        compileElement(element, attr.name, 'x-controller');
         if (model && !model.element) {
             model.$bindElement(element, param != 'top');
             return model;
@@ -101,7 +107,7 @@ exports.extend(exports.scanners, {
             return;
         }
 
-        element.removeAttribute(attr.name);
+        compileElement(element, attr.name);
         var expr = parseExecute(value),
         fn = new Function('$model', expr);
         fn(model);
@@ -116,11 +122,7 @@ exports.extend(exports.scanners, {
      * 可以设置.x-template{display:none}避免没有扫描到时显示错乱
      */
     'x-template': function(model, element, value, attr) {
-        element.$nextSibling = element.nextSibling;
-        element.$noScanChild = true;
-        element.removeAttribute(attr.name);
-        exports.removeClass(element, 'x-template');
-
+        compileElement(element, attr.name, 'x-template', 1, 1);
         new Template(value, element);
         element.parentNode.removeChild(element);
     },
@@ -134,9 +136,7 @@ exports.extend(exports.scanners, {
      * 优先从TEMPLATES中查找, 如果没有就从url中加载.
      */
     'x-include': function(model, element, value, attr) {
-        element.$noScanChild = true;
-        element.removeAttribute(attr.name);
-        exports.removeClass(element, 'x-include');
+        compileElement(element, attr.name, 'x-include', 1);
         bindModel(model, value, parseExpress, function(res) {
 
             if (TEMPLATES[res]) {
@@ -183,11 +183,7 @@ exports.extend(exports.scanners, {
         parent.insertBefore(endElement, element.nextSibling);
 
         // 设定下一个扫描结点
-        element.$nextSibling = element.nextSibling;
-        element.$noScanChild = true;
-        element.$skipOtherAttr = true;
-        element.removeAttribute(attr.name);
-        exports.removeClass(element, 'x-repeat');
+        compileElement(element, attr.name, 'x-repeat', 1, 1, 1);
         element.parentNode.removeChild(element);
 
         bindModel(model, value, parseExpress, function(res) {
@@ -236,9 +232,7 @@ exports.extend(exports.scanners, {
         parentModel = getParentModel(element),
         replaceElement = document.createComment('x-if:' + model.$id);
 
-        element.$nextSibling = element.nextSibling;
-        element.removeAttribute(attr.name);
-        exports.removeClass(element, 'x-if');
+        compileElement(element, attr.name, 'x-if', 0, 1);
 
         model = getModel(element) || new Model();
         if (!element.$modelId) {
@@ -261,8 +255,7 @@ exports.extend(exports.scanners, {
     },
 
     'x-show': function(model, element, value, attr) {
-        element.removeAttribute(attr.name);
-        exports.removeClass(element, 'x-show');
+        compileElement(element, attr.name, 'x-show');
         bindModel(model, value, parseExpress, function(res) {
             /* ie678( */
             // ie8 设置hidden能隐藏, 但移出属性不能恢复
@@ -283,7 +276,7 @@ exports.extend(exports.scanners, {
     },
 
     'x-bind': function(model, element, value, attr) {
-        element.removeAttribute(attr.name);
+        compileElement(element, attr.name);
         bindModel(model, value, parseExpress, function(res) {
             if (element.tagName == 'INPUT') {
                 if (element.type == 'radio') {
@@ -367,8 +360,7 @@ exports.extend(exports.scanners, {
      * 当expr结果为真时添加class, 否则移出
      */
     'x-class': function(model, element, value, attr, param) {
-        element.removeAttribute(attr.name);
-        exports.removeClass(element, 'x-class');
+        compileElement(element, attr.name, 'x-class');
         bindModel(model, value, parseExpress, function(res) {
             if (res) {
                 exports.addClass(element, param);
@@ -384,7 +376,7 @@ exports.extend(exports.scanners, {
      * 如果计算结果为空的字符串, 则删除属性
      */
     'x-attr': function(model, element, value, attr, param) {
-        element.removeAttribute(attr.name);
+        compileElement(element, attr.name);
         bindModel(model, value, parseString, function(res) {
             if (res) {
                 element.setAttribute(param, res);
@@ -398,8 +390,7 @@ exports.extend(exports.scanners, {
      * ajax数据绑定
      */
     'x-ajax': function(model, element, value, attr, param) {
-        element.removeAttribute(attr.name);
-        exports.removeClass(element, 'x-ajax');
+        compileElement(element, attr.name, 'x-ajax');
 
         if (!element.$modelId) {
             model = new Model();
@@ -467,8 +458,7 @@ exports.extend(exports.scanners, {
 
     'x-style': function(model, element, value, attr, param) {
         var cssName = camelize(param);
-        element.removeAttribute(attr.name);
-        exports.removeClass(element, 'x-style');
+        compileElement(element, attr.name, 'x-style');
         bindModel(model, value, parseExpress, function(res) {
             element.style[cssName] = res;
         });
