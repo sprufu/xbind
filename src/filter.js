@@ -21,7 +21,10 @@ exports.filters = {
             return str;
         }
 
-        suffix = suffix || '...';
+        if (suffix === undefined) {
+            suffix = '...';
+        }
+
         return str.substring(0, num) + suffix;
     },
 
