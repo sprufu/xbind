@@ -188,14 +188,12 @@ Model.prototype = {
             prefix = value ? value + '.' : '';
 
             // 批量设置值
-            this.$freeze = true;
             for(k in field) {
                 this.$cache[prefix + k] = field[k];
                 setFieldValue(this, prefix + k, field[k]);
             }
 
             // 依次更新视图
-            this.$freeze = false;
             for(k in field) {
                 this.$fire(prefix + k);
             }
