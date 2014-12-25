@@ -52,7 +52,7 @@ var ie678 = window == document && document != window;
 if (ie678) {
     var id = '__ie_onload';
     // 要有src属性, 否则不能保证其它js已经被加载
-    document.write('<script id='+ id + ' defer src=//:></script>');
+    document.write('<script id='+ id + ' defer src=javascript:></script>');
     document.getElementById(id).onreadystatechange = function() {
         if (this.readyState == 'complete') {
             DOMLoadedListeners.forEach(function(fn) {
