@@ -154,7 +154,7 @@ function formatDate(date, format) {
             case 'ww'   : return '星期' + '日一二三四五六'.split('')[date.getDay()];
             case 'w'    : return '周' + '日一二三四五六'.split('')[date.getDay()];
             case 'l'    : return ''; // TODO
-            default     : return str;
+            default     : return dateFormatter[str] ? dateFormatter[str].call(date) : str;
         }
     });
 }
@@ -163,6 +163,7 @@ function fix0Number(num) {
     return num > 9 ? num : ('0' + num);
 }
 
+var dateFormatter = {};
 exports.filters.date.format = function(match, handler) {
     dateFormatter[match] = handler;
 }
