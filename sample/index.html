@@ -27,7 +27,7 @@ var model = vmodel({
     my_tpl: 'full',
     user: {
         name: 'jcode',
-        sex: '女士',
+        sex: '先生',
         ah: ['体育', '游戏']
     },
     test: 'Hello Word!'
@@ -80,7 +80,7 @@ setTimeout(function() {
         <textarea x-bind="user.info"></textarea>
     </div>
     
-    <table x-ajax-users="data.json?uid={{ user.uid }}" x-ajax-if="user.sex == '先生'">
+    <table x-ajax-users="data.json?{{ user | param }}" x-ajax-if="user.sex == '先生'">
         <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} </a></caption>
         <tr>
             <th>ID</th>

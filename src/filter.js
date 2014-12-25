@@ -60,7 +60,12 @@ exports.filters = {
         }
         dom = null;
         return res;
-    }
+    },
+
+    /**
+     * url参数格式化
+     */
+    param: exports.param
 };
 
 /**
@@ -169,11 +174,11 @@ exports.filters.date.format = function(match, handler) {
 }
 
 /**
-    * 执行过滤器
-    * @param {string} filterName 过滤器名字
-    * @param {Object} obj 用于过滤器的对象
-    * @param {object...} args 过滤器参数
-    */
+ * 执行过滤器
+ * @param {string} filterName 过滤器名字
+ * @param {Object} obj 用于过滤器的对象
+ * @param {object...} args 过滤器参数
+ */
 exports.filter = function(filterName, obj, args) {
     var fn = exports.filters[filterName];
     if (!fn) {
