@@ -19,7 +19,8 @@ module.exports = function(grunt) {
     extfiles = {
         filter: 'src/filter.js',
         grid: 'src/grid.js',
-        form: 'src/form.js'
+        form: 'src/form.js',
+        watch: 'src/watch.js'
     };
 
     // TODO 处理自定义组件
@@ -39,6 +40,11 @@ module.exports = function(grunt) {
     // 默认不添加datagrid组件
     if (opt['with-grid']) {
         files.push(extfiles.grid);
+    }
+
+    // 默认不添加watch组件
+    if (opt['with-watch']) {
+        files.push(extfiles.watch);
     }
 
     // 添加wrap
