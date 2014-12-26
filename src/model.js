@@ -354,28 +354,38 @@ function getExtModel(el) {
 }
 
 /**
- * 销毁数据
+ * 垃圾回收
+ * @param {String|Element|Model} obj 只检查指定的数据及其以下子数据, 省略这参数时检查全部
  */
-function destroyModel(model, removeBindElement) {
-    if (model.$childs.length) {
-        model.$childs.forEach(function(m) {
-            destroyModel(m, removeBindElement);
-        });
-    }
+function gc(obj) {
+    if (arguments.length) {
+        if (obj && 'string' == typeof obj) {
+            gc(getModel(obj));
+        } else if (obj instanceof Model) {
+            // 先删除子数据
+            obj.$childs.forEach(function(it) {
+                gc(it);
+            });
 
-    // 从MODELS中删除
-    delete MODELS[model.$id];
-
-    // 解除绑定
-    if (model.$element) {
-        if (removeBindElement) {
-            model.$element.parentNode.removeChild(model.$element);
-        } else {
-            model.$element.$modelId = undefined;
+            // 删除本数据
+            var el = obj.$element;
+            if (el && (
+                el.sourceIndex === 0    // ie判断
+                || el.rowIndex == -1    // tr 用rowIndex判断
+                || el.cellIndex == -1   // td, th用cellIndex判断
+                || !document.contains(el)// w3c可以用contains判断
+            )) {
+                delete MODELS[obj.$id];
+            }
+        } else if (obj instanceof Element) {
+            gc(getExtModel(obj));
+        }
+    } else {
+        // 省略参数, 检查全部数据
+        for(var id in MODELS) {
+            gc(MODELS[id]);
         }
     }
-
-    model = null;
 }
 
 /**

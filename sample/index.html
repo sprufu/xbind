@@ -37,8 +37,12 @@ var model = vmodel({
     test: 'Hello Word!'
 });
 var model2 = vmodel({
-    $id: 'testa',
-    test: '表1'
+    $id: 'pro',
+    test: function(num) {
+		while (num--) {
+			this.users.$read();
+		}
+	}
 });
 setTimeout(function() {
     model.$set('user.name', 'sprufu');
@@ -84,8 +88,8 @@ setTimeout(function() {
         <textarea x-bind="user.info"></textarea>
     </div>
     
-    <table x-ajax-users="data.json?{{ user | param }}" x-ajax-if="user.sex == '先生'">
-        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} </a></caption>
+    <table x-controller="pro" x-ajax-users="data.json?{{ user | param }}" x-ajax-if="user.sex == '先生'">
+        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} </a> <button x-click="test(1000)">pro</button></caption>
         <tr>
             <th>ID</th>
             <th>姓名</th>

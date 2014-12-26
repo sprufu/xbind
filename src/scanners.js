@@ -170,6 +170,8 @@ exports.extend(exports.scanners, {
                     }
                 });
             }
+
+            gc(model);
         });
     },
 
@@ -195,10 +197,10 @@ exports.extend(exports.scanners, {
 
             // 循环删除已经有的结点
             while (el && el != endElement) {
-                model = getModel(el);
-                destroyModel(model, true);
+                el.parentNode.removeChild(el);
                 el = startElement.nextSibling;
             }
+            gc(model);
 
             // 循环添加
             res.forEach(function(item, i) {
@@ -212,7 +214,8 @@ exports.extend(exports.scanners, {
                 var model = new Model({
                     $index: i,
                     $remove: function() {
-                        destroyModel(model, true);
+                        el.parentNode.removeChild(el);
+                        gc(model);
                     },
                     $first: !i,
                     $last: i == res.length,
