@@ -500,7 +500,7 @@ exports.extend(exports.scanners, {
         var cssName = camelize(param);
         compileElement(element, attr.name, 'x-style');
         bindModel(model, value, parseExpress, function(res) {
-            element.style[cssName] = res;
+            exports.css(cssName, res);
         });
     }
 });
