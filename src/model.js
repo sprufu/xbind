@@ -373,6 +373,7 @@ function gc(obj) {
             if (el && (
                 el.rowIndex == -1                                           // tr 用rowIndex判断
                 || el.cellIndex == -1                                       // td, th用cellIndex判断
+                || !el.ownerDocument
                 || (el.sourceIndex !== undefined && el.sourceIndex === 0)   // ie判断
                 || !document.contains(el)                                   // w3c可以用contains判断
             )) {

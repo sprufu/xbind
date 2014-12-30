@@ -171,7 +171,7 @@ exports.extend(exports.scanners, {
                 });
             }
 
-            gc(model);
+            //gc(model);
         });
     },
 
