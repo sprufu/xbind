@@ -38,6 +38,9 @@ var model = vmodel({
 });
 var model2 = vmodel({
     $id: 'pro',
+	user: {
+		sex: '先生'
+	},
     test: function(num) {
 		while (num--) {
 			this.users.$read();
@@ -89,7 +92,7 @@ setTimeout(function() {
     </div>
     
     <table x-controller="pro" x-ajax-users="data.json?{{ user | param }}" x-ajax-if="user.sex == '先生'">
-        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} </a> <button x-click="test(1000)">pro</button></caption>
+        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ user.name }} </a> <button x-click="test(10)">pro</button></caption>
         <tr>
             <th>ID</th>
             <th>姓名</th>

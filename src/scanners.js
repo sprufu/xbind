@@ -200,7 +200,7 @@ exports.extend(exports.scanners, {
                 el.parentNode.removeChild(el);
                 el = startElement.nextSibling;
             }
-            gc(model);
+            gc();
 
             // 循环添加
             res.forEach(function(item, i) {
@@ -226,6 +226,9 @@ exports.extend(exports.scanners, {
                 parent.insertBefore(el, endElement);
                 model.$bindElement(el);
                 scan(el, model);
+
+                // 置空el, 打破循环引用导致无法回收clone出来的结点.
+                el = null;
             });
         });
     },

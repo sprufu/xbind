@@ -376,6 +376,9 @@ function gc(obj) {
                 || !document.contains(el)// w3c可以用contains判断
             )) {
                 delete MODELS[obj.$id];
+                obj.$element = null;        // 这个很管用
+                obj.$watchs = null;
+                obj = null;
             }
         } else if (obj instanceof Element) {
             gc(getExtModel(obj));
