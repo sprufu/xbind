@@ -276,6 +276,7 @@ Model.prototype = {
             if (model.$parent) {
                 model.$parent.$childs.push(model);
                 var observer = {
+                    isChildSubscribe: true,
                     update: function(parentModel, field) {
                         if (!model.hasOwnProperty(field)) {
                             model.$fire(field);
@@ -377,9 +378,25 @@ function gc(obj) {
             )) {
                 delete MODELS[obj.$id];
 
+                // 回收clone生成的Element
                 // $element, $watchs两个属性必须置为null, clone出的element才能回收
                 obj.$element = null;
                 obj.$watchs = null;
+
+                // 回收不用的Model
+                // 从其父级中删除, 并删除监听父级变化
+                var parent = obj.$parent;
+                if (parent) {
+                    parent.$childs.remove(obj);
+                    var subscribes = parent.$watchs['*'],
+                    i = subscribes.length;
+                    while (i--) {
+                        if (subscribes[i].isChildSubscribe) {
+                            subscribes.splice(i, 1);
+                        }
+                    }
+                    parent = null;
+                }
             }
         } else if (obj instanceof Element) {
             gc(getExtModel(obj));
