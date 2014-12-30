@@ -370,15 +370,16 @@ function gc(obj) {
             // 删除本数据
             var el = obj.$element;
             if (el && (
-                el.sourceIndex === 0    // ie判断
-                || el.rowIndex == -1    // tr 用rowIndex判断
-                || el.cellIndex == -1   // td, th用cellIndex判断
-                || !document.contains(el)// w3c可以用contains判断
+                el.rowIndex == -1                                           // tr 用rowIndex判断
+                || el.cellIndex == -1                                       // td, th用cellIndex判断
+                || (el.sourceIndex !== undefined && el.sourceIndex === 0)   // ie判断
+                || !document.contains(el)                                   // w3c可以用contains判断
             )) {
                 delete MODELS[obj.$id];
-                obj.$element = null;        // 这个很管用
+
+                // $element, $watchs两个属性必须置为null, clone出的element才能回收
+                obj.$element = null;
                 obj.$watchs = null;
-                obj = null;
             }
         } else if (obj instanceof Element) {
             gc(getExtModel(obj));
