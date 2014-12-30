@@ -193,14 +193,13 @@ exports.extend(exports.scanners, {
                 return;
             }
 
-            var el = startElement.nextSibling, model;
+            var el = startElement.nextSibling;
 
             // 循环删除已经有的结点
             while (el && el != endElement) {
                 el.parentNode.removeChild(el);
                 el = startElement.nextSibling;
             }
-            gc();
 
             // 循环添加
             res.forEach(function(item, i) {
@@ -230,6 +229,8 @@ exports.extend(exports.scanners, {
                 // 置空el, 打破循环引用导致无法回收clone出来的结点.
                 el = null;
             });
+
+            gc(model);
         });
     },
 
