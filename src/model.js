@@ -371,11 +371,11 @@ function gc(obj) {
             // 删除本数据
             var el = obj.$element;
             if (el && (
-                el.rowIndex == -1                                           // tr 用rowIndex判断
-                || el.cellIndex == -1                                       // td, th用cellIndex判断
-                || !el.ownerDocument
-                || (el.sourceIndex !== undefined && el.sourceIndex === 0)   // ie判断
-                || !document.contains(el)                                   // w3c可以用contains判断
+                el.rowIndex == -1                                                                   // tr 用rowIndex判断
+                || el.cellIndex == -1                                                               // td, th用cellIndex判断
+                || (el.sourceIndex !== undefined && el.sourceIndex === 0)                           // ie判断
+                || (document.contains && !document.contains(el))                                    // 支持contains的处理方式
+                || (document.compareDocumentPosition && document.compareDocumentPosition(el) & 1)   // w3c
             )) {
                 delete MODELS[obj.$id];
 
