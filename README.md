@@ -46,6 +46,15 @@ cd vmodel && npm run build
 
 ## Change
 
+#### v0.4.1 2015-01-01
+1. fix: 修复$get多级子方法时, 其绑定调用者始终指向model自身.
+2. add: 添加param过滤器.
+3. chg: 优化ie678的ready事件.
+4. fix: 修复x-repeat, x-include内存泄漏问题.
+5. fix: 修复处理表达式中文处理出错问题.
+6. add: 添加循环函数each方法.
+7. add: 添加x-repeat循环对象支持.
+
 #### v0.4.0 2014-12-24
 1. add: 添加ajax条件加载机制, 避免数据没有准备好时加载数据, 也能让用户手工按需要加载数据.
 2. add: 添加属性操作统一方式x-attr

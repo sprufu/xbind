@@ -128,6 +128,10 @@ setTimeout(function() {
         </tr>
 
     </table>
+	
+	<ul>
+		<li x-repeat-item="user">{{ $key }} - {{ item }} </li>
+	</ul>
     
     <div id="test" class="man woman" x-class-woman="user.sex == '女士'">hello {{ user.name }}{{ user.sex }}!</div>
     <div x-click="user.sex = '先生'"> visible </div>

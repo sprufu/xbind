@@ -124,6 +124,25 @@ extend(exports, {
     },
 
     /**
+     * 循环函数
+     * 这与jQuery.each差不多, 但cb的参数顺序与jQuery.each的不同, 与Array.forEach一致
+     * @param {Array|Object} obj 是一个数组或一个PlainObject
+     * @param {Function} cb 对每个元素执行的函数, 参数顺序为cb(item, index), 调用者为obj
+     */
+    each: function(obj, cb) {
+        if (obj.forEach) {
+            obj.forEach(cb);
+        } else {
+            var key;
+            for (key in obj) {
+                if ('function' != typeof obj[key]) {
+                    cb.call(obj, obj[key], key);
+                }
+            }
+        }
+    },
+
+    /**
      * 判断一个对角的类型
      * 类型以小写字符串返回
      *
@@ -687,6 +706,7 @@ Model.prototype = {
             if (model.$parent) {
                 model.$parent.$childs.push(model);
                 var observer = {
+                    isChildSubscribe: true,
                     update: function(parentModel, field) {
                         if (!model.hasOwnProperty(field)) {
                             model.$fire(field);
@@ -765,28 +785,55 @@ function getExtModel(el) {
 }
 
 /**
- * 销毁数据
+ * 垃圾回收
+ * @param {Model} model 只检查指定的数据及其以下子数据, 省略这参数时检查全部
  */
-function destroyModel(model, removeBindElement) {
-    if (model.$childs.length) {
-        model.$childs.forEach(function(m) {
-            destroyModel(m, removeBindElement);
-        });
-    }
+function gc(model) {
+    // 先删除子数据
+    model.$childs.forEach(function(it) {
+        it.$parent = null;
+        gc(it);
+    });
 
-    // 从MODELS中删除
     delete MODELS[model.$id];
 
-    // 解除绑定
-    if (model.$element) {
-        if (removeBindElement) {
-            model.$element.parentNode.removeChild(model.$element);
-        } else {
-            model.$element.$modelId = undefined;
+    // 回收clone生成的Element
+    // $element, $watchs两个属性必须置为null, clone出的element才能回收
+    model.$element = null;
+    model.$watchs = null;
+
+    // 回收不用的Model
+    // 从其父级中删除, 并删除监听父级变化
+    var parent = model.$parent;
+    if (parent) {
+        parent.$childs.remove(model);
+        var subscribes = parent.$watchs['*'],
+        i = subscribes.length;
+        while (i--) {
+            if (subscribes[i].isChildSubscribe) {
+                subscribes.splice(i, 1);
+            }
+        }
+        parent = null;
+    }
+}
+
+/**
+ * 回收某结点的数据
+ * @param {boolean} skipTop 只回收其子结点的数据, 本结点不回收
+ */
+function gcElement(element, skipTop) {
+    if (!skipTop && element.$modelId) {
+        gc(MODELS[element.$modelId]);
+    } else {
+        var el = element.firstChild;
+        while (el) {
+            if (el.nodeType == 1) {
+                gcElement(el);
+            }
+            el = el.nextSibling;
         }
     }
-
-    model = null;
 }
 
 /**
@@ -1095,6 +1142,9 @@ exports.extend(exports.scanners, {
     'x-include': function(model, element, value, attr) {
         compileElement(element, attr.name, 'x-include', 1);
         bindModel(model, value, parseExpress, function(res) {
+            // 回收垃圾数据
+            // 是不是做个条件回收?
+            gcElement(element, true);
 
             if (TEMPLATES[res]) {
                 var copyEl = TEMPLATES[res].element.cloneNode(true);
@@ -1121,6 +1171,7 @@ exports.extend(exports.scanners, {
                     }
                 });
             }
+
         });
     },
 
@@ -1138,28 +1189,30 @@ exports.extend(exports.scanners, {
         element.parentNode.removeChild(element);
 
         bindModel(model, value, parseExpress, function(res) {
-            if (!exports.type(res, 'array')) {
+            if (!res) {
                 return;
             }
 
-            var el = startElement.nextSibling, model;
+            var el = startElement.nextSibling;
 
             // 循环删除已经有的结点
             while (el && el != endElement) {
-                model = getModel(el);
-                destroyModel(model, true);
+                gcElement(el);
+                el.parentNode.removeChild(el);
                 el = startElement.nextSibling;
             }
 
             // 循环添加
-            res.forEach(function(item, i) {
+            exports.each(res, function(item, i) {
                 var el = element.cloneNode(true);
                 
 
                 var model = new Model({
                     $index: i,
+                    $key: i,
                     $remove: function() {
-                        destroyModel(model, true);
+                        el.parentNode.removeChild(el);
+                        gc(model);
                     },
                     $first: !i,
                     $last: i == res.length,
@@ -1170,6 +1223,9 @@ exports.extend(exports.scanners, {
                 parent.insertBefore(el, endElement);
                 model.$bindElement(el);
                 scan(el, model);
+
+                // 置空el, 打破循环引用导致无法回收clone出来的结点.
+                el = null;
             });
         });
     },
@@ -1326,46 +1382,6 @@ exports.extend(exports.scanners, {
     },
 
     /**
-     * 自定义监听绑定
-     * 表达式里的this指向结点, 而函数里的this是永远指向model的
-     * 例:
-     *      js:
-     *      var model = vmodel({
-     *           name: 'jcode',
-     *           say: function(el) {
-     *               console.log(
-     *                  'My name is %s, this tagName is %s',
-     *                   this.name, // 在函里的this永远指向model
-     *                   el.tagName // 表达式里的this指向结点
-     *               );
-     *           }
-     *      });
-     *
-     *      html:
-     *      <div x-watch-user="say(this)"></div>
-     *                         表达式里this指向当前结点
-     *
-     * 提示:
-     *      在监听表达式里, 最好不要改变字段值,
-     *      以防不小心陷入不断改变和监听的死循环.
-     */
-    'x-watch': function(model, element, value, attr, param) {
-        // 监听字段, 把"-"连起的字符串转化为驼峰式命名
-        // 如: x-watch-user-name 监听字段 "userName"
-        // 可以带命名空间, 如: x-watch-user.name="express"是正常的
-        // 如果没有给出监听字段, 表示"*", 也就是监听所有字段改变
-        var field = param ? camelize(param) : '*',
-        fn = new Function('$model', parseExecute(value)),
-        observer = {
-            update: function(model) {
-                fn.call(element, model);
-            }
-        };
-        compileElement(element, attr.name, 'x-watch');
-        model.$watch(field, observer);
-    },
-
-    /**
      * ajax数据绑定
      */
     'x-ajax': function(model, element, value, attr, param) {
@@ -1439,7 +1455,7 @@ exports.extend(exports.scanners, {
         var cssName = camelize(param);
         compileElement(element, attr.name, 'x-style');
         bindModel(model, value, parseExpress, function(res) {
-            element.style[cssName] = res;
+            exports.css(element, cssName, res);
         });
     }
 });
@@ -1663,7 +1679,8 @@ function parseExecute(str) {
 /**
  * 表达式操作符
  */
-var exprActionReg = /[^\w\$\.\"\']+/g;
+var exprActionReg = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s]+/g;
+var whithReg = /^[\s\uFEFF\xA0]$/;
 
 /**
  * parseExecute的辅助函数, 用来解析单个表达式, str两边已经去掉无用的空白符
@@ -1691,6 +1708,11 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         // 循环解析操作符分隔的每个表达式
         // 并把他们加在一起
         for (; i<actions.length; i++) {
+            if (whithReg.test(actions[i])) {
+                // 是纯空白的不处理
+                continue;
+            }
+
             pos = str.indexOf(actions[i], pos0);
             field = str.substring(pos0, pos);
             ret += parseStatic(field, isDisplayResult) + actions[i];
