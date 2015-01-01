@@ -199,6 +199,7 @@ exports.extend(exports.scanners, {
 
             // 循环删除已经有的结点
             while (el && el != endElement) {
+                gcElement(el);
                 el.parentNode.removeChild(el);
                 el = startElement.nextSibling;
             }
@@ -232,8 +233,6 @@ exports.extend(exports.scanners, {
                 // 置空el, 打破循环引用导致无法回收clone出来的结点.
                 el = null;
             });
-
-            gc(model);
         });
     },
 
