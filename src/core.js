@@ -165,7 +165,9 @@ extend(exports, {
         } else {
             var key;
             for (key in obj) {
-                cb.call(obj, obj[key], key);
+                if ('function' != typeof obj[key]) {
+                    cb.call(obj, obj[key], key);
+                }
             }
         }
     },

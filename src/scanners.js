@@ -191,7 +191,7 @@ exports.extend(exports.scanners, {
         element.parentNode.removeChild(element);
 
         bindModel(model, value, parseExpress, function(res) {
-            if (!exports.type(res, 'array')) {
+            if (!res) {
                 return;
             }
 
@@ -204,7 +204,7 @@ exports.extend(exports.scanners, {
             }
 
             // 循环添加
-            res.forEach(function(item, i) {
+            exports.each(res, function(item, i) {
                 var el = element.cloneNode(true);
                 /* ie678( */
                 if (ie678) {
@@ -214,6 +214,7 @@ exports.extend(exports.scanners, {
 
                 var model = new Model({
                     $index: i,
+                    $key: i,
                     $remove: function() {
                         el.parentNode.removeChild(el);
                         gc(model);
