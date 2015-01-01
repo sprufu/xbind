@@ -138,6 +138,9 @@ exports.extend(exports.scanners, {
     'x-include': function(model, element, value, attr) {
         compileElement(element, attr.name, 'x-include', 1);
         bindModel(model, value, parseExpress, function(res) {
+            // 回收垃圾数据
+            // 是不是做个条件回收?
+            gcElement(element, true);
 
             if (TEMPLATES[res]) {
                 var copyEl = TEMPLATES[res].element.cloneNode(true);
@@ -171,7 +174,6 @@ exports.extend(exports.scanners, {
                 });
             }
 
-            //gc(model);
         });
     },
 
