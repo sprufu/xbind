@@ -356,57 +356,35 @@ function getExtModel(el) {
 
 /**
  * 垃圾回收
- * @param {String|Element|Model} obj 只检查指定的数据及其以下子数据, 省略这参数时检查全部
+ * @param {Model} model 只检查指定的数据及其以下子数据, 省略这参数时检查全部
  */
-function gc(obj) {
-    if (arguments.length) {
-        if (obj && 'string' == typeof obj) {
-            gc(getModel(obj));
-        } else if (obj instanceof Model) {
-            // 先删除子数据
-            obj.$childs.forEach(function(it) {
-                gc(it);
-            });
+function gc(model) {
+    // 先删除子数据
+    model.$childs.forEach(function(it) {
+        it.$parent = null;
+        gc(it);
+    });
 
-            // 删除本数据
-            var el = obj.$element;
-            if (el && (
-                el.rowIndex == -1                                                                   // tr 用rowIndex判断
-                || el.cellIndex == -1                                                               // td, th用cellIndex判断
-                || (el.sourceIndex !== undefined && el.sourceIndex === 0)                           // ie判断
-                || (document.contains && !document.contains(el))                                    // 支持contains的处理方式
-                || (document.compareDocumentPosition && document.compareDocumentPosition(el) & 1)   // w3c
-            )) {
-                delete MODELS[obj.$id];
+    delete MODELS[model.$id];
 
-                // 回收clone生成的Element
-                // $element, $watchs两个属性必须置为null, clone出的element才能回收
-                obj.$element = null;
-                obj.$watchs = null;
+    // 回收clone生成的Element
+    // $element, $watchs两个属性必须置为null, clone出的element才能回收
+    model.$element = null;
+    model.$watchs = null;
 
-                // 回收不用的Model
-                // 从其父级中删除, 并删除监听父级变化
-                var parent = obj.$parent;
-                if (parent) {
-                    parent.$childs.remove(obj);
-                    var subscribes = parent.$watchs['*'],
-                    i = subscribes.length;
-                    while (i--) {
-                        if (subscribes[i].isChildSubscribe) {
-                            subscribes.splice(i, 1);
-                        }
-                    }
-                    parent = null;
-                }
+    // 回收不用的Model
+    // 从其父级中删除, 并删除监听父级变化
+    var parent = model.$parent;
+    if (parent) {
+        parent.$childs.remove(model);
+        var subscribes = parent.$watchs['*'],
+        i = subscribes.length;
+        while (i--) {
+            if (subscribes[i].isChildSubscribe) {
+                subscribes.splice(i, 1);
             }
-        } else if (obj instanceof Element) {
-            gc(getExtModel(obj));
         }
-    } else {
-        // 省略参数, 检查全部数据
-        for(var id in MODELS) {
-            gc(MODELS[id]);
-        }
+        parent = null;
     }
 }
 
