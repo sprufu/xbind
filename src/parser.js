@@ -178,7 +178,8 @@ function parseExecute(str) {
 /**
  * 表达式操作符
  */
-var exprActionReg = /[^\w\$\.\"\']+/g;
+var exprActionReg = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s]+/g;
+var whithReg = /^[\s\uFEFF\xA0]$/;
 
 /**
  * parseExecute的辅助函数, 用来解析单个表达式, str两边已经去掉无用的空白符
@@ -206,6 +207,11 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         // 循环解析操作符分隔的每个表达式
         // 并把他们加在一起
         for (; i<actions.length; i++) {
+            if (whithReg.test(actions[i])) {
+                // 是纯空白的不处理
+                continue;
+            }
+
             pos = str.indexOf(actions[i], pos0);
             field = str.substring(pos0, pos);
             ret += parseStatic(field, isDisplayResult) + actions[i];
