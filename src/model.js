@@ -389,6 +389,24 @@ function gc(model) {
 }
 
 /**
+ * 回收某结点的数据
+ * @param {boolean} skipTop 只回收其子结点的数据, 本结点不回收
+ */
+function gcElement(element, skipTop) {
+    if (!skipTop && element.$modelId) {
+        gc(MODELS[element.$modelId]);
+    } else {
+        var el = element.firstChild;
+        while (el) {
+            if (el.nodeType == 1) {
+                gcElement(el);
+            }
+            el = el.nextSibling;
+        }
+    }
+}
+
+/**
  * 获取model数据的方法
  * @param {string|Element} id 当为字符串时, 表示id, 否则表示结点
  * @returns {Model|null}
