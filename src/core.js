@@ -154,6 +154,23 @@ extend(exports, {
     },
 
     /**
+     * 循环函数
+     * 这与jQuery.each差不多, 但cb的参数顺序与jQuery.each的不同, 与Array.forEach一致
+     * @param {Array|Object} obj 是一个数组或一个PlainObject
+     * @param {Function} cb 对每个元素执行的函数, 参数顺序为cb(item, index), 调用者为obj
+     */
+    each: function(obj, cb) {
+        if (obj.forEach) {
+            obj.forEach(cb);
+        } else {
+            var key;
+            for (key in obj) {
+                cb.call(obj, obj[key], key);
+            }
+        }
+    },
+
+    /**
      * 判断一个对角的类型
      * 类型以小写字符串返回
      *
