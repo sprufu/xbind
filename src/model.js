@@ -89,7 +89,6 @@ function getObjectValueByFieldName(obj, field) {
     for (; i < fields.length; i++) {
         o = o[fields[i]];
     }
-    fields = null;
     return o;
 }
 
@@ -102,58 +101,27 @@ Model.prototype = {
     $get: function(field, noExtend, isDisplayResult) {
         if (this.$cache.hasOwnProperty(field)) {
             return this.$cache[field];
-        } else if (~field.indexOf('.')) {
-            // 深层处理, 如: user.name
-            var v = this,
-            key,
-            keys = field.split('.'),
-            i = 0;
-            for (; i<keys.length; i++) {
-                key = keys[i];
-                if (!v[key]) {
-                    if (v.hasOwnProperty(key)) {
-                        return isDisplayResult ? '' : v[key];
-                    } else if (noExtend) {
-                        return isDisplayResult ? '' : undefined;
-                    } else {
-                        return this.$parent ? this.$parent.$get(field, noExtend, isDisplayResult) : isDisplayResult ? '' : undefined;
+        } else {
+            var model = this, value;
+            while (model) {
+                try {
+                    value = getObjectValueByFieldName(model, field);
+                    break;
+                } catch (err) {
+                    if (noExtend) {
+                        break;
                     }
-                } else if ('function' == typeof v[key]) {
-                    // 当
-                    // function User() {}
-                    // User.prototype = {
-                    //      setName: function(){},
-                    //      getName: function(name){
-                    //          console.log(this);
-                    //      }
-                    // };
-                    // var model = new Model({
-                    //      user: new User()
-                    // });
-                    //
-                    // 上面代码中, model.$get("user.getName")时, 这里的实现使其调用者不变
-                    // 灵感来自于Function.prototype.bind
-                    return v[key].bind(this);
-                } else {
-                    if (i == keys.length - 1) {
-                        return v[key];
-                    } else {
-                        v = v[key];
-                    }
+                    model = model.$parent;
                 }
             }
-        } else {
-            if ('function' == typeof this[field]) {
-                return this[field].bind(this);
-            } if (this[field]) {
-                return this[field];
-            } if (this.hasOwnProperty(field)) {
-                return isDisplayResult ? '' : this[field];
-            } else if (noExtend) {
-                return isDisplayResult ? '' : undefined;
-            } else {
-                return this.$parent ? this.$parent.$get(field, noExtend, isDisplayResult) : isDisplayResult ? '' : undefined;
+
+            // 是函数的, 绑定调用者
+            // 绑定model适合还是this适合?
+            if ('function' == typeof value) {
+                value = value.bind(model);
             }
+
+            return value ? value : isDisplayResult ? '' : undefined;
         }
     },
 
