@@ -55,6 +55,7 @@ var ie678 = window == document && document != window;
 if (ie678) {
     var id = '__ie_onload';
     // 要有src属性, 否则不能保证其它js已经被加载
+    // <script id=__ie_onload defer src=javascript:></script>
     document.write('<script id='+ id + ' defer src=javascript:></script>');
     document.getElementById(id).onreadystatechange = function() {
         if (this.readyState == 'complete') {
@@ -62,6 +63,7 @@ if (ie678) {
                 fn();
             });
             this.onreadystatechange = null;
+            addDOMLoadedListener = null;
             DOMLoadedListeners = null;
             this.parentNode.removeChild(this);
         }
