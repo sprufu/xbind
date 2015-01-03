@@ -94,7 +94,7 @@ mix(exports.scanners, {
         model = MODELS[value];
         compileElement(element, attr.name, 'x-controller');
         if (model && !model.element) {
-            model.$bindElement(element, param != 'top');
+            model.$scope(element, param != 'top');
             return model;
         }
     },
@@ -227,7 +227,7 @@ mix(exports.scanners, {
                 model[param] = item;
 
                 parent.insertBefore(el, endElement);
-                model.$bindElement(el);
+                model.$scope(el);
                 scan(el, model);
 
                 // 置空el, 打破循环引用导致无法回收clone出来的结点.
@@ -245,7 +245,7 @@ mix(exports.scanners, {
 
         model = getModel(element) || new Model();
         if (!element.$modelId) {
-            model.$bindElement(element);
+            model.$scope(element);
         }
 
         bindModel(parentModel, value, parseExpress, function(res) {
@@ -403,7 +403,7 @@ mix(exports.scanners, {
 
         if (!element.$modelId) {
             model = new Model();
-            model.$bindElement(element);
+            model.$scope(element);
         }
 
         var

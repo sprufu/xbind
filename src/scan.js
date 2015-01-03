@@ -8,7 +8,7 @@ function scan(element, model) {
 
     if (!model) {
         model = new Model();
-        model.$bindElement(element);
+        model.$scope(element);
     }
 
     switch(element.nodeType) {

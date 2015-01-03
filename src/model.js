@@ -243,7 +243,7 @@ Model.prototype = {
      * @param {Element} element 待绑定的结点
      * @param {boolean} noExtend 是否不从上级继承数据, 一般情况下要继承
      */
-    $bindElement: function(element, noExtend) {
+    $scope: function(element, noExtend) {
         if (element.$modelId) {
             throw new Error('不能重复绑定model.');
         }

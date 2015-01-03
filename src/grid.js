@@ -3,7 +3,7 @@ exports.scanners['x-grid'] = function(model, element, value, attr, param) {
 
     if (!element.$modelId) {
         model = new Model();
-        model.$bindElement(element);
+        model.$scope(element);
     }
 
     var opt = {
