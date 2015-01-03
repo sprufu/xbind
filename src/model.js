@@ -79,6 +79,20 @@ function Model(vm) {
     MODELS[this.$id] = this;
 }
 
+/**
+ * 根据字段名获取对象数据
+ */
+function getObjectValueByFieldName(obj, field) {
+    var fields = field.split('.'),
+    o = obj,
+    i = 0;
+    for (; i < fields.length; i++) {
+        o = o[fields[i]];
+    }
+    fields = null;
+    return o;
+}
+
 Model.prototype = {
     /**
      * 获取某个字段的值
