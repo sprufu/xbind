@@ -9,6 +9,9 @@
 /**********************************/
 
 function exports(vm) {
+    if ('string' == typeof vm) {
+        vm = {$id: vm};
+    }
     return new Model(vm);
 }
 
