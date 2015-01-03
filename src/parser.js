@@ -9,6 +9,7 @@
  */
 function parseString(str, fields) {
     var txt = '""',
+    tmp,
     interpolate1 = options.interpolate[0],
     interpolate2 = options.interpolate[1],
     len1 = interpolate1.length,
@@ -23,14 +24,24 @@ function parseString(str, fields) {
             pos2 = str.indexOf(interpolate2, pos1 + len1);
             if (~pos2) {
                 flag = true;
-                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '"+' + parseExpress(str.substring(pos1 + len1, pos2), fields, true);
+                tmp = replaceWrapLineString(str.substring(pos, pos1));
+                if (tmp) {
+                    txt += '+"' + tmp + '"';
+                }
+                txt += '+' + parseExpress(str.substring(pos1 + len1, pos2), fields, true);
                 pos = pos1 = pos2 = pos2 + len2;
             } else {
-                txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';
+                tmp = replaceWrapLineString(str.substr(pos));
+                if (tmp) {
+                    txt += '+"' + tmp + '"';
+                }
                 break;
             }
         } else {
-            txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';
+            tmp = replaceWrapLineString(str.substr(pos));
+            if (tmp) {
+                txt += '+"' + tmp + '"';
+            }
             break;
         }
     }
