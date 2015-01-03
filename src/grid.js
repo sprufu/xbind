@@ -64,7 +64,7 @@ DataGrid.prototype = {
 
         var self = this,
         data = this.$$params;
-        extend(data, {
+        mix(data, {
             page: this.$$page,
             pageSize: this.$$pageSize
         });

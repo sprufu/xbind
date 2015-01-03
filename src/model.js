@@ -49,7 +49,7 @@ function setFieldValue(model, field, value) {
  */
 function Model(vm) {
     // 拷贝所有的数据到自己的属性上
-    extend(this, vm);
+    mix(this, vm);
 
     // 属性不能放到prototype里去定义, 那是公用的地方法.
     this.$parent = null;

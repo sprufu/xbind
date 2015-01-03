@@ -4,7 +4,7 @@
  */
 "use strict";
 
-extend(exports.scanners, {
+mix(exports.scanners, {
     /**
      * 表单操作
      * <form x-form-frmname="action" action="actionUrl" method="post">
@@ -13,7 +13,7 @@ extend(exports.scanners, {
      */
     'x-form': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
-        extend(model, {
+        mix(model, {
             $xform: param,
             $dirty: false, // 是否更改过
             $valid: true // 是不验证通过

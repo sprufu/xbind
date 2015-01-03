@@ -86,7 +86,7 @@ var URLPARAMS = null;
 /**********************************/
 /*       底层函数区               */
 /**********************************/
-function extend () {
+function mix () {
     var options, name, src, copy, copyIsArray, clone,
         target = arguments[0] || {},
         i = 1,
@@ -127,7 +127,7 @@ function extend () {
                         clone = src && exports.type(src, 'object') ? src : {};
                     }
 
-                    target[ name ] = extend( deep, clone, copy );
+                    target[ name ] = mix( deep, clone, copy );
 
                 } else if ( copy !== undefined ) {
                     target[ name ] = copy;
@@ -139,8 +139,8 @@ function extend () {
     return target;
 }
 
-extend(exports, {
-    extend: extend,
+mix(exports, {
+    mix: mix,
     isEmptyObject: function(obj) {
         var name;
         if (!exports.type(obj, 'object')) {
@@ -339,7 +339,7 @@ extend(exports, {
         if (options.hasOwnProperty(key)) {
             options[key] = val;
         } else if (exports.isPlainObject(key)) {
-            extend(options, key);
+            mix(options, key);
         }
     }
 });

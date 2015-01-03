@@ -74,7 +74,7 @@ function compileElement(element, removeAttrbuteName, removeClassName, noScanChil
     skipScanOtherAttrs  && (element.$skipOtherAttr = true);
 }
 
-exports.extend(exports.scanners, {
+mix(exports.scanners, {
     'x-skip': function(model, element, value, attr) {
         compileElement(element, attr.name, 0, 1, 0, 1);
     },
