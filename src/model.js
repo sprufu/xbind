@@ -59,7 +59,7 @@ function Model(vm) {
 
     // 存放临时字段结果
     this.$cache = {};
-    this.$watchs = {
+    this.$subscribes = {
         /**
          * 以字段为键
          * 如: name, user.name, user.name.firstName
@@ -219,10 +219,10 @@ Model.prototype = {
      * @see $unwatch
      */
     $watch: function(field, observer) {
-        if (!this.$watchs[field]) {
-            this.$watchs[field] = [];
+        if (!this.$subscribes[field]) {
+            this.$subscribes[field] = [];
         }
-        this.$watchs[field].push(observer);
+        this.$subscribes[field].push(observer);
     },
 
     /**
@@ -231,8 +231,8 @@ Model.prototype = {
      * @see $fire
      */
     $unwatch: function(field, observer) {
-        if (this.$watchs[field]) {
-            this.$watchs[field].remove(observer);
+        if (this.$subscribes[field]) {
+            this.$subscribes[field].remove(observer);
         }
     },
 
@@ -305,9 +305,9 @@ Model.prototype = {
 function getSubscribes (model, field) {
     var ret = []
     try {
-        for (var key in model.$watchs) {
+        for (var key in model.$subscribes) {
             if (key == '*' || key.startsWith(field)) {
-                ret = ret.concat(model.$watchs[key]);
+                ret = ret.concat(model.$subscribes[key]);
             }
         }
     } finally {
@@ -368,16 +368,16 @@ function gc(model) {
     delete MODELS[model.$id];
 
     // 回收clone生成的Element
-    // $element, $watchs两个属性必须置为null, clone出的element才能回收
+    // $element, $subscribes两个属性必须置为null, clone出的element才能回收
     model.$element = null;
-    model.$watchs = null;
+    model.$subscribes = null;
 
     // 回收不用的Model
     // 从其父级中删除, 并删除监听父级变化
     var parent = model.$parent;
     if (parent) {
         parent.$childs.remove(model);
-        var subscribes = parent.$watchs['*'],
+        var subscribes = parent.$subscribes['*'],
         i = subscribes.length;
         while (i--) {
             if (subscribes[i].isChildSubscribe) {
