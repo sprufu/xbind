@@ -66,7 +66,7 @@ function scanAttrs(element, model) {
             //delete element.$skipOtherAttr;
             /* ie678( */
             if (ie67) {
-                element.$skipOtherAttr = false;
+                element.$skipOtherAttr = null;
             } else {
                 /* ie678) */
                 delete element.$skipOtherAttr;
