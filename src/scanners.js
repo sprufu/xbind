@@ -481,7 +481,7 @@ function bindModel(model, str, parsefn, updatefn) {
         return false;
     }
 
-    var fn = new Function('$model,filter', 'return ' + expr),
+    var fn = getFn(expr),
     observer = {
         update: function(model) {
             updatefn(fn(model, exports.filter));
@@ -494,6 +494,17 @@ function bindModel(model, str, parsefn, updatefn) {
             observer.update(model);
         }
     }
+}
+
+var fnCache = {};
+function getFn(str) {
+    if (fnCache[str]) {
+        return fnCache[str];
+    }
+
+    var fn = new Function('$model,filter', 'return ' + str);
+    fnCache[str] = fn;
+    return fn;
 }
 
 
