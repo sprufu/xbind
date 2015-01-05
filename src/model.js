@@ -397,7 +397,7 @@ exports.model = function(id) {
     if ('string' == typeof id) {
         return MODELS[id] || null;
     } else {
-        return getExtModel(id) || null;
+        return getExtModel(id);
     }
 };
 
