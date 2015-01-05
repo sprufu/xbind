@@ -106,7 +106,11 @@ Model.prototype = {
             while (model) {
                 try {
                     value = getObjectValueByFieldName(model, field);
-                    break;
+                    if (value === undefined) {
+                        model = model.$parent;
+                    } else {
+                        break;
+                    }
                 } catch (err) {
                     if (noExtend) {
                         break;
