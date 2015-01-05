@@ -27,6 +27,10 @@ function ajax(opt) {
         }
     }
 
+    if (!opt.cache) {
+        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + new Date().getTime().toString();
+    }
+
     xhr.open(opt.type, opt.url, opt.async);
     if (opt.headers) {
         var key, header;
