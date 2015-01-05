@@ -51,6 +51,10 @@ function ajax(opt) {
                         }
                     break;
                     case 'script':
+                        var el = document.createElement('script');
+                        document.body.appendChild(el);
+                        el.innerHTML = obj;
+                        document.body.removeChild(el);
                     break;
                     case 'jsonp':
                     break;
