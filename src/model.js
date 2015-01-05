@@ -302,11 +302,7 @@ function getSubscribes (model, field) {
 * 如果这结点没有定义model, 则返回null
 */
 function getModel(el) {
-    try {
-        return MODELS[el.$modelId];
-    } catch (err) {
-        return null;
-    }
+    return MODELS[el.$modelId] || null;
 }
 
 /**
