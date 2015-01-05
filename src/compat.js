@@ -47,7 +47,7 @@ if (!Function.prototype.bind) {
     Function.prototype.bind = function(scope) {
         var fn = this;
         return function() {
-            return fn.apply(scope);
+            return fn.apply(scope, arguments);
         };
     };
 }
