@@ -1,4 +1,9 @@
 "use strict";
+
+var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded';
+// var AJAX_CONTENT_TYPE_FROMDATA      = 'multipart/form-data';
+
+
 function ajax(opt) {
     opt = mix({}, options.ajax, opt);
     // var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP')
@@ -6,7 +11,12 @@ function ajax(opt) {
     data = null;
 
     if (opt.data) {
-        data = exports.param(opt.data);
+        // urlencoded方式的, 转换数据
+        // 这里不另外提供jQuery方式另外参数控制
+        if (opt.contentType == AJAX_CONTENT_TYPE_URLENCODED) {
+            data = exports.param(opt.data);
+        }
+
         if (opt.type.toLowerCase() == 'get') {
             if (~opt.url.indexOf('?')) {
                 opt.url += '&' + data;
@@ -73,11 +83,12 @@ function ajax(opt) {
 }
 
 options.ajax = {
-    async: true,
-    type: 'GET',
-    dataType: 'text',
-    contentType: 'application/x-www-form-urlencoded'
+    async       : true,
+    type        : 'get',
+    dataType    : 'text',
+    contentType : AJAX_CONTENT_TYPE_URLENCODED
 };
+
 
 /**
  * 把对象转换成url参数
