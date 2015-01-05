@@ -42,7 +42,7 @@ function ajax(opt) {
                     case 'html':
                         try {
                             var el = document.createElement('div');
-                            el.innerHTML = obj;
+                            el.innerHTML = obj.trim();
                             obj = el.firstChild;
                             el.removeChild(obj);
                             el = null;
