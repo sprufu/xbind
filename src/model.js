@@ -122,7 +122,7 @@ Model.prototype = {
             // 是函数的, 绑定调用者
             // 绑定model适合还是this适合?
             if ('function' == typeof value) {
-                value = value.bind(model);
+                value = value.bind(this);
             }
 
             return value ? value : isDisplayResult ? '' : undefined;
