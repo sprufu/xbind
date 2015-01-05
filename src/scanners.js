@@ -401,11 +401,6 @@ mix(exports.scanners, {
     'x-ajax': function(model, element, value, attr, param) {
         compileElement(element, attr.name, 'x-ajax');
 
-        if (!element.$modelId) {
-            model = new Model();
-            model.$scope(element);
-        }
-
         var
 
         // 请求的地址, 这个参数可能在变, 因为可能会与数据绑定
