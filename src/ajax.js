@@ -18,11 +18,7 @@ function ajax(opt) {
         }
 
         if (opt.type.toLowerCase() == 'get') {
-            if (~opt.url.indexOf('?')) {
-                opt.url += '&' + data;
-            } else {
-                opt.url += '?' + data;
-            }
+            opt.url += (~opt.url.indexOf('?') ? '&' : '?') + data;
             data = null;
         }
     }
