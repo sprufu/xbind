@@ -49,26 +49,24 @@ function setFieldValue(model, field, value) {
  */
 function Model(vm) {
     // 拷贝所有的数据到自己的属性上
-    mix(this, vm);
-
-    // 属性不能放到prototype里去定义, 那是公用的地方法.
-    this.$parent = null;
-    this.$childs = [];
-    this.$element = null;
-    this.$freeze = false;
-
-    // 存放临时字段结果
-    this.$cache = {};
-    this.$subscribes = {
-        /**
-         * 以字段为键
-         * 如: name, user.name, user.name.firstName
-         * 特殊字段名"*"表示所有字段有效
-         * 如: *, user.*
-         *
-         * field: [ subscribe array ]
-         */
-    };
+    mix(this, vm, {
+        $parent     : null,
+        $childs     : [],
+        $element    : null,
+        $freeze     : false,
+        $cache      : {},
+        $subscribes : {
+            /**
+            * 监听列表
+            * 以字段为键
+            * 如: name, user.name, user.name.firstName
+            * 特殊字段名"*"表示所有字段有效
+            * 如: *, user.*
+            *
+            * field: [ subscribe array ]
+            */
+        }
+    });
 
     if (!this.$id) {
         this.$id = '$' + Math.random().toString(36).substr(2);
