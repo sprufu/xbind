@@ -170,9 +170,7 @@ mix(exports, {
         } else {
             var key;
             for (key in obj) {
-                if ('function' != typeof obj[key]) {
-                    cb.call(obj, obj[key], key);
-                }
+                cb.call(obj, obj[key], key);
             }
         }
     },
