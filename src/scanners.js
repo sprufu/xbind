@@ -35,14 +35,7 @@ mix(exports.scanners, {
      * 这个绑定在将来版本中去掉, 请使用x-on事件绑定代替
      */
     'x-click': function(model, element, value, attr) {
-        var eventType = attr.name.substr(2),
-        expr = parseExecute(value),
-        fn = new Function('$model', expr);
-
-        element.removeAttribute(attr.name);
-        exports.on(element, eventType, function(event) {
-            return fn(model);
-        });
+        exports.scanners['x-on'](model, element, value, attr, 'click');
     },
 
     /**
