@@ -390,6 +390,7 @@ mix(exports.scanners, {
                 cache: false,
                 url: url,
                 success: function(res) {
+                    model.$set(param + '.$error', null);
                     model.$set(res, param);
                 },
                 error: function(xhr, err) {
