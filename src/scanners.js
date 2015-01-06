@@ -17,55 +17,6 @@ exports.scanners = {
     */
 };
 
-function eventBindHandler(model, element, value, attr) {
-    var eventType = attr.name.substr(2),
-    expr = parseExecute(value),
-    fn = new Function('$model', expr);
-
-    element.removeAttribute(attr.name);
-    exports.on(element, eventType, function(event) {
-        return fn(model);
-    });
-}
-
-
-/**
- * 事件绑定属性
- * 如:
- *      x-click="click()"
- *
- * 所有的属性都会自动加上前辍"x-"
- */
-[
-    'blur',
-    'focus',
-    'focusin',
-    'focusout',
-    'load',
-    'resize',
-    'scroll',
-    'unload',
-    'click',
-    'dblclick',
-    'mousedown',
-    'mouseup',
-    'mousemove',
-    'mouseover',
-    'mouseout',
-    'mouseenter',
-    'mouseleave',
-    'change',
-    'select',
-    'submit',
-    'keydown',
-    'keypress',
-    'keyup',
-    'error',
-    'contextmenu'
-].forEach(function(type) {
-    exports.scanners['x-' + type] = eventBindHandler;
-});
-
 function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
     removeAttrbuteName  && element.removeAttribute(removeAttrbuteName);
     removeClassName     && exports.removeClass(removeClassName);
@@ -77,6 +28,32 @@ function compileElement(element, removeAttrbuteName, removeClassName, noScanChil
 mix(exports.scanners, {
     'x-skip': function(model, element, value, attr) {
         compileElement(element, attr.name, 0, 1, 0, 1);
+    },
+
+    /**
+     * 单击绑定
+     * 这个绑定在将来版本中去掉, 请使用x-on事件绑定代替
+     */
+    'x-click': function(model, element, value, attr) {
+        var eventType = attr.name.substr(2),
+        expr = parseExecute(value),
+        fn = new Function('$model', expr);
+
+        element.removeAttribute(attr.name);
+        exports.on(element, eventType, function(event) {
+            return fn(model);
+        });
+    },
+
+    /**
+     * 事件绑定
+     */
+    'x-on': function(model, element, value, attr, param) {
+        var fn = getFn(parseExecute(value));
+        compileElement(element, attr.name);
+        exports.on(element, param, function(event) {
+            return fn(model);
+        });
     },
 
     /**

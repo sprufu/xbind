@@ -92,7 +92,7 @@ setTimeout(function() {
     </div>
     
     <table x-controller="pro" x-ajax-users="data.json?{{ user | param }}" x-ajax-if="user.sex == '先生'">
-        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ user.name }} </a> <button x-click="test(10)">pro</button></caption>
+        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ user.name }} </a> <button x-on-click="test(10)">pro</button></caption>
         <tr>
             <th>ID</th>
             <th>姓名</th>
