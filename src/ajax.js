@@ -60,6 +60,9 @@ function ajax(opt) {
                             obj = null;
                         }
                     break;
+                    case 'xml':
+                        obj = this.responseXML;
+                    break;
                     case 'script':
                         var el = document.createElement('script');
                         document.body.appendChild(el);
