@@ -10,6 +10,9 @@
 /**********************************/
 
 function exports(vm) {
+    if ('string' == typeof vm) {
+        vm = {$id: vm};
+    }
     return new Model(vm);
 }
 
@@ -53,6 +56,7 @@ var ie678 = window == document && document != window;
 if (ie678) {
     var id = '__ie_onload';
     // 要有src属性, 否则不能保证其它js已经被加载
+    // <script id=__ie_onload defer src=javascript:></script>
     document.write('<script id='+ id + ' defer src=javascript:></script>');
     document.getElementById(id).onreadystatechange = function() {
         if (this.readyState == 'complete') {
@@ -60,6 +64,7 @@ if (ie678) {
                 fn();
             });
             this.onreadystatechange = null;
+            addDOMLoadedListener = null;
             DOMLoadedListeners = null;
             this.parentNode.removeChild(this);
         }
@@ -87,7 +92,7 @@ var URLPARAMS = null;
 /**********************************/
 /*       底层函数区               */
 /**********************************/
-function extend () {
+function mix () {
     var options, name, src, copy, copyIsArray, clone,
         target = arguments[0] || {},
         i = 1,
@@ -128,7 +133,7 @@ function extend () {
                         clone = src && exports.type(src, 'object') ? src : {};
                     }
 
-                    target[ name ] = extend( deep, clone, copy );
+                    target[ name ] = mix( deep, clone, copy );
 
                 } else if ( copy !== undefined ) {
                     target[ name ] = copy;
@@ -140,8 +145,8 @@ function extend () {
     return target;
 }
 
-extend(exports, {
-    extend: extend,
+mix(exports, {
+    mix: mix,
     isEmptyObject: function(obj) {
         var name;
         if (!exports.type(obj, 'object')) {
@@ -166,9 +171,7 @@ extend(exports, {
         } else {
             var key;
             for (key in obj) {
-                if ('function' != typeof obj[key]) {
-                    cb.call(obj, obj[key], key);
-                }
+                cb.call(obj, obj[key], key);
             }
         }
     },
@@ -339,8 +342,8 @@ extend(exports, {
     config: function(key, val) {
         if (options.hasOwnProperty(key)) {
             options[key] = val;
-        } else if (exports.isPlainObject(key)) {
-            extend(options, key);
+        } else if (exports.type(key, 'object')) {
+            mix(true, options, key);
         }
     }
 });
@@ -376,22 +379,32 @@ function camelize(target) {
 }
 
 
+
+var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded';
+// var AJAX_CONTENT_TYPE_FROMDATA      = 'multipart/form-data';
+
+
 function ajax(opt) {
-    opt = exports.extend({}, options.ajax, opt);
+    opt = mix({}, options.ajax, opt);
     // var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP')
     var xhr = new /* ie678( */ ( /* ie678) */ window.XMLHttpRequest /* ie678( */ || ActiveXObject) /* ie678) */ ( /* ie678( */ 'Microsoft.XMLHTTP' /* ie678) */),
     data = null;
 
     if (opt.data) {
-        data = exports.param(opt.data);
+        // urlencoded方式的, 转换数据
+        // 这里不另外提供jQuery方式另外参数控制
+        if (opt.contentType == AJAX_CONTENT_TYPE_URLENCODED) {
+            data = exports.param(opt.data);
+        }
+
         if (opt.type.toLowerCase() == 'get') {
-            if (~opt.url.indexOf('?')) {
-                opt.url += '&' + data;
-            } else {
-                opt.url += '?' + data;
-            }
+            opt.url += (~opt.url.indexOf('?') ? '&' : '?') + data;
             data = null;
         }
+    }
+
+    if (!opt.cache) {
+        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + new Date().getTime().toString();
     }
 
     xhr.open(opt.type, opt.url, opt.async);
@@ -406,6 +419,24 @@ function ajax(opt) {
     xhr.setRequestHeader("Content-Type", opt.contentType);
     xhr.onreadystatechange = function(e) {
         if (this.readyState == 4) {
+            // 执行statusCode
+            var fn = opt.statusCode[this.status];
+            if (fn && fn.call(xhr) === false) {
+                return;
+            }
+
+            // 执行headerCode
+            var res;
+            exports.each(opt.headerCode, function(fn, key) {
+                var headerValue = xhr.getResponseHeader(key);
+                if (headerValue && fn.call(xhr, headerValue) === false) {
+                    res = false;
+                }
+            });
+            if (res === false) {
+                return;
+            }
+
             if (this.status >= 200 && this.status < 300) {
                 var obj = this.responseText;
                 switch(opt.dataType) {
@@ -419,7 +450,7 @@ function ajax(opt) {
                     case 'html':
                         try {
                             var el = document.createElement('div');
-                            el.innerHTML = obj;
+                            el.innerHTML = obj.trim();
                             obj = el.firstChild;
                             el.removeChild(obj);
                             el = null;
@@ -427,7 +458,14 @@ function ajax(opt) {
                             obj = null;
                         }
                     break;
+                    case 'xml':
+                        obj = this.responseXML;
+                    break;
                     case 'script':
+                        var el = document.createElement('script');
+                        document.body.appendChild(el);
+                        el.innerHTML = obj;
+                        document.body.removeChild(el);
                     break;
                     case 'jsonp':
                     break;
@@ -446,11 +484,31 @@ function ajax(opt) {
 }
 
 options.ajax = {
-    async: true,
-    type: 'GET',
-    dataType: 'text',
-    contentType: 'application/x-www-form-urlencoded'
+    async       : true,
+    type        : 'get',
+    dataType    : 'text',
+    contentType : AJAX_CONTENT_TYPE_URLENCODED,
+    statusCode  : {
+        // 跟jQuery.ajax的statusCode差不多, 只是返回false有特殊意义, 且这个在success及error前执行.
+        // 404  : function() {
+        //    alert('page not found.');
+        //    return false; // 返回false阻止后面success或error.
+        // }
+    },
+    headerCode  : {
+        // 响应某具体的响应头时执行
+        // 这在success及error前执行, 可以返回false来阻止后面这些函数执行
+        // headerCode代码比statusCode后执行
+        // 参数value是响应头的值
+        // 键值是响应头名
+        // 默认如果响应 "location:value" 则执行跳转操作
+        "location": function(value) {
+             location = value;
+             return false;
+        }
+    }
 };
+
 
 /**
  * 把对象转换成url参数
@@ -543,26 +601,24 @@ function setFieldValue(model, field, value) {
  */
 function Model(vm) {
     // 拷贝所有的数据到自己的属性上
-    extend(this, vm);
-
-    // 属性不能放到prototype里去定义, 那是公用的地方法.
-    this.$parent = null;
-    this.$childs = [];
-    this.$element = null;
-    this.$freeze = false;
-
-    // 存放临时字段结果
-    this.$cache = {};
-    this.$watchs = {
-        /**
-         * 以字段为键
-         * 如: name, user.name, user.name.firstName
-         * 特殊字段名"*"表示所有字段有效
-         * 如: *, user.*
-         *
-         * field: [ subscribe array ]
-         */
-    };
+    mix(this, vm, {
+        $parent     : null,
+        $childs     : [],
+        $element    : null,
+        $freeze     : false,
+        $cache      : {},
+        $subscribes : {
+            /**
+            * 监听列表
+            * 以字段为键
+            * 如: name, user.name, user.name.firstName
+            * 特殊字段名"*"表示所有字段有效
+            * 如: *, user.*
+            *
+            * field: [ subscribe array ]
+            */
+        }
+    });
 
     if (!this.$id) {
         this.$id = '$' + Math.random().toString(36).substr(2);
@@ -571,6 +627,19 @@ function Model(vm) {
     }
 
     MODELS[this.$id] = this;
+}
+
+/**
+ * 根据字段名获取对象数据
+ */
+function getObjectValueByFieldName(obj, field) {
+    var fields = field.split('.'),
+    o = obj,
+    i = 0;
+    for (; i < fields.length; i++) {
+        o = o[fields[i]];
+    }
+    return o;
 }
 
 Model.prototype = {
@@ -582,58 +651,31 @@ Model.prototype = {
     $get: function(field, noExtend, isDisplayResult) {
         if (this.$cache.hasOwnProperty(field)) {
             return this.$cache[field];
-        } else if (~field.indexOf('.')) {
-            // 深层处理, 如: user.name
-            var v = this,
-            key,
-            keys = field.split('.'),
-            i = 0;
-            for (; i<keys.length; i++) {
-                key = keys[i];
-                if (!v[key]) {
-                    if (v.hasOwnProperty(key)) {
-                        return isDisplayResult ? '' : v[key];
-                    } else if (noExtend) {
-                        return isDisplayResult ? '' : undefined;
+        } else {
+            var model = this, value;
+            while (model) {
+                try {
+                    value = getObjectValueByFieldName(model, field);
+                    if (value === undefined) {
+                        model = model.$parent;
                     } else {
-                        return this.$parent ? this.$parent.$get(field, noExtend, isDisplayResult) : isDisplayResult ? '' : undefined;
+                        break;
                     }
-                } else if ('function' == typeof v[key]) {
-                    // 当
-                    // function User() {}
-                    // User.prototype = {
-                    //      setName: function(){},
-                    //      getName: function(name){
-                    //          console.log(this);
-                    //      }
-                    // };
-                    // var model = new Model({
-                    //      user: new User()
-                    // });
-                    //
-                    // 上面代码中, model.$get("user.getName")时, 这里的实现使其调用者不变
-                    // 灵感来自于Function.prototype.bind
-                    return v[key].bind(this);
-                } else {
-                    if (i == keys.length - 1) {
-                        return v[key];
-                    } else {
-                        v = v[key];
+                } catch (err) {
+                    if (noExtend) {
+                        break;
                     }
+                    model = model.$parent;
                 }
             }
-        } else {
-            if ('function' == typeof this[field]) {
-                return this[field].bind(this);
-            } if (this[field]) {
-                return this[field];
-            } if (this.hasOwnProperty(field)) {
-                return isDisplayResult ? '' : this[field];
-            } else if (noExtend) {
-                return isDisplayResult ? '' : undefined;
-            } else {
-                return this.$parent ? this.$parent.$get(field, noExtend, isDisplayResult) : isDisplayResult ? '' : undefined;
+
+            // 是函数的, 绑定调用者
+            // 绑定model适合还是this适合?
+            if ('function' == typeof value) {
+                value = value.bind(this);
             }
+
+            return value ? value : isDisplayResult ? '' : undefined;
         }
     },
 
@@ -713,10 +755,10 @@ Model.prototype = {
      * @see $unwatch
      */
     $watch: function(field, observer) {
-        if (!this.$watchs[field]) {
-            this.$watchs[field] = [];
+        if (!this.$subscribes[field]) {
+            this.$subscribes[field] = [];
         }
-        this.$watchs[field].push(observer);
+        this.$subscribes[field].push(observer);
     },
 
     /**
@@ -725,8 +767,8 @@ Model.prototype = {
      * @see $fire
      */
     $unwatch: function(field, observer) {
-        if (this.$watchs[field]) {
-            this.$watchs[field].remove(observer);
+        if (this.$subscribes[field]) {
+            this.$subscribes[field].remove(observer);
         }
     },
 
@@ -755,7 +797,7 @@ Model.prototype = {
      * @param {Element} element 待绑定的结点
      * @param {boolean} noExtend 是否不从上级继承数据, 一般情况下要继承
      */
-    $bindElement: function(element, noExtend) {
+    $scope: function(element, noExtend) {
         if (element.$modelId) {
             throw new Error('不能重复绑定model.');
         }
@@ -799,9 +841,9 @@ Model.prototype = {
 function getSubscribes (model, field) {
     var ret = []
     try {
-        for (var key in model.$watchs) {
+        for (var key in model.$subscribes) {
             if (key == '*' || key.startsWith(field)) {
-                ret = ret.concat(model.$watchs[key]);
+                ret = ret.concat(model.$subscribes[key]);
             }
         }
     } finally {
@@ -814,11 +856,7 @@ function getSubscribes (model, field) {
 * 如果这结点没有定义model, 则返回null
 */
 function getModel(el) {
-    try {
-        return MODELS[el.$modelId];
-    } catch (err) {
-        return null;
-    }
+    return MODELS[el.$modelId] || null;
 }
 
 /**
@@ -862,16 +900,16 @@ function gc(model) {
     delete MODELS[model.$id];
 
     // 回收clone生成的Element
-    // $element, $watchs两个属性必须置为null, clone出的element才能回收
+    // $element, $subscribes两个属性必须置为null, clone出的element才能回收
     model.$element = null;
-    model.$watchs = null;
+    model.$subscribes = null;
 
     // 回收不用的Model
     // 从其父级中删除, 并删除监听父级变化
     var parent = model.$parent;
     if (parent) {
         parent.$childs.remove(model);
-        var subscribes = parent.$watchs['*'],
+        var subscribes = parent.$subscribes['*'],
         i = subscribes.length;
         while (i--) {
             if (subscribes[i].isChildSubscribe) {
@@ -906,11 +944,7 @@ function gcElement(element, skipTop) {
  * @returns {Model|null}
  */
 exports.model = function(id) {
-    if ('string' == typeof id) {
-        return MODELS[id] || null;
-    } else {
-        return getExtModel(id) || null;
-    }
+    return 'string' == typeof id ? MODELS[id] || null : getExtModel(id);
 };
 
 
@@ -923,7 +957,7 @@ function scan(element, model) {
 
     if (!model) {
         model = new Model();
-        model.$bindElement(element);
+        model.$scope(element);
     }
 
     switch(element.nodeType) {
@@ -981,7 +1015,7 @@ function scanAttrs(element, model) {
             //delete element.$skipOtherAttr;
             /* ie678( */
             if (ie67) {
-                element.$skipOtherAttr = false;
+                element.$skipOtherAttr = null;
             } else {
                 /* ie678) */
                 delete element.$skipOtherAttr;
@@ -1117,7 +1151,7 @@ if (!Function.prototype.bind) {
     Function.prototype.bind = function(scope) {
         var fn = this;
         return function() {
-            return fn.apply(scope);
+            return fn.apply(scope, arguments);
         };
     };
 }
@@ -1143,55 +1177,6 @@ exports.scanners = {
     */
 };
 
-function eventBindHandler(model, element, value, attr) {
-    var eventType = attr.name.substr(2),
-    expr = parseExecute(value),
-    fn = new Function('$model', expr);
-
-    element.removeAttribute(attr.name);
-    exports.on(element, eventType, function(event) {
-        return fn(model);
-    });
-}
-
-
-/**
- * 事件绑定属性
- * 如:
- *      x-click="click()"
- *
- * 所有的属性都会自动加上前辍"x-"
- */
-[
-    'blur',
-    'focus',
-    'focusin',
-    'focusout',
-    'load',
-    'resize',
-    'scroll',
-    'unload',
-    'click',
-    'dblclick',
-    'mousedown',
-    'mouseup',
-    'mousemove',
-    'mouseover',
-    'mouseout',
-    'mouseenter',
-    'mouseleave',
-    'change',
-    'select',
-    'submit',
-    'keydown',
-    'keypress',
-    'keyup',
-    'error',
-    'contextmenu'
-].forEach(function(type) {
-    exports.scanners['x-' + type] = eventBindHandler;
-});
-
 function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
     removeAttrbuteName  && element.removeAttribute(removeAttrbuteName);
     removeClassName     && exports.removeClass(removeClassName);
@@ -1200,9 +1185,28 @@ function compileElement(element, removeAttrbuteName, removeClassName, noScanChil
     skipScanOtherAttrs  && (element.$skipOtherAttr = true);
 }
 
-exports.extend(exports.scanners, {
+mix(exports.scanners, {
     'x-skip': function(model, element, value, attr) {
         compileElement(element, attr.name, 0, 1, 0, 1);
+    },
+
+    /**
+     * 单击绑定
+     * 这个绑定在将来版本中去掉, 请使用x-on事件绑定代替
+     */
+    'x-click': function(model, element, value, attr) {
+        exports.scanners['x-on'](model, element, value, attr, 'click');
+    },
+
+    /**
+     * 事件绑定
+     */
+    'x-on': function(model, element, value, attr, param) {
+        var fn = getFn(parseExecute(value));
+        compileElement(element, attr.name);
+        exports.on(element, param, function(event) {
+            return fn(model);
+        });
     },
 
     /**
@@ -1220,7 +1224,7 @@ exports.extend(exports.scanners, {
         model = MODELS[value];
         compileElement(element, attr.name, 'x-controller');
         if (model && !model.element) {
-            model.$bindElement(element, param != 'top');
+            model.$scope(element, param != 'top');
             return model;
         }
     },
@@ -1353,7 +1357,7 @@ exports.extend(exports.scanners, {
                 model[param] = item;
 
                 parent.insertBefore(el, endElement);
-                model.$bindElement(el);
+                model.$scope(el);
                 scan(el, model);
 
                 // 置空el, 打破循环引用导致无法回收clone出来的结点.
@@ -1371,7 +1375,7 @@ exports.extend(exports.scanners, {
 
         model = getModel(element) || new Model();
         if (!element.$modelId) {
-            model.$bindElement(element);
+            model.$scope(element);
         }
 
         bindModel(parentModel, value, parseExpress, function(res) {
@@ -1527,11 +1531,6 @@ exports.extend(exports.scanners, {
     'x-ajax': function(model, element, value, attr, param) {
         compileElement(element, attr.name, 'x-ajax');
 
-        if (!element.$modelId) {
-            model = new Model();
-            model.$bindElement(element);
-        }
-
         var
 
         // 请求的地址, 这个参数可能在变, 因为可能会与数据绑定
@@ -1551,6 +1550,7 @@ exports.extend(exports.scanners, {
                 cache: false,
                 url: url,
                 success: function(res) {
+                    model.$set(param + '.$error', null);
                     model.$set(res, param);
                 },
                 error: function(xhr, err) {
@@ -1607,7 +1607,7 @@ function bindModel(model, str, parsefn, updatefn) {
         return false;
     }
 
-    var fn = new Function('$model,filter', 'return ' + expr),
+    var fn = getFn(expr),
     observer = {
         update: function(model) {
             updatefn(fn(model, exports.filter));
@@ -1620,6 +1620,17 @@ function bindModel(model, str, parsefn, updatefn) {
             observer.update(model);
         }
     }
+}
+
+var fnCache = {};
+function getFn(str) {
+    if (fnCache[str]) {
+        return fnCache[str];
+    }
+
+    var fn = new Function('$model,filter', 'return ' + str);
+    fnCache[str] = fn;
+    return fn;
 }
 
 
@@ -1650,6 +1661,7 @@ function Template(id, element) {
  */
 function parseString(str, fields) {
     var txt = '""',
+    tmp,
     interpolate1 = options.interpolate[0],
     interpolate2 = options.interpolate[1],
     len1 = interpolate1.length,
@@ -1664,14 +1676,24 @@ function parseString(str, fields) {
             pos2 = str.indexOf(interpolate2, pos1 + len1);
             if (~pos2) {
                 flag = true;
-                txt += '+"' + replaceWrapLineString(str.substring(pos, pos1)) + '"+' + parseExpress(str.substring(pos1 + len1, pos2), fields, true);
+                tmp = replaceWrapLineString(str.substring(pos, pos1));
+                if (tmp) {
+                    txt += '+"' + tmp + '"';
+                }
+                txt += '+' + parseExpress(str.substring(pos1 + len1, pos2), fields, true);
                 pos = pos1 = pos2 = pos2 + len2;
             } else {
-                txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';
+                tmp = replaceWrapLineString(str.substr(pos));
+                if (tmp) {
+                    txt += '+"' + tmp + '"';
+                }
                 break;
             }
         } else {
-            txt += '+"' + replaceWrapLineString(str.substr(pos)) + '"';
+            tmp = replaceWrapLineString(str.substr(pos));
+            if (tmp) {
+                txt += '+"' + tmp + '"';
+            }
             break;
         }
     }
@@ -2147,7 +2169,7 @@ exports.filter = function(filterName, obj, args) {
  */
 
 
-extend(exports.scanners, {
+mix(exports.scanners, {
     /**
      * 表单操作
      * <form x-form-frmname="action" action="actionUrl" method="post">
@@ -2156,7 +2178,7 @@ extend(exports.scanners, {
      */
     'x-form': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
-        extend(model, {
+        mix(model, {
             $xform: param,
             $dirty: false, // 是否更改过
             $valid: true // 是不验证通过

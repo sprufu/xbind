@@ -45,6 +45,28 @@ cd vmodel && npm run build
 
 ## Change
 
+#### v0.4.2 2015-01-06
+1. chg: 改extend名为mix, 改extend用于构造函数继承.
+2. chg: 更改一些内容函数名称
+3. fix: 当传入一个字符串参数时, 以其为id创建一个空数据对象.
+4. fix: ie678中domready后删除不要的绑定函数.
+5. add: 添加根据字段名获取数据方法.
+6. chg: 重构$get方法.
+7. fix: 优化parseString解析空字符串连接问题.
+8. add: 添加生成监听函数缓存.
+9. fix: 修复ajax的html响应得到文本结点的问题.
+9. fix: 实现ajax的script, xml响应.
+10. fix: 修改ajax只有urlencoded方式的处理数据转换.
+11. fix: 修复ajax缓存控制无效问题.
+12. fix: 修复手动实现Function.prototype.bind没有正常接受参数的问题.
+13. fix: 去掉ajax绑定没必要生成闭合作用域.
+14. fix: 修复ajax正常响应时没有清除错误信息的bug.
+15. chg: 事件绑定采用统一的x-on处理.
+16. fix: 修复config配置无深层拷贝问题.
+17. fix: 修改each循环时不过滤函数.
+18. add: ajax添加statusCode及headerCode项, 遇到相关响应状态或响应头时执行指定代码
+
+
 #### v0.4.1 2015-01-01
 1. fix: 修复$get多级子方法时, 其绑定调用者始终指向model自身.
 2. add: 添加param过滤器.
