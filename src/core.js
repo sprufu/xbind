@@ -343,8 +343,8 @@ mix(exports, {
     config: function(key, val) {
         if (options.hasOwnProperty(key)) {
             options[key] = val;
-        } else if (exports.isPlainObject(key)) {
-            mix(options, key);
+        } else if (exports.type(key, 'object')) {
+            mix(true, options, key);
         }
     }
 });
