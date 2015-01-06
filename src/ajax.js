@@ -39,6 +39,24 @@ function ajax(opt) {
     xhr.setRequestHeader("Content-Type", opt.contentType);
     xhr.onreadystatechange = function(e) {
         if (this.readyState == 4) {
+            // 执行statusCode
+            var fn = opt.statusCode[this.status];
+            if (fn && fn.call(xhr) === false) {
+                return;
+            }
+
+            // 执行headerCode
+            var res;
+            exports.each(opt.headerCode, function(fn, key) {
+                var headerValue = xhr.getResponseHeader(key);
+                if (headerValue && fn.call(xhr, headerValue) === false) {
+                    res = false;
+                }
+            });
+            if (res === false) {
+                return;
+            }
+
             if (this.status >= 200 && this.status < 300) {
                 var obj = this.responseText;
                 switch(opt.dataType) {
@@ -89,7 +107,26 @@ options.ajax = {
     async       : true,
     type        : 'get',
     dataType    : 'text',
-    contentType : AJAX_CONTENT_TYPE_URLENCODED
+    contentType : AJAX_CONTENT_TYPE_URLENCODED,
+    statusCode  : {
+        // 跟jQuery.ajax的statusCode差不多, 只是返回false有特殊意义, 且这个在success及error前执行.
+        // 404  : function() {
+        //    alert('page not found.');
+        //    return false; // 返回false阻止后面success或error.
+        // }
+    },
+    headerCode  : {
+        // 响应某具体的响应头时执行
+        // 这在success及error前执行, 可以返回false来阻止后面这些函数执行
+        // headerCode代码比statusCode后执行
+        // 参数value是响应头的值
+        // 键值是响应头名
+        // 默认如果响应 "location:value" 则执行跳转操作
+        "location": function(value) {
+             location = value;
+             return false;
+        }
+    }
 };
 
 
