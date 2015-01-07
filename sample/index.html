@@ -21,7 +21,7 @@
 <script src="../src/filter.js"></script>
 <script src="../src/exports.js"></script>
 <script>
-var model = vmodel({
+var model = xbind({
     $id: 'test',
     url: 'test.html',
     my_tpl: 'full',
@@ -36,7 +36,7 @@ var model = vmodel({
     },
     test: 'Hello Word!'
 });
-var model2 = vmodel({
+var model2 = xbind({
     $id: 'pro',
 	user: {
 		sex: '先生'

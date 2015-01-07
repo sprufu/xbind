@@ -9,6 +9,9 @@
 /*         全局变量定义区         */
 /**********************************/
 
+/**
+ * @namespace exports
+ */
 function exports(vm) {
     if ('string' == typeof vm) {
         vm = {$id: vm};
@@ -18,29 +21,45 @@ function exports(vm) {
 
 /**
  * 配置参数, 通过exports.config供用户修改
+ * @namespace
  */
 var options = {
-    interpolate: ['{{', '}}']
-};
+    /**
+     * 字符串插值边界
+     */
+    interpolate: ['{{', '}}'],
 
-// 忽略的标签
-options.igonreTags = {
-    SCRIPT: true,
-    NOSCRIPT: true,
-    IFRAME: true
-};
+    /**
+     * 是否在dom准备好时扫描一次
+     * 这个设置必须在dom准备好之前设置方有效
+     */
+    scanOnReady: true,
 
-// 过滤属性不扫描
-options.igonreAttrs = {
-    'x-ajax-if': true
-};
+    /**
+     * 忽略扫描的标签
+     */
+    igonreTags: {
+        SCRIPT      : true,
+        NOSCRIPT    : true,
+        IFRAME      : true
+    },
 
-// 扫描优先级, 没有定义的都在1000
-options.priorities = {
-    'x-skip': 0,
-    'x-repeat': 10,
-    'x-controller': 20,
-    'x-if': 50
+    /**
+     * 忽略扫描的属性
+     */
+    igonreAttrs: {
+        'x-ajax-if': true
+    },
+
+    /**
+     * 扫描优先级定义, 没有设置优先级的都在1000, 越小越先扫描
+     */
+    priorities: {
+        'x-skip'        : 0,
+        'x-repeat'      : 10,
+        'x-controller'  : 20,
+        'x-if'          : 50
+    }
 };
 
 /* ie678( */
@@ -78,12 +97,39 @@ function addDOMLoadedListener(fn) {
 
 /* ie678) */
 
-var REGEXPS = {
+/**
+ * 常用的正则
+ * @namespace exports.regexps
+ */
+var REGEXPS = exports.regexps = {
+    /**
+     * url 正则
+     */
     url: /^https?\:\/\/[-a-z0-9\.]+(\/.*)?$/,
+
+    /**
+     * email地址正则
+     */
     email: /^[\w\.\-]+\@[-a-z0-9]+\.\w+$/,
-    number: /^\-?\d*\.?\d+$/,
+
+    /**
+     * 纯数字正则
+     */
+    "number": /^\-?\d*\.?\d+$/,
+
+    /**
+     * 手机号码正则
+     */
     phone: /^1\d{10}$/,
+
+    /**
+     * 电话号码正则
+     */
     telphone: /^0\d{10,11}/,
+
+    /**
+     * 身份证正则
+     */
     idcard: /^\d{6}(19\d{2}|20\d{2})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
 };
 
@@ -92,6 +138,12 @@ var URLPARAMS = null;
 /**********************************/
 /*       底层函数区               */
 /**********************************/
+
+/**
+ * 混合函数, 也就是非构造函数继承
+ * 构造函数请参见extend
+ * @see extend
+ */
 function mix () {
     var options, name, src, copy, copyIsArray, clone,
         target = arguments[0] || {},
@@ -146,7 +198,19 @@ function mix () {
 }
 
 mix(exports, {
+    /**
+     * 暴露的混合函数
+     * @memberOf exports
+     * @see mix
+     */
     mix: mix,
+
+    /**
+     * 判断是否是一个空的对象:{}
+     * @memberof exports
+     * @param {Object} obj 待检测的对象
+     * @returns {boolean}
+     */
     isEmptyObject: function(obj) {
         var name;
         if (!exports.type(obj, 'object')) {
@@ -162,6 +226,7 @@ mix(exports, {
     /**
      * 循环函数
      * 这与jQuery.each差不多, 但cb的参数顺序与jQuery.each的不同, 与Array.forEach一致
+     * @memberof exports
      * @param {Array|Object} obj 是一个数组或一个PlainObject
      * @param {Function} cb 对每个元素执行的函数, 参数顺序为cb(item, index), 调用者为obj
      */
@@ -179,7 +244,8 @@ mix(exports, {
     /**
      * 判断一个对角的类型
      * 类型以小写字符串返回
-     *
+     * @memberof exports
+     * @param {Unkown} obj 待检测对象
      * @param {string} matchType 如果给出这个值, 则用于判断obj是否是这个类型.
      */
     type: function( obj, matchType ) {
@@ -202,7 +268,9 @@ mix(exports, {
     },
 
     /**
-     * DOMReady
+     * DOMReady dom结点准备好时执行事件.
+     * @memberOf exports
+     * @param {Function} fn 待执行函数.
      */
     ready: function(fn) {
         /* ie678( */
@@ -223,7 +291,9 @@ mix(exports, {
 
     /**
      * 在元素上添加class
-     * 只能一个个添加
+     * @memberOf exports
+     * @param {Element} el 要操作的结点
+     * @param {String} cls 要添加的className, 每次只能添加一个
      */
     addClass: function(el, cls) {
         if (el.classList) {
@@ -239,7 +309,9 @@ mix(exports, {
 
     /**
      * 删除元素上的class
-     * 只能一个一个删除, 不能同时删除几个, 如: exports.removeClass(el, 'cls1 cls2')是不正确的
+     * @memberOf exports
+     * @param {Element} el 要操作的结点
+     * @param {String} cls 要删除的className, 每次只能删除一个
      */
     removeClass: function(el, cls) {
         if (el.classList) {
@@ -253,6 +325,11 @@ mix(exports, {
 
     /**
      * css操作
+     * @memberOf exports
+     * @param {Element} el 要操作的结点
+     * @param {String} name 要操作的属性
+     * @param {String} value 属性值, 当省略时返回属性值, 当给予时设值属性值
+     * @returns {String|undefined}
      */
     css: function(el, name, value) {
         if (arguments.length == 2) {
@@ -267,6 +344,7 @@ mix(exports, {
 
     /**
      * 添加事件监听
+     * @memberOf exports
      * @param {Element} el 监听对象
      * @param {String} type 事件类型, 如click
      * @param {Function} handler 事件句柄
@@ -310,6 +388,9 @@ mix(exports, {
     /**
      * 触发事件
      * 类似于jQuery的trigger
+     * @memberOf exports
+     * @param {Element} el 触发的元素结点
+     * @param {String} type 触发的事件类型, 如: "click"
      */
     emit: function(el, type) {
         /* ie678( */
@@ -326,6 +407,7 @@ mix(exports, {
 
     /**
      * 配置参数
+     * @memberOf exports
      *
      * 设置单个参数
      * vmodel.config('interpolate', ['<%', '%>'])
@@ -560,6 +642,7 @@ exports.ajax = ajax;
 /**
  * 存储所有的数据
  * 以数据的id为键索引
+ * @private
  */
 var MODELS = {
     /**
@@ -575,6 +658,7 @@ var MODELS = {
 /**
  * 更新某个字段的值, 并返回之前的值
  * 是model.$set的底层实现
+ * @private
  */
 function setFieldValue(model, field, value) {
     var i, v, sub, subs, key, keys;
@@ -598,15 +682,48 @@ function setFieldValue(model, field, value) {
 
 /**
  * model数据对象, 其是一个可观察的对象
+ * @class Model
+ * @param {Object|String|undefined} vm 是一个对象是, 用来包装一个数据, 是一个字符串时, 表示对象的id, 没有参数时, 与一个空对象是一样.
  */
 function Model(vm) {
     // 拷贝所有的数据到自己的属性上
     mix(this, vm, {
+        /**
+         * @memberOf Model
+         * @property {Model} $parent 父级数据
+         */
         $parent     : null,
+
+        /**
+         * @memberOf Model
+         * @property {Model} $childs 子级数据列表
+         */
         $childs     : [],
+
+        /**
+         * @memberOf Model
+         * @property {Element} $element 所绑定的结点(作用域), 没有绑定的为null
+         */
         $element    : null,
+
+        /**
+         * @memberOf Model
+         * @property {boolean} $freeze 数据是否被冻结, 被冻结的数据不触发视图更新
+         */
         $freeze     : false,
+
+        /**
+         * @memberOf Model
+         * @private
+         * @property {Object} $cache 字段值缓存
+         * @see Model#$get
+         */
         $cache      : {},
+
+        /**
+         * @memberOf Model
+         * @property {Object} $subscribes 订阅者列表
+         */
         $subscribes : {
             /**
             * 监听列表
@@ -621,6 +738,10 @@ function Model(vm) {
     });
 
     if (!this.$id) {
+        /**
+         * @memberOf Model
+         * @property {String} id 数据id标识
+         */
         this.$id = '$' + Math.random().toString(36).substr(2);
     } else if (MODELS[this.$id]) {
         throw new Error('The model id is exists.');
@@ -647,6 +768,7 @@ Model.prototype = {
      * 获取某个字段的值
      * @param {string} field 字段, 可以是深层的, 如: user.name
      * @returns {object} 从当前数据查找, 如果不存在指定的键, 则向上查找, 除非明确指定noExtend
+     * @see Model#$set
      */
     $get: function(field, noExtend, isDisplayResult) {
         if (this.$cache.hasOwnProperty(field)) {
@@ -685,6 +807,7 @@ Model.prototype = {
      *    1. 可以直接设置深层数据, 如: $set("user.name", "jcode")
      *    2. 当user为空$set("user.name", "jcode")也会成功
      *    3. 这会触发视图更新
+     * @see Model#$get
      */
     $set: function(field, value) {
         if (exports.type(field, 'object')) {
@@ -751,8 +874,8 @@ Model.prototype = {
     /**
      * 订阅数据更新
      * 相当于angular的$watch
-     * @see $fire
-     * @see $unwatch
+     * @see Model#$fire
+     * @see Model#$unwatch
      */
     $watch: function(field, observer) {
         if (!this.$subscribes[field]) {
@@ -763,8 +886,8 @@ Model.prototype = {
 
     /**
      * 取消订阅
-     * @see $watch
-     * @see $fire
+     * @see Model#$watch
+     * @see Model#$fire
      */
     $unwatch: function(field, observer) {
         if (this.$subscribes[field]) {
@@ -774,8 +897,8 @@ Model.prototype = {
 
     /**
      * 通知订阅者更新自己
-     * @see $watch
-     * @see $unwatch
+     * @see Model#$watch
+     * @see Model#$unwatch
      */
     $fire: function(field) {
         if (this.$freeze) {
@@ -940,6 +1063,7 @@ function gcElement(element, skipTop) {
 
 /**
  * 获取model数据的方法
+ * @memberOf exports
  * @param {string|Element} id 当为字符串时, 表示id, 否则表示结点
  * @returns {Model|null}
  */
@@ -1163,20 +1287,6 @@ if (!Function.prototype.bind) {
  */
 
 
-exports.scanners = {
-    /**
-     * 以属性名为键, 回调为值
-    * attrname: function(data[, priority]) {
-    *    data.type // 属性名, 如 href, x-href
-    *    data.element // 定义的dom结点对象
-    *    data.param // 参数, 跟avalon学的, 如果为 x-repeat-item的话, 这返回 item
-    *    data.value // 属性值, 如 x-repeat="testvalue" 的话, 这返回 testvalue字符串
-    *    data.model // 结点绑定的model, 没有绑定的话返回null
-    *    priority // 优先级顺序, 省略时默认1000
-    * }
-    */
-};
-
 function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
     removeAttrbuteName  && element.removeAttribute(removeAttrbuteName);
     removeClassName     && exports.removeClass(removeClassName);
@@ -1185,7 +1295,14 @@ function compileElement(element, removeAttrbuteName, removeClassName, noScanChil
     skipScanOtherAttrs  && (element.$skipOtherAttr = true);
 }
 
-mix(exports.scanners, {
+/**
+ * 扫描器列表
+ * @namespace
+ */
+exports.scanners = {
+    /**
+     * 忽略扫描这结点及其子结点
+     */
     'x-skip': function(model, element, value, attr) {
         compileElement(element, attr.name, 0, 1, 0, 1);
     },
@@ -1598,7 +1715,7 @@ mix(exports.scanners, {
             exports.css(element, cssName, res);
         });
     }
-});
+};
 
 function bindModel(model, str, parsefn, updatefn) {
     var fields = {},
@@ -1644,8 +1761,18 @@ var TEMPLATES = {
      */
 };
 
+/**
+ * @class
+ */
 function Template(id, element) {
+    /**
+     * @property {String} id 唯一的属性id
+     */
     this.id = id;
+
+    /**
+     * @property {Element} element 模板对应的结点
+     */
     this.element = element;
     TEMPLATES[id] = this;
 }
@@ -1964,14 +2091,18 @@ var parseJSON = window.JSON ? window.JSON.parse : function(str) {
     return (new Function('', 'return ' + str.trim())());
 }
 
-exports.ready(scan);
-window.vmodel = exports;
+options.scanOnReady && exports.ready(scan);
+window.xbind = exports;
 /**
  * @file 过滤器
  * @author jcode
  */
 
 
+/**
+ * 过滤器列表
+ * @namespace
+ */
 exports.filters = {
     /**
      * name: function(obj, arg...),
@@ -2145,7 +2276,7 @@ exports.filters.date.format = function(match, handler) {
  * 执行过滤器
  * @param {string} filterName 过滤器名字
  * @param {Object} obj 用于过滤器的对象
- * @param {object...} args 过滤器参数
+ * @param {Object} args 过滤器参数, 可以有多个或省略
  */
 exports.filter = function(filterName, obj, args) {
     var fn = exports.filters[filterName];
@@ -2172,9 +2303,7 @@ exports.filter = function(filterName, obj, args) {
 mix(exports.scanners, {
     /**
      * 表单操作
-     * <form x-form-frmname="action" action="actionUrl" method="post">
-     *      <input name="name" x-bind="name" />
-     * </form>
+     * @memberOf scanners
      */
     'x-form': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
@@ -2188,6 +2317,7 @@ mix(exports.scanners, {
 
     /**
      * 最小值限制验证
+     * @memberOf scanners
      */
     min: function(model, element, value) {
         var minValue = +value;
@@ -2198,6 +2328,7 @@ mix(exports.scanners, {
 
     /**
      * 最大值限制验证
+     * @memberOf scanners
      */
     max: function(model, element, value) {
         var maxValue = +value;
@@ -2208,6 +2339,7 @@ mix(exports.scanners, {
 
     /**
      * 最小长度验证
+     * @memberOf scanners
      */
     minlength: function(model, element, value) {
         var minValue = +value;
@@ -2218,6 +2350,7 @@ mix(exports.scanners, {
 
     /**
      * 最大长度验证
+     * @memberOf scanners
      */
     maxlength: function(model, element, value) {
         var maxValue = +value;
@@ -2228,6 +2361,7 @@ mix(exports.scanners, {
 
     /**
      * 正则验证
+     * @memberOf scanners
      */
     pattern: function(model, element, value) {
         var regexp = new RegExp(value);
@@ -2238,6 +2372,7 @@ mix(exports.scanners, {
 
     /**
      * 必填验证
+     * @memberOf scanners
      */
     required: function(model, element) {
         bindValidModel(element, function() {
@@ -2247,6 +2382,7 @@ mix(exports.scanners, {
 
     /**
      * 类型判断
+     * @memberOf scanners
      */
     type: function(model, element, value) {
         value = value.toLowerCase();
