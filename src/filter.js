@@ -67,6 +67,17 @@ exports.filters = {
     },
 
     /**
+     * 变换数据格式成目标格式
+     * 注意, 不要去监听目标字段
+     */
+    convert: function(obj, from, to) {
+        obj && exports.each(obj, function(item) {
+            item[to] = item[from];
+        });
+        return obj;
+    },
+
+    /**
      * url参数格式化
      */
     param: exports.param

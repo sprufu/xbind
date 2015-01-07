@@ -100,9 +100,9 @@ setTimeout(function() {
             <th>email</th>
             <th>操作</th>
         </tr>
-        <tr x-repeat-user="users.rows">
+        <tr x-repeat-user="users.rows | convert 'title', 'abc'">
             <td></td>
-            <td>{{ user.title }}</td>
+            <td>{{ user.abc }} - {{ user.title}}</td>
             <td></td>
             <td> {{ user.publishDate | date 'yyyy-mm-dd(w)' }} </td>
             <td> <button x-click="users.$read()"> read() </button> </td>
