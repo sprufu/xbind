@@ -3,4 +3,5 @@ Session.vim
 npm-debug.log
 node_modules/
 sample/firebug-lite/
+doc/api/
 

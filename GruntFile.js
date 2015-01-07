@@ -123,12 +123,22 @@ module.exports = function(grunt) {
                 src: 'dist/<%= pkg.name %>-noie.js',
                 dest: 'dist/<%= pkg.name %>-noie.min.js'
             }
+        },
+
+        jsdoc: {
+            dist: {
+                src: ['src/*.js'],
+                options: {
+                    destination: 'doc/api'
+                }
+            }
         }
     });
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-jsdoc');
 
     // Default task(s).
     grunt.registerTask('default', ['concat', 'uglify']);

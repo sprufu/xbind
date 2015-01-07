@@ -177,7 +177,7 @@ exports.filters.date.format = function(match, handler) {
  * 执行过滤器
  * @param {string} filterName 过滤器名字
  * @param {Object} obj 用于过滤器的对象
- * @param {object...} args 过滤器参数
+ * @param {Object} args 过滤器参数, 可以有多个或省略
  */
 exports.filter = function(filterName, obj, args) {
     var fn = exports.filters[filterName];
