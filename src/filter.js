@@ -4,6 +4,10 @@
  */
 "use strict";
 
+/**
+ * 过滤器列表
+ * @namespace
+ */
 exports.filters = {
     /**
      * name: function(obj, arg...),

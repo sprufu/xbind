@@ -7,9 +7,7 @@
 mix(exports.scanners, {
     /**
      * 表单操作
-     * <form x-form-frmname="action" action="actionUrl" method="post">
-     *      <input name="name" x-bind="name" />
-     * </form>
+     * @memberOf scanners
      */
     'x-form': function(model, element, value, attr, param) {
         element.removeAttribute(attr.name);
@@ -23,6 +21,7 @@ mix(exports.scanners, {
 
     /**
      * 最小值限制验证
+     * @memberOf scanners
      */
     min: function(model, element, value) {
         var minValue = +value;
@@ -33,6 +32,7 @@ mix(exports.scanners, {
 
     /**
      * 最大值限制验证
+     * @memberOf scanners
      */
     max: function(model, element, value) {
         var maxValue = +value;
@@ -43,6 +43,7 @@ mix(exports.scanners, {
 
     /**
      * 最小长度验证
+     * @memberOf scanners
      */
     minlength: function(model, element, value) {
         var minValue = +value;
@@ -53,6 +54,7 @@ mix(exports.scanners, {
 
     /**
      * 最大长度验证
+     * @memberOf scanners
      */
     maxlength: function(model, element, value) {
         var maxValue = +value;
@@ -63,6 +65,7 @@ mix(exports.scanners, {
 
     /**
      * 正则验证
+     * @memberOf scanners
      */
     pattern: function(model, element, value) {
         var regexp = new RegExp(value);
@@ -73,6 +76,7 @@ mix(exports.scanners, {
 
     /**
      * 必填验证
+     * @memberOf scanners
      */
     required: function(model, element) {
         bindValidModel(element, function() {
@@ -82,6 +86,7 @@ mix(exports.scanners, {
 
     /**
      * 类型判断
+     * @memberOf scanners
      */
     type: function(model, element, value) {
         value = value.toLowerCase();

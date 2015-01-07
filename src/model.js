@@ -8,6 +8,7 @@
 /**
  * 存储所有的数据
  * 以数据的id为键索引
+ * @private
  */
 var MODELS = {
     /**
@@ -23,6 +24,7 @@ var MODELS = {
 /**
  * 更新某个字段的值, 并返回之前的值
  * 是model.$set的底层实现
+ * @private
  */
 function setFieldValue(model, field, value) {
     var i, v, sub, subs, key, keys;
@@ -46,15 +48,48 @@ function setFieldValue(model, field, value) {
 
 /**
  * model数据对象, 其是一个可观察的对象
+ * @class Model
+ * @param {Object|String|undefined} vm 是一个对象是, 用来包装一个数据, 是一个字符串时, 表示对象的id, 没有参数时, 与一个空对象是一样.
  */
 function Model(vm) {
     // 拷贝所有的数据到自己的属性上
     mix(this, vm, {
+        /**
+         * @memberOf Model
+         * @property {Model} $parent 父级数据
+         */
         $parent     : null,
+
+        /**
+         * @memberOf Model
+         * @property {Model} $childs 子级数据列表
+         */
         $childs     : [],
+
+        /**
+         * @memberOf Model
+         * @property {Element} $element 所绑定的结点(作用域), 没有绑定的为null
+         */
         $element    : null,
+
+        /**
+         * @memberOf Model
+         * @property {boolean} $freeze 数据是否被冻结, 被冻结的数据不触发视图更新
+         */
         $freeze     : false,
+
+        /**
+         * @memberOf Model
+         * @private
+         * @property {Object} $cache 字段值缓存
+         * @see Model#$get
+         */
         $cache      : {},
+
+        /**
+         * @memberOf Model
+         * @property {Object} $subscribes 订阅者列表
+         */
         $subscribes : {
             /**
             * 监听列表
@@ -69,6 +104,10 @@ function Model(vm) {
     });
 
     if (!this.$id) {
+        /**
+         * @memberOf Model
+         * @property {String} id 数据id标识
+         */
         this.$id = '$' + Math.random().toString(36).substr(2);
     } else if (MODELS[this.$id]) {
         throw new Error('The model id is exists.');
@@ -95,6 +134,7 @@ Model.prototype = {
      * 获取某个字段的值
      * @param {string} field 字段, 可以是深层的, 如: user.name
      * @returns {object} 从当前数据查找, 如果不存在指定的键, 则向上查找, 除非明确指定noExtend
+     * @see Model#$set
      */
     $get: function(field, noExtend, isDisplayResult) {
         if (this.$cache.hasOwnProperty(field)) {
@@ -133,6 +173,7 @@ Model.prototype = {
      *    1. 可以直接设置深层数据, 如: $set("user.name", "jcode")
      *    2. 当user为空$set("user.name", "jcode")也会成功
      *    3. 这会触发视图更新
+     * @see Model#$get
      */
     $set: function(field, value) {
         if (exports.type(field, 'object')) {
@@ -199,8 +240,8 @@ Model.prototype = {
     /**
      * 订阅数据更新
      * 相当于angular的$watch
-     * @see $fire
-     * @see $unwatch
+     * @see Model#$fire
+     * @see Model#$unwatch
      */
     $watch: function(field, observer) {
         if (!this.$subscribes[field]) {
@@ -211,8 +252,8 @@ Model.prototype = {
 
     /**
      * 取消订阅
-     * @see $watch
-     * @see $fire
+     * @see Model#$watch
+     * @see Model#$fire
      */
     $unwatch: function(field, observer) {
         if (this.$subscribes[field]) {
@@ -222,8 +263,8 @@ Model.prototype = {
 
     /**
      * 通知订阅者更新自己
-     * @see $watch
-     * @see $unwatch
+     * @see Model#$watch
+     * @see Model#$unwatch
      */
     $fire: function(field) {
         if (this.$freeze) {
@@ -388,6 +429,7 @@ function gcElement(element, skipTop) {
 
 /**
  * 获取model数据的方法
+ * @memberOf exports
  * @param {string|Element} id 当为字符串时, 表示id, 否则表示结点
  * @returns {Model|null}
  */

@@ -8,6 +8,9 @@
 /*         全局变量定义区         */
 /**********************************/
 
+/**
+ * @namespace exports
+ */
 function exports(vm) {
     if ('string' == typeof vm) {
         vm = {$id: vm};
@@ -17,29 +20,39 @@ function exports(vm) {
 
 /**
  * 配置参数, 通过exports.config供用户修改
+ * @namespace
  */
 var options = {
-    interpolate: ['{{', '}}']
-};
+    /**
+     * 字符串插值边界
+     */
+    interpolate: ['{{', '}}'],
 
-// 忽略的标签
-options.igonreTags = {
-    SCRIPT: true,
-    NOSCRIPT: true,
-    IFRAME: true
-};
+    /**
+     * 忽略扫描的标签
+     */
+    igonreTags: {
+        SCRIPT      : true,
+        NOSCRIPT    : true,
+        IFRAME      : true
+    },
 
-// 过滤属性不扫描
-options.igonreAttrs = {
-    'x-ajax-if': true
-};
+    /**
+     * 忽略扫描的属性
+     */
+    igonreAttrs: {
+        'x-ajax-if': true
+    },
 
-// 扫描优先级, 没有定义的都在1000
-options.priorities = {
-    'x-skip': 0,
-    'x-repeat': 10,
-    'x-controller': 20,
-    'x-if': 50
+    /**
+     * 扫描优先级定义, 没有设置优先级的都在1000, 越小越先扫描
+     */
+    priorities: {
+        'x-skip'        : 0,
+        'x-repeat'      : 10,
+        'x-controller'  : 20,
+        'x-if'          : 50
+    }
 };
 
 /* ie678( */
@@ -77,12 +90,39 @@ function addDOMLoadedListener(fn) {
 
 /* ie678) */
 
-var REGEXPS = {
+/**
+ * 常用的正则
+ * @namespace exports.regexps
+ */
+var REGEXPS = exports.regexps = {
+    /**
+     * url 正则
+     */
     url: /^https?\:\/\/[-a-z0-9\.]+(\/.*)?$/,
+
+    /**
+     * email地址正则
+     */
     email: /^[\w\.\-]+\@[-a-z0-9]+\.\w+$/,
-    number: /^\-?\d*\.?\d+$/,
+
+    /**
+     * 纯数字正则
+     */
+    "number": /^\-?\d*\.?\d+$/,
+
+    /**
+     * 手机号码正则
+     */
     phone: /^1\d{10}$/,
+
+    /**
+     * 电话号码正则
+     */
     telphone: /^0\d{10,11}/,
+
+    /**
+     * 身份证正则
+     */
     idcard: /^\d{6}(19\d{2}|20\d{2})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
 };
 
@@ -91,6 +131,12 @@ var URLPARAMS = null;
 /**********************************/
 /*       底层函数区               */
 /**********************************/
+
+/**
+ * 混合函数, 也就是非构造函数继承
+ * 构造函数请参见extend
+ * @see extend
+ */
 function mix () {
     var options, name, src, copy, copyIsArray, clone,
         target = arguments[0] || {},
@@ -145,7 +191,19 @@ function mix () {
 }
 
 mix(exports, {
+    /**
+     * 暴露的混合函数
+     * @memberOf exports
+     * @see mix
+     */
     mix: mix,
+
+    /**
+     * 判断是否是一个空的对象:{}
+     * @memberof exports
+     * @param {Object} obj 待检测的对象
+     * @returns {boolean}
+     */
     isEmptyObject: function(obj) {
         var name;
         if (!exports.type(obj, 'object')) {
@@ -161,6 +219,7 @@ mix(exports, {
     /**
      * 循环函数
      * 这与jQuery.each差不多, 但cb的参数顺序与jQuery.each的不同, 与Array.forEach一致
+     * @memberof exports
      * @param {Array|Object} obj 是一个数组或一个PlainObject
      * @param {Function} cb 对每个元素执行的函数, 参数顺序为cb(item, index), 调用者为obj
      */
@@ -178,7 +237,8 @@ mix(exports, {
     /**
      * 判断一个对角的类型
      * 类型以小写字符串返回
-     *
+     * @memberof exports
+     * @param {Unkown} obj 待检测对象
      * @param {string} matchType 如果给出这个值, 则用于判断obj是否是这个类型.
      */
     type: function( obj, matchType ) {
@@ -201,7 +261,9 @@ mix(exports, {
     },
 
     /**
-     * DOMReady
+     * DOMReady dom结点准备好时执行事件.
+     * @memberOf exports
+     * @param {Function} fn 待执行函数.
      */
     ready: function(fn) {
         /* ie678( */
@@ -222,7 +284,9 @@ mix(exports, {
 
     /**
      * 在元素上添加class
-     * 只能一个个添加
+     * @memberOf exports
+     * @param {Element} el 要操作的结点
+     * @param {String} cls 要添加的className, 每次只能添加一个
      */
     addClass: function(el, cls) {
         if (el.classList) {
@@ -238,7 +302,9 @@ mix(exports, {
 
     /**
      * 删除元素上的class
-     * 只能一个一个删除, 不能同时删除几个, 如: exports.removeClass(el, 'cls1 cls2')是不正确的
+     * @memberOf exports
+     * @param {Element} el 要操作的结点
+     * @param {String} cls 要删除的className, 每次只能删除一个
      */
     removeClass: function(el, cls) {
         if (el.classList) {
@@ -252,6 +318,11 @@ mix(exports, {
 
     /**
      * css操作
+     * @memberOf exports
+     * @param {Element} el 要操作的结点
+     * @param {String} name 要操作的属性
+     * @param {String} value 属性值, 当省略时返回属性值, 当给予时设值属性值
+     * @returns {String|undefined}
      */
     css: function(el, name, value) {
         if (arguments.length == 2) {
@@ -266,6 +337,7 @@ mix(exports, {
 
     /**
      * 添加事件监听
+     * @memberOf exports
      * @param {Element} el 监听对象
      * @param {String} type 事件类型, 如click
      * @param {Function} handler 事件句柄
@@ -309,6 +381,9 @@ mix(exports, {
     /**
      * 触发事件
      * 类似于jQuery的trigger
+     * @memberOf exports
+     * @param {Element} el 触发的元素结点
+     * @param {String} type 触发的事件类型, 如: "click"
      */
     emit: function(el, type) {
         /* ie678( */
@@ -325,6 +400,7 @@ mix(exports, {
 
     /**
      * 配置参数
+     * @memberOf exports
      *
      * 设置单个参数
      * vmodel.config('interpolate', ['<%', '%>'])

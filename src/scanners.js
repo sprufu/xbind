@@ -3,20 +3,6 @@
  */
 "use strict";
 
-exports.scanners = {
-    /**
-     * 以属性名为键, 回调为值
-    * attrname: function(data[, priority]) {
-    *    data.type // 属性名, 如 href, x-href
-    *    data.element // 定义的dom结点对象
-    *    data.param // 参数, 跟avalon学的, 如果为 x-repeat-item的话, 这返回 item
-    *    data.value // 属性值, 如 x-repeat="testvalue" 的话, 这返回 testvalue字符串
-    *    data.model // 结点绑定的model, 没有绑定的话返回null
-    *    priority // 优先级顺序, 省略时默认1000
-    * }
-    */
-};
-
 function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
     removeAttrbuteName  && element.removeAttribute(removeAttrbuteName);
     removeClassName     && exports.removeClass(removeClassName);
@@ -25,7 +11,14 @@ function compileElement(element, removeAttrbuteName, removeClassName, noScanChil
     skipScanOtherAttrs  && (element.$skipOtherAttr = true);
 }
 
-mix(exports.scanners, {
+/**
+ * 扫描器列表
+ * @namespace
+ */
+exports.scanners = {
+    /**
+     * 忽略扫描这结点及其子结点
+     */
     'x-skip': function(model, element, value, attr) {
         compileElement(element, attr.name, 0, 1, 0, 1);
     },
@@ -438,7 +431,7 @@ mix(exports.scanners, {
             exports.css(element, cssName, res);
         });
     }
-});
+};
 
 function bindModel(model, str, parsefn, updatefn) {
     var fields = {},
@@ -484,8 +477,18 @@ var TEMPLATES = {
      */
 };
 
+/**
+ * @class
+ */
 function Template(id, element) {
+    /**
+     * @property {String} id 唯一的属性id
+     */
     this.id = id;
+
+    /**
+     * @property {Element} element 模板对应的结点
+     */
     this.element = element;
     TEMPLATES[id] = this;
 }
