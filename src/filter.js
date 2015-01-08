@@ -78,6 +78,28 @@ exports.filters = {
     },
 
     /**
+     * 排序过滤器, 按某字段排序
+     * @memberOf filters
+     * @param {Array} obj 待排序的数组
+     * @param {String} field 按什么字段排序, 数组中的元素不是对象是, 省略这参数
+     * @param {boolean} desc 是否按降序
+     * @returns {Array} 返回排序好后数组
+     */
+    sort: function(obj, field, desc) {
+        if (typeof field == 'boolean') {
+            desc = field;
+            field = null;
+        }
+
+        return obj && obj.sort ? obj.sort(function(a, b) {
+            if (!field) {
+                return desc ? a > b : a < b;
+            }
+            return desc ? (a[field] > b[field]) : (a[field] < b[field]);
+        }) : obj;
+    },
+
+    /**
      * url参数格式化
      */
     param: exports.param

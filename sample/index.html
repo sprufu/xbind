@@ -100,7 +100,7 @@ setTimeout(function() {
             <th>email</th>
             <th>操作</th>
         </tr>
-        <tr x-repeat-user="users.rows | convert 'title', 'abc'">
+        <tr x-repeat-user="users.rows | sort 'title' | convert 'title', 'abc'">
             <td></td>
             <td>{{ user.abc }} - {{ user.title}}</td>
             <td></td>
