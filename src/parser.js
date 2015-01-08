@@ -73,7 +73,7 @@ function replaceWrapLineString(str) {
 function parseExpress(str, fields, isDisplayResult) {
     try {
         var filters = [],
-        str = divExpress(str, filters),
+        str = divExpress(str, filters, fields),
         expr = parseExecuteItem(str.trim(), fields, isDisplayResult);
 
         if (filters.length) {
@@ -82,7 +82,7 @@ function parseExpress(str, fields, isDisplayResult) {
                 filter = filters[i];
                 ifn += 'expr=filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');'
             }
-            expr = ifn + 'return expr;}(' + expr + '))'
+            expr = ifn + 'return expr;}(' + expr + ', $model))'
         }
 
         return expr;
@@ -93,7 +93,6 @@ function parseExpress(str, fields, isDisplayResult) {
 
 /**
  * 把表达式分离成表达式和过滤器两部门
- * 过滤器参数不能为变量
  * @param {String} str 表达式, 也就是双花括号的中间部分
  * @param {Array} filters 传值的过滤器引用, 用于收集过滤器, 过滤器要分解出其参数, 所以是一个对象的数组, 如: [{
  *     name: 'date', // 过滤器名字
@@ -101,7 +100,7 @@ function parseExpress(str, fields, isDisplayResult) {
  * }]
  * @returns {String} 没有带过滤器的表达式
  */
-function divExpress(str, filters) {
+function divExpress(str, filters, fields) {
     var pos = 0, expr;
     while (true) {
         pos = str.indexOf('|', pos);
@@ -110,7 +109,7 @@ function divExpress(str, filters) {
                 pos += 2;
             } else {
                 str.substr(pos + 1).split('|').forEach(function(str) {
-                    var filter = parseFilter(str);
+                    var filter = parseFilter(str, fields);
                     filters.push(filter);
                 });
                 expr = str.substr(0, pos - 1);
@@ -136,11 +135,11 @@ function divExpress(str, filters) {
  * }
  */
 var filterRegExp = /(\w+)(.*)/;
-function parseFilter(str) {
+function parseFilter(str, fields) {
     var p = filterRegExp.exec(str);
     return {
         name: p[1],
-        args: p[2]
+        args: parseExecuteItem(p[2].trim(), fields)
     };
 }
 
