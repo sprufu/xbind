@@ -71,9 +71,13 @@ exports.filters = {
      * 注意, 不要去监听目标字段
      */
     convert: function(obj, from, to) {
-        obj && exports.each(obj, function(item) {
-            item[to] = item[from];
-        });
+        if (obj && obj.forEach) {
+            obj.forEach(function(item) {
+                item[to] = item[from];
+            });
+        } else if(obj) {
+            obj[to] = obj[form];
+        }
         return obj;
     },
 
