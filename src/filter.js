@@ -100,6 +100,13 @@ exports.filters = {
     },
 
     /**
+     * 外键过滤器
+     */
+    foreign: function(key, obj) {
+        return obj && obj[key];
+    },
+
+    /**
      * url参数格式化
      */
     param: exports.param
