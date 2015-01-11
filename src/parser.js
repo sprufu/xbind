@@ -4,10 +4,24 @@
  */
 "use strict";
 
+var cacheParse = false,
+cacheParses = {
+    string : {},
+    express: {}
+};
+
 /**
  * 解析插值字符串
  */
 function parseString(str, fields) {
+    var cache;
+    // get from cache
+    if (cacheParse && (cache = cacheParses.string[str])) {
+        mix(fields, cache.fields);
+        return cache.expr;
+    }
+
+    // parse string
     var txt = '""',
     tmp,
     interpolate1 = options.interpolate[0],
@@ -45,6 +59,15 @@ function parseString(str, fields) {
             break;
         }
     }
+
+    // cache the result.
+    if (cacheParse) {
+        cacheParses.string[str] = {
+            fields: fields,
+            expr: txt
+        };
+    }
+
     return flag ? txt : false;
 }
 
@@ -71,6 +94,13 @@ function replaceWrapLineString(str) {
  * @param {boolean} isDisplayResult 标识这个取值结果是否用于显示, 如果为真, null及undefined将替换为空字符串, 避免在页面上显示这些字符串.
  */
 function parseExpress(str, fields, isDisplayResult) {
+    var cache;
+    // get from cache
+    if (cacheParse && (cache = cacheParses.express[str])) {
+        mix(fields, cache.fields);
+        return cache.expr;
+    }
+
     try {
         var filters = [],
         str = divExpress(str, filters, fields),
@@ -83,6 +113,14 @@ function parseExpress(str, fields, isDisplayResult) {
                 ifn += 'expr=filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');'
             }
             expr = ifn + 'return expr;}(' + expr + ', $model))'
+        }
+
+        // cache the result.
+        if (cacheParse) {
+            cacheParses.express[str] = {
+                fields: fields,
+                expr: expr
+            };
         }
 
         return expr;

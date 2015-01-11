@@ -2,9 +2,13 @@
 
 /**
  * 扫描结点, 添加绑定
+ * @param {Element} element 从哪个结点开始扫描(扫描它及它的子结点), 如果省略, 从页面顶级开始扫描.
+ * @param {Model} model 这结点拥有的数据对象, 可以从上级取得
+ * @param {boolean} cache 是否缓存扫描结果
  */
-function scan(element, model) {
+function scan(element, model, cache) {
     element = element || document.documentElement;
+    cacheParse = cache;
 
     if (!model) {
         model = new Model();
@@ -17,7 +21,7 @@ function scan(element, model) {
         if (!options.igonreTags[element.tagName]) {
             model = scanAttrs(element, model) || model;
             if (!element.$noScanChild && element.childNodes.length) {
-                scanChildNodes(element, model);
+                scanChildNodes(element, model, cache);
             }
         }
     break;
@@ -30,10 +34,10 @@ function scan(element, model) {
 
 exports.scan = scan;
 
-function scanChildNodes(element, parentModel) {
+function scanChildNodes(element, parentModel, cache) {
     var el = element.firstChild;
     while (el) {
-        scan(el, parentModel);
+        scan(el, parentModel, cache);
         el = el.$nextSibling || el.nextSibling;
     }
 }
