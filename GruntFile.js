@@ -125,6 +125,49 @@ module.exports = function(grunt) {
             }
         },
 
+        jshint: {
+            options: {
+                "browser": true,
+                "boss": true,
+                "expr": true,
+            },
+            dist: ['dist/<%= pkg.name %>.js'],
+            src: {
+                options: {
+                    globals: {
+                        "REGEXPS": true,
+                        "URLPARAMS": true,
+                        "MODELS": true,
+                        "Model": true,
+                        "Template": true,
+                        "cacheParse": true,
+                        "options": true,
+                        "exports": true,
+                        "parseExpress": true,
+                        "parseString": true,
+                        "parseExecute": true,
+                        "parseJSON": true,
+                        "ie67": true,
+                        "ie678": true,
+                        "scan": true,
+                        "ajax": true,
+                        "mix": true,
+                        "gc": true,
+                        "gcElement": true,
+                        "getModel": true,
+                        "getParentModel": true,
+                        "getExtModel": true,
+                        "compileElement": true,
+                        "bindModel": true,
+                        "camelize": true
+                    }
+                },
+                files: {
+                    src: ['src/*.js']
+                }
+            }
+        },
+
         jsdoc: {
             dist: {
                 src: ['src/*.js'],
@@ -137,6 +180,7 @@ module.exports = function(grunt) {
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-jsdoc');
 

@@ -1,0 +1,32 @@
+{
+    "browser": true,
+    "boss": true,
+    "expr": true,
+    "globals": {
+        "REGEXPS": true,
+        "URLPARAMS": true,
+        "MODELS": true,
+        "Model": true,
+        "Template": true,
+        "cacheParse": true,
+        "options": true,
+        "exports": true,
+        "parseExpress": true,
+        "parseString": true,
+        "parseExecute": true,
+        "parseJSON": true,
+        "ie67": true,
+        "ie678": true,
+        "scan": true,
+        "ajax": true,
+        "mix": true,
+        "gc": true,
+        "gcElement": true,
+        "getModel": true,
+        "getParentModel": true,
+        "getExtModel": true,
+        "compileElement": true,
+        "bindModel": true,
+        "camelize": true
+    }
+}
