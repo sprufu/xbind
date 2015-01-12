@@ -2,6 +2,7 @@
  * @file 表单处理
  * @author jcode
  */
+/* jshint -W097 */
 "use strict";
 
 mix(exports.scanners, {
@@ -49,7 +50,7 @@ mix(exports.scanners, {
         var minValue = +value;
         bindValidModel(element, function() {
             updateFormItem(element, 'minlength', element.value.length >= minValue);
-        })
+        });
     },
 
     /**
@@ -60,7 +61,7 @@ mix(exports.scanners, {
         var maxValue = +value;
         bindValidModel(element, function() {
             updateFormItem(element, 'maxlength', element.value.length <= maxValue);
-        })
+        });
     },
 
     /**
@@ -71,7 +72,7 @@ mix(exports.scanners, {
         var regexp = new RegExp(value);
         bindValidModel(element, function() {
             updateFormItem(element, 'pattern', element.value.test(regexp));
-        })
+        });
     },
 
     /**

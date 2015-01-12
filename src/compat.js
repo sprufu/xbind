@@ -3,14 +3,15 @@
  * 如果不考虑ie678, 可以去掉这个文件
  * @author jcode
  */
+/* jshint -W097 */
 "use strict";
 
 /* ie678( */
 if (!''.trim) {
-    var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
+    var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
     String.prototype.trim = function(str) {
         return this.replace(rtrim, '');
-    }
+    };
 }
 
 if (!Array.prototype.forEach) {
@@ -29,7 +30,7 @@ if (!Array.prototype.indexOf) {
             }
         }
         return -1;
-    }
+    };
 }
 
 if (!Array.prototype.indexOf) {
@@ -40,7 +41,7 @@ if (!Array.prototype.indexOf) {
             }
         }
         return -1;
-    }
+    };
 }
 
 if (!Function.prototype.bind) {

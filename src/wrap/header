@@ -1,1 +1,1 @@
-!function(window, document, location, history) {
+(function(window, document, location, history) {

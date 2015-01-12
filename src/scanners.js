@@ -1,6 +1,7 @@
 /**
  * 属性扫描定义的回调
  */
+/* jshint -W097 */
 "use strict";
 
 function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
@@ -72,6 +73,7 @@ exports.scanners = {
 
         compileElement(element, attr.name);
         var expr = parseExecute(value),
+        /* jshint -W054 */
         fn = new Function('$model', expr);
         fn(model);
     },
@@ -461,6 +463,7 @@ function getFn(str) {
         return fnCache[str];
     }
 
+    /* jshint -W054 */
     var fn = new Function('$model,filter', 'return ' + str);
     fnCache[str] = fn;
     return fn;

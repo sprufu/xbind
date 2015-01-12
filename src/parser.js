@@ -2,6 +2,7 @@
  * @file 表达式字符串解析
  * @author jcode
  */
+/* jshint -W097 */
 "use strict";
 
 var cacheParse = false,
@@ -102,17 +103,18 @@ function parseExpress(str, fields, isDisplayResult) {
     }
 
     try {
-        var filters = [],
-        str = divExpress(str, filters, fields),
+        var expr, filters = [];
+
+        str = divExpress(str, filters, fields);
         expr = parseExecuteItem(str.trim(), fields, isDisplayResult);
 
         if (filters.length) {
             var filter, ifn = '(function(expr){';
             for (var i=0; i<filters.length; i++) {
                 filter = filters[i];
-                ifn += 'expr=filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');'
+                ifn += 'expr=filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');';
             }
-            expr = ifn + 'return expr;}(' + expr + ', $model))'
+            expr = ifn + 'return expr;}(' + expr + ', $model))';
         }
 
         // cache the result.
@@ -146,6 +148,7 @@ function divExpress(str, filters, fields) {
             if (str.charAt(pos + 1) == '|') {
                 pos += 2;
             } else {
+                /* jshint -W083 */
                 str.substr(pos + 1).split('|').forEach(function(str) {
                     var filter = parseFilter(str, fields);
                     filters.push(filter);
@@ -239,15 +242,15 @@ var whithReg = /^[\s\uFEFF\xA0]$/;
  * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
  */
 function parseExecuteItem(str, fields, isDisplayResult) {
-    var c = str.charAt(0);
+    var ret, actions, c = str.charAt(0);
     if (c == '"' || c == "'") {
         return str;
     }
 
-    var actions = str.match(exprActionReg);
+    actions = str.match(exprActionReg);
     if (actions) {
-        var ret = '',
-        field,
+        ret = '';
+        var field,
         pos0 = 0,
         pos,
         i = 0;
@@ -346,7 +349,8 @@ function parseUrlParam(name, object, def) {
 }
 
 var parseJSON = window.JSON ? window.JSON.parse : function(str) {
+    /* jshint -W054 */
     return (new Function('', 'return ' + str.trim())());
-}
+};
 
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile

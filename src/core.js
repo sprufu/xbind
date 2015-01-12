@@ -2,6 +2,7 @@
  * @file 一些底层函数
  * @author jcode
  */
+/* jshint -W097 */
 "use strict";
 
 /**********************************/
@@ -75,6 +76,7 @@ if (ie678) {
     var id = '__ie_onload';
     // 要有src属性, 否则不能保证其它js已经被加载
     // <script id=__ie_onload defer src=javascript:></script>
+    /* jshint -W060 */
     document.write('<script id='+ id + ' defer src=javascript:></script>');
     document.getElementById(id).onreadystatechange = function() {
         if (this.readyState == 'complete') {
@@ -86,7 +88,7 @@ if (ie678) {
             DOMLoadedListeners = null;
             this.parentNode.removeChild(this);
         }
-    }
+    };
 }
 
 var DOMLoadedListeners = [];
@@ -161,11 +163,13 @@ function mix () {
     }
 
     if ( length === i ) {
+        /* jshint -W040 */
         target = this;
         --i;
     }
 
     for ( ; i < length; i++ ) {
+        /* jshint -W041 */
         if ( (options = arguments[ i ]) != null ) {
             for ( name in options ) {
                 src = target[ name ];
@@ -397,7 +401,7 @@ mix(exports, {
             el.fireEvent('on'+type);
         } else {
             /* ie678) */
-            var event = new Event(type);
+            var event = new window.Event(type);
             el.dispatchEvent(event);
         /* ie678( */
         }
@@ -433,7 +437,7 @@ mix(exports, {
 if (!''.startsWith) {
     String.prototype.startsWith = function(str) {
         return this.indexOf(str) === 0;
-    }
+    };
 }
 
 Array.prototype.remove = function(item) {

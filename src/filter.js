@@ -2,6 +2,7 @@
  * @file 过滤器
  * @author jcode
  */
+/* jshint -W097 */
 "use strict";
 
 /**
@@ -76,7 +77,7 @@ exports.filters = {
                 item[to] = item[from];
             });
         } else if(obj) {
-            obj[to] = obj[form];
+            obj[to] = obj[from];
         }
         return obj;
     },
@@ -219,7 +220,7 @@ function fix0Number(num) {
 var dateFormatter = {};
 exports.filters.date.format = function(match, handler) {
     dateFormatter[match] = handler;
-}
+};
 
 /**
  * 执行过滤器

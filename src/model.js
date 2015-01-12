@@ -3,6 +3,7 @@
  * 所有通过工厂函数加工过的数据, 都是以这个为原型
  * @author jcode
  */
+/* jshint -W097 */
 "use strict";
 
 /**
@@ -307,7 +308,7 @@ Model.prototype = {
                             model.$fire(field);
                         }
                     }
-                }
+                };
                 model.$parent.$watch('*', observer);
             }
         }
@@ -316,7 +317,7 @@ Model.prototype = {
         this.$element = element;
     }
 
-}
+};
 
 /**
  * Observer = {
@@ -328,7 +329,7 @@ Model.prototype = {
  * 获取一个数据的所有订阅
  */
 function getSubscribes (model, field) {
-    var ret = []
+    var ret = [];
     try {
         for (var key in model.$subscribes) {
             if (key == '*' || key.startsWith(field)) {
@@ -358,6 +359,7 @@ function getParentModel(el) {
         return MODELS[id];
     }
 
+    /* jshint -W084 */
     while (el = el.parentNode) {
         if (el.$modelId) {
             return MODELS[el.$modelId];

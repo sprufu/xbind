@@ -1,3 +1,4 @@
+/* jshint -W097 */
 "use strict";
 
 var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded';
@@ -6,8 +7,8 @@ var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded';
 
 function ajax(opt) {
     opt = mix({}, options.ajax, opt);
-    // var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP')
-    var xhr = new /* ie678( */ ( /* ie678) */ window.XMLHttpRequest /* ie678( */ || ActiveXObject) /* ie678) */ ( /* ie678( */ 'Microsoft.XMLHTTP' /* ie678) */),
+    var XMLHttpRequest = window.XMLHttpRequest || window.ActiveXObject,
+    xhr = new XMLHttpRequest('Microsoft.XMLHTTP'),
     data = null;
 
     if (opt.data) {
@@ -58,7 +59,7 @@ function ajax(opt) {
             }
 
             if (this.status >= 200 && this.status < 300) {
-                var obj = this.responseText;
+                var el,obj = this.responseText;
                 switch(opt.dataType) {
                     case 'json':
                         try {
@@ -69,7 +70,7 @@ function ajax(opt) {
                     break;
                     case 'html':
                         try {
-                            var el = document.createElement('div');
+                            el = document.createElement('div');
                             el.innerHTML = obj.trim();
                             obj = el.firstChild;
                             el.removeChild(obj);
@@ -82,7 +83,7 @@ function ajax(opt) {
                         obj = this.responseXML;
                     break;
                     case 'script':
-                        var el = document.createElement('script');
+                        el = document.createElement('script');
                         document.body.appendChild(el);
                         el.innerHTML = obj;
                         document.body.removeChild(el);
@@ -99,7 +100,7 @@ function ajax(opt) {
                 }
             }
         }
-    }
+    };
     xhr.send(data);
 }
 
@@ -123,7 +124,7 @@ options.ajax = {
         // 键值是响应头名
         // 默认如果响应 "location:value" 则执行跳转操作
         "location": function(value) {
-             location = value;
+             location.href = value;
              return false;
         }
     }
@@ -166,7 +167,7 @@ exports.param = function(object, prefix) {
     }
 
     return ret.join('&');
-}
+};
 
 exports.ajax = ajax;
 
