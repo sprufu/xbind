@@ -300,7 +300,7 @@ exports.scanners = {
                                 $value.push(item);
                             } else {
                                 // 删除掉元素
-                                $value.remove(item);
+                                removeArrayItem($value, item);
                             }
 
                             model.$set(value, $value);

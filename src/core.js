@@ -319,7 +319,7 @@ mix(exports, {
             el.classList.remove(cls);
         } else if (el.className) {
             var classes = el.className.split(' ');
-            classes.remove(cls);
+            removeArrayItem(classes, cls);
             el.className = classes.join(' ');
         }
     },
@@ -438,14 +438,17 @@ if (!''.startsWith) {
     };
 }
 
-Array.prototype.remove = function(item) {
-    var i = this.length;
+/**
+ * 删除数组中指定的元素
+ */
+function removeArrayItem(arr, it) {
+    var i = arr.length;
     while (i--) {
-        if (item == this[i]) {
-            this.splice(i,1);
+        if (it === arr[i]) {
+            arr.splice(i, 1);
         }
     }
-};
+}
 
 var camelizeRegExp = /-[^-]/g;
 

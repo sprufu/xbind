@@ -258,7 +258,7 @@ Model.prototype = {
      */
     $unwatch: function(field, observer) {
         if (this.$subscribes[field]) {
-            this.$subscribes[field].remove(observer);
+            removeArrayItem(this.$subscribes[field], observer);
         }
     },
 
@@ -394,7 +394,7 @@ function gc(model) {
     // 从其父级中删除, 并删除监听父级变化
     var parent = model.$parent;
     if (parent) {
-        parent.$childs.remove(model);
+        removeArrayItem(parent.$childs, model);
         var subscribes = parent.$subscribes['*'],
         i = subscribes.length;
         while (i--) {
