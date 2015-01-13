@@ -5,7 +5,7 @@
 
 /* jshint -W097 */
 "use strict";
-var URLPARAMS       = null,
+var URLPARAMS = null;
 
 /**
  * 解析url参数
