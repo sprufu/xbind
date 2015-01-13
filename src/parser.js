@@ -6,7 +6,6 @@
 "use strict";
 
 var
-numberReg       = /^\-?\d?\.?\d+$/,
 filterRegExp    = /(\w+)(.*)/,
 URLPARAMS       = null,
 exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s]+/g,    // 表达式操作符
@@ -314,7 +313,7 @@ function parseStatic(str, isDisplayResult) {
     }
 
     // 数字
-    if (numberReg.test(str)) {
+    if (REGEXPS['number'].test(str)) {
         return str;
     }
 
