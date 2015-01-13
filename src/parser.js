@@ -302,7 +302,7 @@ function parseExecuteItem(str, fields, isDisplayResult) {
  * 这些关键不编译, 其它转换成model变量
  */
 options.keywords = {};
-'$model return if else true false null undefined NaN do while typeof instanceof function void with var this try throw catch new in for break continue switch default delete'.split(' ').forEach(function(item) {
+'$model return if else true false null undefined this'.split(' ').forEach(function(item) {
     options.keywords[item] = true;
 });
 
