@@ -136,7 +136,6 @@ module.exports = function(grunt) {
                 options: {
                     globals: {
                         "REGEXPS": true,
-                        "URLPARAMS": true,
                         "MODELS": true,
                         "Model": true,
                         "Template": true,
