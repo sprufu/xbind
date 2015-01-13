@@ -354,6 +354,7 @@ function getModel(el) {
  * 如果没有, 一直往上找.
  */
 function getParentModel(el) {
+    el = el.parentNode;
     while (el) {
         if (el.$modelId) {
             return MODELS[el.$modelId];
