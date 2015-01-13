@@ -21,7 +21,6 @@ cd vmodel && npm run build
 - **filter**: 过滤器组件, 如果你的项目中用不到过滤器, 可以去掉这组件: `--without-filter=true`
 - **form**: 表单处理组件, 目前这个组件仅处理表单验证, 如果你有更好的验证模块, 可以忽略这组件: `--without-form=true`
 - **watch**: x-watch指令标签组件, 默认没有加入这组件, 用 `--with-watch=true` 添加
-- **grid**: 表格数据组件, 类似于ajax组件, 但对表格数据加强, 默认情况下没有加入这组件, 可以用 `--with-grid=true` 加入.
 - **store**: 小数据存储组件, 还在开发中.
 - **view**: 单页应用组件, 还在开发中.
 

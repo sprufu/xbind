@@ -18,7 +18,6 @@ module.exports = function(grunt) {
     // 这部分可以不用
     extfiles = {
         filter: 'src/filter.js',
-        grid: 'src/grid.js',
         form: 'src/form.js',
         watch: 'src/watch.js'
     };
@@ -35,11 +34,6 @@ module.exports = function(grunt) {
     // 默认添加表单处理组件
     if (!opt['without-form']) {
         files.push(extfiles.form);
-    }
-
-    // 默认不添加datagrid组件
-    if (opt['with-grid']) {
-        files.push(extfiles.grid);
     }
 
     // 默认不添加watch组件

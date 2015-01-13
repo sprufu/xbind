@@ -16,7 +16,6 @@
 <script src="../src/scanners.js"></script>
 <script src="../src/parser.js"></script>
 <script src="../src/ajax.js"></script>
-<script src="../src/grid.js"></script>
 <script src="../src/form.js"></script>
 <script src="../src/filter.js"></script>
 <script src="../src/exports.js"></script>
@@ -109,26 +108,7 @@ setTimeout(function() {
         </tr>
 
     </table>
-    
-    <table x-grid-users="data.json" page="3">
-        <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ test }} <button x-click="users.$page(2);return false;">page 2</button></a></caption>
-        <tr>
-            <th>ID</th>
-            <th>姓名</th>
-            <th>性别</th>
-            <th>email</th>
-            <th>操作</th>
-        </tr>
-        <tr x-repeat-user="users.rows">
-            <td></td>
-            <td>{{ user.title }}</td>
-            <td></td>
-            <td> {{ user.publishDate }} </td>
-            <td> <button x-click="users.$read()"> read() </button> </td>
-        </tr>
 
-    </table>
-	
 	<ul>
 		<li x-repeat-item="user">{{ $key }} - {{ item }} </li>
 	</ul>
