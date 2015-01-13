@@ -65,10 +65,10 @@ var options = {
 /* ie678( */
 
 // 判断ie67很简单吧
-var ie67 = !"1"[0];
+var ie67 = !"1"[0],
 
 // 判断ie678也很简单, 因为它有个神奇的特性
-var ie678 = window == document && document != window;
+ie678 = window == document && document != window;
 
 // ie678 DOMContentLoaded支持方案
 // script[defer=defer]dom对象
@@ -133,8 +133,6 @@ var REGEXPS = exports.regexps = {
      */
     idcard: /^\d{6}(19\d{2}|20\d{2})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
 };
-
-var URLPARAMS = null;
 
 /**********************************/
 /*       底层函数区               */

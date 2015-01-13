@@ -1,11 +1,10 @@
 /* jshint -W097 */
 "use strict";
 
-var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded';
+var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded',
 // var AJAX_CONTENT_TYPE_FROMDATA      = 'multipart/form-data';
 
-
-function ajax(opt) {
+ajax = exports.ajax = function (opt) {
     opt = mix({}, options.ajax, opt);
     var XMLHttpRequest = window.XMLHttpRequest || window.ActiveXObject,
     xhr = new XMLHttpRequest('Microsoft.XMLHTTP'),
@@ -168,7 +167,5 @@ exports.param = function(object, prefix) {
 
     return ret.join('&');
 };
-
-exports.ajax = ajax;
 
 // vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile

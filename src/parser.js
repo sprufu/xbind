@@ -5,8 +5,14 @@
 /* jshint -W097 */
 "use strict";
 
-var cacheParse = false,
-cacheParses = {
+var
+numberReg       = /^\-?\d?\.?\d+$/,
+filterRegExp    = /(\w+)(.*)/,
+URLPARAMS       = null,
+exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s]+/g,    // 表达式操作符
+whithReg        = /^[\s\uFEFF\xA0]$/,
+cacheParse      = false,
+cacheParses     = {
     string : {},
     express: {}
 };
@@ -175,7 +181,6 @@ function divExpress(str, filters, fields) {
  *    args: 'yyyy-mm-dd'
  * }
  */
-var filterRegExp = /(\w+)(.*)/;
 function parseFilter(str, fields) {
     var p = filterRegExp.exec(str);
     return {
@@ -226,11 +231,6 @@ function parseExecute(str) {
     return ret;
 }
 
-/**
- * 表达式操作符
- */
-var exprActionReg = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s]+/g;
-var whithReg = /^[\s\uFEFF\xA0]$/;
 
 /**
  * parseExecute的辅助函数, 用来解析单个表达式, str两边已经去掉无用的空白符
@@ -303,7 +303,6 @@ options.keywords = {};
     options.keywords[item] = true;
 });
 
-var numberReg = /^\-?\d?\.?\d+$/;
 function parseStatic(str, isDisplayResult) {
     if (!str) {
         return '';
