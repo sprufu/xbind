@@ -354,18 +354,12 @@ function getModel(el) {
  * 如果没有, 一直往上找.
  */
 function getParentModel(el) {
-    var id = el.$modelId;
-    if (id) {
-        return MODELS[id];
-    }
-
-    /* jshint -W084 */
-    while (el = el.parentNode) {
+    while (el) {
         if (el.$modelId) {
             return MODELS[el.$modelId];
         }
+        el = el.parentNode;
     }
-
     return null;
 }
 
