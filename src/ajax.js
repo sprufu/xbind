@@ -1,9 +1,8 @@
 /* jshint -W097 */
 "use strict";
 
-var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded',
 // var AJAX_CONTENT_TYPE_FROMDATA      = 'multipart/form-data';
-
+var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded',
 ajax = exports.ajax = function (opt) {
     opt = mix({}, options.ajax, opt);
     var XMLHttpRequest = window.XMLHttpRequest || window.ActiveXObject,
@@ -101,7 +100,7 @@ ajax = exports.ajax = function (opt) {
         }
     };
     xhr.send(data);
-}
+};
 
 options.ajax = {
     async       : true,
