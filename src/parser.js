@@ -313,7 +313,7 @@ function parseStatic(str, isDisplayResult) {
     }
 
     // 数字
-    if (REGEXPS['number'].test(str)) {
+    if (REGEXPS.number.test(str)) {
         return str;
     }
 
