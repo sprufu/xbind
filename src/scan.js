@@ -101,13 +101,8 @@ function scanText(element, parentModel) {
  * }]
  */
 function getScanAttrList(attrs) {
-    var res = [];
-
-    if (attrs.length === 0) {
-        return res;
-    }
-
-    var i = attrs.length, attr, param, endpos, type;
+    var res = [],
+    i = attrs.length, attr, param, endpos, type;
     while (i--) {
         attr = attrs[i];
 
@@ -145,10 +140,6 @@ function getScanAttrList(attrs) {
             param: param,
             priority: options.priorities[type] || 1000
         });
-    }
-
-    if (res.length === 0) {
-        return res;
     }
 
     res.sort(function(a,b) {
