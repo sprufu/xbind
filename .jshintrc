@@ -4,6 +4,7 @@
     "expr": true,
     "globals": {
         "REGEXPS": true,
+        "removeArrayItem": true,
         "MODELS": true,
         "Model": true,
         "Template": true,

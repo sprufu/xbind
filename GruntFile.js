@@ -130,6 +130,7 @@ module.exports = function(grunt) {
                 options: {
                     globals: {
                         "REGEXPS": true,
+                        "removeArrayItem": true,
                         "MODELS": true,
                         "Model": true,
                         "Template": true,
