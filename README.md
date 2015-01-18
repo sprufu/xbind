@@ -44,6 +44,22 @@ cd vmodel && npm run build
 
 ## Change
 
+#### v0.4.3 2015-01-18
+1. chg: 改名为xbind.
+1. add: 使用grunt-jsdoc生成doc文档
+2. add: 采用jshint规范化代码.
+3. add: 添加数据加载完时自动扫描一次结点配置项, 而不强制扫描.
+4. add: 添加convert转换过滤器.
+5. add: 添加排序过滤器sort.
+6. add: 添加foreign过滤器.
+7. fix: 实现过滤器参数可以用数据变量.
+8. add: 添加解析字符串结果缓存, 提高扫描性能.
+9. fix: 分离出parseUrlParam不常用函数
+10. fix: 实现ajax的jsonp请求.
+11. rmv: 删除Array.prototype.remove扩展, 用内部函数代替其功能.
+12. rmv: 删除grid.js组件.
+
+
 #### v0.4.2 2015-01-06
 1. chg: 改extend名为mix, 改extend用于构造函数继承.
 2. chg: 更改一些内容函数名称

@@ -1,8 +1,9 @@
-!function(window, document, location, history) {
+(function(window, document, location, history) {
 /**
  * @file 一些底层函数
  * @author jcode
  */
+/* jshint -W097 */
 
 
 /**********************************/
@@ -65,10 +66,10 @@ var options = {
 /* ie678( */
 
 // 判断ie67很简单吧
-var ie67 = !"1"[0];
+var ie67 = !"1"[0],
 
 // 判断ie678也很简单, 因为它有个神奇的特性
-var ie678 = window == document && document != window;
+ie678 = window == document && document != window;
 
 // ie678 DOMContentLoaded支持方案
 // script[defer=defer]dom对象
@@ -76,6 +77,7 @@ if (ie678) {
     var id = '__ie_onload';
     // 要有src属性, 否则不能保证其它js已经被加载
     // <script id=__ie_onload defer src=javascript:></script>
+    /* jshint -W060 */
     document.write('<script id='+ id + ' defer src=javascript:></script>');
     document.getElementById(id).onreadystatechange = function() {
         if (this.readyState == 'complete') {
@@ -87,7 +89,7 @@ if (ie678) {
             DOMLoadedListeners = null;
             this.parentNode.removeChild(this);
         }
-    }
+    };
 }
 
 var DOMLoadedListeners = [];
@@ -133,8 +135,6 @@ var REGEXPS = exports.regexps = {
     idcard: /^\d{6}(19\d{2}|20\d{2})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
 };
 
-var URLPARAMS = null;
-
 /**********************************/
 /*       底层函数区               */
 /**********************************/
@@ -162,11 +162,13 @@ function mix () {
     }
 
     if ( length === i ) {
+        /* jshint -W040 */
         target = this;
         --i;
     }
 
     for ( ; i < length; i++ ) {
+        /* jshint -W041 */
         if ( (options = arguments[ i ]) != null ) {
             for ( name in options ) {
                 src = target[ name ];
@@ -318,7 +320,7 @@ mix(exports, {
             el.classList.remove(cls);
         } else if (el.className) {
             var classes = el.className.split(' ');
-            classes.remove(cls);
+            removeArrayItem(classes, cls);
             el.className = classes.join(' ');
         }
     },
@@ -398,7 +400,7 @@ mix(exports, {
             el.fireEvent('on'+type);
         } else {
             /* ie678) */
-            var event = new Event(type);
+            var event = new window.Event(type);
             el.dispatchEvent(event);
         /* ie678( */
         }
@@ -434,17 +436,20 @@ mix(exports, {
 if (!''.startsWith) {
     String.prototype.startsWith = function(str) {
         return this.indexOf(str) === 0;
-    }
+    };
 }
 
-Array.prototype.remove = function(item) {
-    var i = this.length;
+/**
+ * 删除数组中指定的元素
+ */
+function removeArrayItem(arr, it) {
+    var i = arr.length;
     while (i--) {
-        if (item == this[i]) {
-            this.splice(i,1);
+        if (it === arr[i]) {
+            arr.splice(i, 1);
         }
     }
-};
+}
 
 var camelizeRegExp = /-[^-]/g;
 
@@ -460,16 +465,16 @@ function camelize(target) {
     });
 }
 
+/* jshint -W097 */
 
 
-var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded';
 // var AJAX_CONTENT_TYPE_FROMDATA      = 'multipart/form-data';
-
-
-function ajax(opt) {
+var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded',
+ajax = exports.ajax = function (opt) {
     opt = mix({}, options.ajax, opt);
-    // var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP')
-    var xhr = new /* ie678( */ ( /* ie678) */ window.XMLHttpRequest /* ie678( */ || ActiveXObject) /* ie678) */ ( /* ie678( */ 'Microsoft.XMLHTTP' /* ie678) */),
+    var XMLHttpRequest = window.XMLHttpRequest || window.ActiveXObject,
+    xhr = new XMLHttpRequest('Microsoft.XMLHTTP'),
+    jsonpcallback,
     data = null;
 
     if (opt.data) {
@@ -487,6 +492,15 @@ function ajax(opt) {
 
     if (!opt.cache) {
         opt.url += (~opt.url.indexOf('?') ? '&' : '?') + new Date().getTime().toString();
+    }
+
+    opt.dataType = opt.dataType.toLowerCase();
+    if (opt.dataType == 'jsonp') {
+        jsonpcallback = 'callback' + Math.random().toString(36).substr(2);
+        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + 'callback=' + jsonpcallback;
+        window[jsonpcallback] = function(data) {
+            opt.success.call(opt, data, xhr);
+        };
     }
 
     xhr.open(opt.type, opt.url, opt.async);
@@ -520,7 +534,7 @@ function ajax(opt) {
             }
 
             if (this.status >= 200 && this.status < 300) {
-                var obj = this.responseText;
+                var el,obj = this.responseText;
                 switch(opt.dataType) {
                     case 'json':
                         try {
@@ -531,7 +545,7 @@ function ajax(opt) {
                     break;
                     case 'html':
                         try {
-                            var el = document.createElement('div');
+                            el = document.createElement('div');
                             el.innerHTML = obj.trim();
                             obj = el.firstChild;
                             el.removeChild(obj);
@@ -543,13 +557,16 @@ function ajax(opt) {
                     case 'xml':
                         obj = this.responseXML;
                     break;
+                    case 'jsonp':
                     case 'script':
-                        var el = document.createElement('script');
+                        el = document.createElement('script');
                         document.body.appendChild(el);
                         el.innerHTML = obj;
                         document.body.removeChild(el);
-                    break;
-                    case 'jsonp':
+                        if (opt.dataType == 'jsonp') {
+                            delete window[jsonpcallback];
+                            return;
+                        }
                     break;
                 }
                 if (opt.success) {
@@ -561,9 +578,9 @@ function ajax(opt) {
                 }
             }
         }
-    }
+    };
     xhr.send(data);
-}
+};
 
 options.ajax = {
     async       : true,
@@ -585,7 +602,7 @@ options.ajax = {
         // 键值是响应头名
         // 默认如果响应 "location:value" 则执行跳转操作
         "location": function(value) {
-             location = value;
+             location.href = value;
              return false;
         }
     }
@@ -628,15 +645,14 @@ exports.param = function(object, prefix) {
     }
 
     return ret.join('&');
-}
-
-exports.ajax = ajax;
+};
 
 /**
  * @file 数据模型
  * 所有通过工厂函数加工过的数据, 都是以这个为原型
  * @author jcode
  */
+/* jshint -W097 */
 
 
 /**
@@ -891,7 +907,7 @@ Model.prototype = {
      */
     $unwatch: function(field, observer) {
         if (this.$subscribes[field]) {
-            this.$subscribes[field].remove(observer);
+            removeArrayItem(this.$subscribes[field], observer);
         }
     },
 
@@ -941,7 +957,7 @@ Model.prototype = {
                             model.$fire(field);
                         }
                     }
-                }
+                };
                 model.$parent.$watch('*', observer);
             }
         }
@@ -950,7 +966,7 @@ Model.prototype = {
         this.$element = element;
     }
 
-}
+};
 
 /**
  * Observer = {
@@ -962,7 +978,7 @@ Model.prototype = {
  * 获取一个数据的所有订阅
  */
 function getSubscribes (model, field) {
-    var ret = []
+    var ret = [];
     try {
         for (var key in model.$subscribes) {
             if (key == '*' || key.startsWith(field)) {
@@ -987,17 +1003,13 @@ function getModel(el) {
  * 如果没有, 一直往上找.
  */
 function getParentModel(el) {
-    var id = el.$modelId;
-    if (id) {
-        return MODELS[id];
-    }
-
-    while (el = el.parentNode) {
+    el = el.parentNode;
+    while (el) {
         if (el.$modelId) {
             return MODELS[el.$modelId];
         }
+        el = el.parentNode;
     }
-
     return null;
 }
 
@@ -1031,7 +1043,7 @@ function gc(model) {
     // 从其父级中删除, 并删除监听父级变化
     var parent = model.$parent;
     if (parent) {
-        parent.$childs.remove(model);
+        removeArrayItem(parent.$childs, model);
         var subscribes = parent.$subscribes['*'],
         i = subscribes.length;
         while (i--) {
@@ -1071,13 +1083,18 @@ exports.model = function(id) {
     return 'string' == typeof id ? MODELS[id] || null : getExtModel(id);
 };
 
+/* jshint -W097 */
 
 
 /**
  * 扫描结点, 添加绑定
+ * @param {Element} element 从哪个结点开始扫描(扫描它及它的子结点), 如果省略, 从页面顶级开始扫描.
+ * @param {Model} model 这结点拥有的数据对象, 可以从上级取得
+ * @param {boolean} cache 是否缓存扫描结果
  */
-function scan(element, model) {
+function scan(element, model, cache) {
     element = element || document.documentElement;
+    cacheParse = cache;
 
     if (!model) {
         model = new Model();
@@ -1090,7 +1107,7 @@ function scan(element, model) {
         if (!options.igonreTags[element.tagName]) {
             model = scanAttrs(element, model) || model;
             if (!element.$noScanChild && element.childNodes.length) {
-                scanChildNodes(element, model);
+                scanChildNodes(element, model, cache);
             }
         }
     break;
@@ -1103,10 +1120,10 @@ function scan(element, model) {
 
 exports.scan = scan;
 
-function scanChildNodes(element, parentModel) {
+function scanChildNodes(element, parentModel, cache) {
     var el = element.firstChild;
     while (el) {
-        scan(el, parentModel);
+        scan(el, parentModel, cache);
         el = el.$nextSibling || el.nextSibling;
     }
 }
@@ -1169,13 +1186,8 @@ function scanText(element, parentModel) {
  * }]
  */
 function getScanAttrList(attrs) {
-    var res = [];
-
-    if (attrs.length === 0) {
-        return res;
-    }
-
-    var i = attrs.length, attr, param, endpos, type;
+    var res = [],
+    i = attrs.length, attr, param, endpos, type;
     while (i--) {
         attr = attrs[i];
 
@@ -1215,10 +1227,6 @@ function getScanAttrList(attrs) {
         });
     }
 
-    if (res.length === 0) {
-        return res;
-    }
-
     res.sort(function(a,b) {
         return a.priority < b.priority;
     });
@@ -1231,14 +1239,15 @@ function getScanAttrList(attrs) {
  * 如果不考虑ie678, 可以去掉这个文件
  * @author jcode
  */
+/* jshint -W097 */
 
 
 /* ie678( */
 if (!''.trim) {
-    var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g
+    var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
     String.prototype.trim = function(str) {
         return this.replace(rtrim, '');
-    }
+    };
 }
 
 if (!Array.prototype.forEach) {
@@ -1257,7 +1266,7 @@ if (!Array.prototype.indexOf) {
             }
         }
         return -1;
-    }
+    };
 }
 
 if (!Array.prototype.indexOf) {
@@ -1268,7 +1277,7 @@ if (!Array.prototype.indexOf) {
             }
         }
         return -1;
-    }
+    };
 }
 
 if (!Function.prototype.bind) {
@@ -1285,6 +1294,7 @@ if (!Function.prototype.bind) {
 /**
  * 属性扫描定义的回调
  */
+/* jshint -W097 */
 
 
 function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
@@ -1356,6 +1366,7 @@ exports.scanners = {
 
         compileElement(element, attr.name);
         var expr = parseExecute(value),
+        /* jshint -W054 */
         fn = new Function('$model', expr);
         fn(model);
     },
@@ -1475,7 +1486,7 @@ exports.scanners = {
 
                 parent.insertBefore(el, endElement);
                 model.$scope(el);
-                scan(el, model);
+                scan(el, model, true);
 
                 // 置空el, 打破循环引用导致无法回收clone出来的结点.
                 el = null;
@@ -1582,7 +1593,7 @@ exports.scanners = {
                                 $value.push(item);
                             } else {
                                 // 删除掉元素
-                                $value.remove(item);
+                                removeArrayItem($value, item);
                             }
 
                             model.$set(value, $value);
@@ -1745,6 +1756,7 @@ function getFn(str) {
         return fnCache[str];
     }
 
+    /* jshint -W054 */
     var fn = new Function('$model,filter', 'return ' + str);
     fnCache[str] = fn;
     return fn;
@@ -1781,12 +1793,36 @@ function Template(id, element) {
  * @file 表达式字符串解析
  * @author jcode
  */
+/* jshint -W097 */
 
+
+var
+filterRegExp    = /(\w+)(.*)/,
+URLPARAMS       = null,
+exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s]+/g,    // 表达式操作符
+whithReg        = /^[\s\uFEFF\xA0]$/,
+cacheParse      = false,
+cacheParses     = {
+    string : {},
+    express: {}
+},
+parseJSON       = window.JSON ? window.JSON.parse : function(str) {
+    /* jshint -W054 */
+    return (new Function('', 'return ' + str.trim())());
+};
 
 /**
  * 解析插值字符串
  */
 function parseString(str, fields) {
+    var cache;
+    // get from cache
+    if (cacheParse && (cache = cacheParses.string[str])) {
+        mix(fields, cache.fields);
+        return cache.expr;
+    }
+
+    // parse string
     var txt = '""',
     tmp,
     interpolate1 = options.interpolate[0],
@@ -1824,6 +1860,15 @@ function parseString(str, fields) {
             break;
         }
     }
+
+    // cache the result.
+    if (cacheParse) {
+        cacheParses.string[str] = {
+            fields: fields,
+            expr: txt
+        };
+    }
+
     return flag ? txt : false;
 }
 
@@ -1850,18 +1895,34 @@ function replaceWrapLineString(str) {
  * @param {boolean} isDisplayResult 标识这个取值结果是否用于显示, 如果为真, null及undefined将替换为空字符串, 避免在页面上显示这些字符串.
  */
 function parseExpress(str, fields, isDisplayResult) {
+    var cache;
+    // get from cache
+    if (cacheParse && (cache = cacheParses.express[str])) {
+        mix(fields, cache.fields);
+        return cache.expr;
+    }
+
     try {
-        var filters = [],
-        str = divExpress(str, filters),
+        var expr, filters = [];
+
+        str = divExpress(str, filters, fields);
         expr = parseExecuteItem(str.trim(), fields, isDisplayResult);
 
         if (filters.length) {
             var filter, ifn = '(function(expr){';
             for (var i=0; i<filters.length; i++) {
                 filter = filters[i];
-                ifn += 'expr=filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');'
+                ifn += 'expr=filter("' + filter.name + '",expr' + (filter.args.trim() ? ',' + filter.args : '') + ');';
             }
-            expr = ifn + 'return expr;}(' + expr + '))'
+            expr = ifn + 'return expr;}(' + expr + ', $model))';
+        }
+
+        // cache the result.
+        if (cacheParse) {
+            cacheParses.express[str] = {
+                fields: fields,
+                expr: expr
+            };
         }
 
         return expr;
@@ -1872,7 +1933,6 @@ function parseExpress(str, fields, isDisplayResult) {
 
 /**
  * 把表达式分离成表达式和过滤器两部门
- * 过滤器参数不能为变量
  * @param {String} str 表达式, 也就是双花括号的中间部分
  * @param {Array} filters 传值的过滤器引用, 用于收集过滤器, 过滤器要分解出其参数, 所以是一个对象的数组, 如: [{
  *     name: 'date', // 过滤器名字
@@ -1880,7 +1940,7 @@ function parseExpress(str, fields, isDisplayResult) {
  * }]
  * @returns {String} 没有带过滤器的表达式
  */
-function divExpress(str, filters) {
+function divExpress(str, filters, fields) {
     var pos = 0, expr;
     while (true) {
         pos = str.indexOf('|', pos);
@@ -1888,8 +1948,9 @@ function divExpress(str, filters) {
             if (str.charAt(pos + 1) == '|') {
                 pos += 2;
             } else {
+                /* jshint -W083 */
                 str.substr(pos + 1).split('|').forEach(function(str) {
-                    var filter = parseFilter(str);
+                    var filter = parseFilter(str, fields);
                     filters.push(filter);
                 });
                 expr = str.substr(0, pos - 1);
@@ -1914,12 +1975,11 @@ function divExpress(str, filters) {
  *    args: 'yyyy-mm-dd'
  * }
  */
-var filterRegExp = /(\w+)(.*)/;
-function parseFilter(str) {
+function parseFilter(str, fields) {
     var p = filterRegExp.exec(str);
     return {
         name: p[1],
-        args: p[2]
+        args: parseExecuteItem(p[2].trim(), fields)
     };
 }
 
@@ -1965,11 +2025,6 @@ function parseExecute(str) {
     return ret;
 }
 
-/**
- * 表达式操作符
- */
-var exprActionReg = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s]+/g;
-var whithReg = /^[\s\uFEFF\xA0]$/;
 
 /**
  * parseExecute的辅助函数, 用来解析单个表达式, str两边已经去掉无用的空白符
@@ -1981,15 +2036,15 @@ var whithReg = /^[\s\uFEFF\xA0]$/;
  * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
  */
 function parseExecuteItem(str, fields, isDisplayResult) {
-    var c = str.charAt(0);
+    var ret, actions, c = str.charAt(0);
     if (c == '"' || c == "'") {
         return str;
     }
 
-    var actions = str.match(exprActionReg);
+    actions = str.match(exprActionReg);
     if (actions) {
-        var ret = '',
-        field,
+        ret = '';
+        var field,
         pos0 = 0,
         pos,
         i = 0;
@@ -2038,11 +2093,10 @@ function parseExecuteItem(str, fields, isDisplayResult) {
  * 这些关键不编译, 其它转换成model变量
  */
 options.keywords = {};
-'$model return if else true false null undefined NaN do while typeof instanceof function void with var this try throw catch new in for break continue switch default delete'.split(' ').forEach(function(item) {
+'$model return if else true false null undefined this'.split(' ').forEach(function(item) {
     options.keywords[item] = true;
 });
 
-var numberReg = /^\-?\d?\.?\d+$/;
 function parseStatic(str, isDisplayResult) {
     if (!str) {
         return '';
@@ -2054,7 +2108,7 @@ function parseStatic(str, isDisplayResult) {
     }
 
     // 数字
-    if (numberReg.test(str)) {
+    if (REGEXPS.number.test(str)) {
         return str;
     }
 
@@ -2066,37 +2120,15 @@ function parseStatic(str, isDisplayResult) {
     return '$model.$get("' + str + '"' + (isDisplayResult ? ',0,1':'') +')';
 }
 
-/**
- * 解析url参数
- */
-function parseUrlParam(name, object, def) {
-    if (URLPARAMS === null) {
-        URLPARAMS = {};
-        if (location.search) {
-            decodeURIComponent(location.search).substr(1).split('&').map(function(it) {
-                var val = it.split('=');
-                URLPARAMS[val[0]] = val[1];
-            });
-        }
-    }
-
-    if (object) {
-        object[name] = URLPARAMS[name] || def;
-    } else {
-        return URLPARAMS[name];
-    }
+if (options.scanOnReady) {
+    exports.ready(scan);
 }
-
-var parseJSON = window.JSON ? window.JSON.parse : function(str) {
-    return (new Function('', 'return ' + str.trim())());
-}
-
-options.scanOnReady && exports.ready(scan);
 window.xbind = exports;
 /**
  * @file 过滤器
  * @author jcode
  */
+/* jshint -W097 */
 
 
 /**
@@ -2159,6 +2191,50 @@ exports.filters = {
         }
         dom = null;
         return res;
+    },
+
+    /**
+     * 变换数据格式成目标格式
+     * 注意, 不要去监听目标字段
+     */
+    convert: function(obj, from, to) {
+        if (obj && obj.forEach) {
+            obj.forEach(function(item) {
+                item[to] = item[from];
+            });
+        } else if(obj) {
+            obj[to] = obj[from];
+        }
+        return obj;
+    },
+
+    /**
+     * 排序过滤器, 按某字段排序
+     * @memberOf filters
+     * @param {Array} obj 待排序的数组
+     * @param {String|Function} field 按什么字段排序, 数组中的元素不是对象是, 省略这参数, 如果为函数, 用来做为排序函数, 当然此时第三个参数无效
+     * @param {boolean} desc 是否按降序
+     * @returns {Array} 返回排序好后数组
+     */
+    sort: function(obj, field, desc) {
+        if (typeof field == 'boolean') {
+            desc = field;
+            field = null;
+        }
+
+        return obj && obj.sort ? obj.sort('function' == typeof field ? field : function(a, b) {
+            if (!field) {
+                return desc ? a > b : a < b;
+            }
+            return desc ? (a[field] > b[field]) : (a[field] < b[field]);
+        }) : obj;
+    },
+
+    /**
+     * 外键过滤器
+     */
+    foreign: function(key, obj) {
+        return obj && obj[key];
     },
 
     /**
@@ -2270,7 +2346,7 @@ function fix0Number(num) {
 var dateFormatter = {};
 exports.filters.date.format = function(match, handler) {
     dateFormatter[match] = handler;
-}
+};
 
 /**
  * 执行过滤器
@@ -2298,6 +2374,7 @@ exports.filter = function(filterName, obj, args) {
  * @file 表单处理
  * @author jcode
  */
+/* jshint -W097 */
 
 
 mix(exports.scanners, {
@@ -2345,7 +2422,7 @@ mix(exports.scanners, {
         var minValue = +value;
         bindValidModel(element, function() {
             updateFormItem(element, 'minlength', element.value.length >= minValue);
-        })
+        });
     },
 
     /**
@@ -2356,7 +2433,7 @@ mix(exports.scanners, {
         var maxValue = +value;
         bindValidModel(element, function() {
             updateFormItem(element, 'maxlength', element.value.length <= maxValue);
-        })
+        });
     },
 
     /**
@@ -2367,7 +2444,7 @@ mix(exports.scanners, {
         var regexp = new RegExp(value);
         bindValidModel(element, function() {
             updateFormItem(element, 'pattern', element.value.test(regexp));
-        })
+        });
     },
 
     /**
@@ -2426,4 +2503,4 @@ function updateFormItem(element, type, res) {
     model.$set(prefix + '.$error.' + type, !res);
 }
 
-}(window, document, location, history);
+}(window, document, location, history));
