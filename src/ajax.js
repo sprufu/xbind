@@ -7,6 +7,7 @@ ajax = exports.ajax = function (opt) {
     opt = mix({}, options.ajax, opt);
     var XMLHttpRequest = window.XMLHttpRequest || window.ActiveXObject,
     xhr = new XMLHttpRequest('Microsoft.XMLHTTP'),
+    jsonpcallback,
     data = null;
 
     if (opt.data) {
@@ -24,6 +25,15 @@ ajax = exports.ajax = function (opt) {
 
     if (!opt.cache) {
         opt.url += (~opt.url.indexOf('?') ? '&' : '?') + new Date().getTime().toString();
+    }
+
+    opt.dataType = opt.dataType.toLowerCase();
+    if (opt.dataType == 'jsonp') {
+        jsonpcallback = 'callback' + Math.random().toString(36).substr(2);
+        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + 'callback=' + jsonpcallback;
+        window[jsonpcallback] = function(data) {
+            opt.success.call(opt, data, xhr);
+        };
     }
 
     xhr.open(opt.type, opt.url, opt.async);
@@ -80,13 +90,16 @@ ajax = exports.ajax = function (opt) {
                     case 'xml':
                         obj = this.responseXML;
                     break;
+                    case 'jsonp':
                     case 'script':
                         el = document.createElement('script');
                         document.body.appendChild(el);
                         el.innerHTML = obj;
                         document.body.removeChild(el);
-                    break;
-                    case 'jsonp':
+                        if (opt.dataType == 'jsonp') {
+                            delete window[jsonpcallback];
+                            return;
+                        }
                     break;
                 }
                 if (opt.success) {
