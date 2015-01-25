@@ -40,6 +40,9 @@ var model2 = xbind({
 	user: {
 		sex: '先生'
 	},
+	alert: function(msg) {
+		window.alert(msg);
+	},
     test: function(num) {
 		while (num--) {
 			this.users.$read();
@@ -90,7 +93,7 @@ setTimeout(function() {
         <textarea x-bind="user.info"></textarea>
     </div>
     
-    <table x-controller="pro" x-ajax-users="data.json?{{ user | param }}" x-ajax-if="user.sex == '先生'">
+    <table x-controller="pro" x-ajax-users="data.json?{{ user | param }}" x-ajax-if="user.sex == '先生'" x-ajax-callback="alert(users.rows.length)">
         <caption> 总共: {{ users.total }} <a x-href="{{ url }}"> {{ user.name }} </a> <button x-click="test(10)">pro</button></caption>
         <tr>
             <th>ID</th>

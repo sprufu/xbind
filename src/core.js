@@ -48,7 +48,8 @@ var options = {
      * 忽略扫描的属性
      */
     igonreAttrs: {
-        'x-ajax-if': true
+        'x-ajax-if'         : true,
+        'x-ajax-callback'   : true,
     },
 
     /**

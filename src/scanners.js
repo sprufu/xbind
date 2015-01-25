@@ -376,6 +376,8 @@ exports.scanners = {
         // 用于条件加载
         $if = true,
         ifBindExpr = element.getAttribute('x-ajax-if'),
+        callback,
+        callbackExpr = element.getAttribute('x-ajax-callback'),
 
         // 请求的方法
         read = function() {
@@ -387,12 +389,18 @@ exports.scanners = {
                 success: function(res) {
                     model.$set(param + '.$error', null);
                     model.$set(res, param);
+                    callback && callback(model);
                 },
                 error: function(xhr, err) {
                     model.$set(param + '.$error', err);
                 }
             });
         };
+
+        if (callbackExpr) {
+            callbackExpr = parseExecute(callbackExpr, {});
+            callback = new Function('$model', callbackExpr);
+        }
 
         // 暴露加载函数, 供外部需要时加载数据
         model[param] = {
