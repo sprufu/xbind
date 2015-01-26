@@ -49,7 +49,7 @@ var options = {
      */
     igonreAttrs: {
         'x-ajax-if'         : true,
-        'x-ajax-callback'   : true,
+        'x-ajax-callback'   : true
     },
 
     /**
