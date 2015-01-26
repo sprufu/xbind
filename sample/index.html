@@ -51,8 +51,13 @@ var model2 = xbind({
 });
 setTimeout(function() {
     model.$set('user.name', 'sprufu');
-	model.$set("user.bgColor", 'red');
-	model.$set("my_tpl", "inc-tpl.html");
+	model.$set({
+		user: {
+			bgColor: "red",
+			name: "jcode"
+		},
+		my_tpl: "inc-tpl.html"
+	});
 }, 2000);
 //options.igonreAttrs['x-ajax-users'] = true;
 
