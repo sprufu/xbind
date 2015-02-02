@@ -71,32 +71,6 @@ var ie67 = !"1"[0],
 // 判断ie678也很简单, 因为它有个神奇的特性
 ie678 = window == document && document != window;
 
-// ie678 DOMContentLoaded支持方案
-// script[defer=defer]dom对象
-if (ie678) {
-    var id = '__ie_onload';
-    // 要有src属性, 否则不能保证其它js已经被加载
-    // <script id=__ie_onload defer src=javascript:></script>
-    /* jshint -W060 */
-    document.write('<script id='+ id + ' defer src=javascript:></script>');
-    document.getElementById(id).onreadystatechange = function() {
-        if (this.readyState == 'complete') {
-            DOMLoadedListeners.forEach(function(fn) {
-                fn();
-            });
-            this.onreadystatechange = null;
-            addDOMLoadedListener = null;
-            DOMLoadedListeners = null;
-            this.parentNode.removeChild(this);
-        }
-    };
-}
-
-var DOMLoadedListeners = [];
-function addDOMLoadedListener(fn) {
-    DOMLoadedListeners.push(fn);
-}
-
 /* ie678) */
 
 /**
@@ -285,8 +259,7 @@ mix(exports, {
             /* ie678( */
         } else if(ie678) {
             // ie678 用script的defer特性实现
-            //setTimeout(fn);
-            DOMLoadedListeners === null ? fn() : addDOMLoadedListener(fn);
+            setTimeout(fn);
         }
         /* ie678) */
     },
