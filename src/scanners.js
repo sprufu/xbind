@@ -231,21 +231,7 @@ exports.scanners = {
     'x-show': function(model, element, value, attr) {
         compileElement(element, attr.name, 'x-show');
         bindModel(model, value, parseExpress, function(res) {
-            /* ie678( */
-            // ie8 设置hidden能隐藏, 但移出属性不能恢复
-            // 用hidden属性是否比设置display更好更快呢?
-            if (ie678) {
-                element.style.display = res ? "" : "none";
-            } else {
-                /* ie678) */
-                if (res) {
-                    element.removeAttribute('hidden');
-                } else {
-                    element.setAttribute('hidden', 'hidden');
-                }
-                /* ie678( */
-            }
-            /* ie678) */
+            element.style.display = res ? "" : "none";
         });
     },
 
