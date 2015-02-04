@@ -321,7 +321,7 @@ Model.prototype = {
             if (model.$parent) {
                 model.$parent.$childs.push(model);
                 var observer = {
-                    isChildSubscribe: true,
+                    owner: this,
                     update: function(parentModel, field) {
                         if (!model.hasOwnProperty(field)) {
                             model.$fire(field);
@@ -417,7 +417,7 @@ function gc(model) {
         var subscribes = parent.$subscribes['*'],
         i = subscribes.length;
         while (i--) {
-            if (subscribes[i].isChildSubscribe) {
+            if (subscribes[i].owner == model) {
                 subscribes.splice(i, 1);
             }
         }
