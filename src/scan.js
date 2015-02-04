@@ -143,7 +143,7 @@ function getScanAttrList(attrs) {
     }
 
     res.sort(function(a,b) {
-        return a.priority < b.priority;
+        return a.priority > b.priority ? -1 : a.priority < a.priority ? 1 : 0;
     });
 
     return res;
