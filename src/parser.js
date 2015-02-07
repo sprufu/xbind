@@ -245,7 +245,11 @@ function parseExecute(str) {
  * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
  */
 function parseExecuteItem(str, fields, isDisplayResult) {
-    var ret, actions, c = str.charAt(0);
+    var ret, actions, c = str.charAt(0),
+    model = {
+        isField: false
+    };
+
     if (c == '"' || c == "'") {
         return str;
     }
@@ -256,10 +260,7 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         var field,
         pos0 = 0,
         pos,
-        i = 0,
-        model = {
-            isField: false
-        };
+        i = 0;
 
         // 循环解析操作符分隔的每个表达式
         // 并把他们加在一起
@@ -295,8 +296,8 @@ function parseExecuteItem(str, fields, isDisplayResult) {
 
         return ret;
     } else {
-        ret = parseStatic(str, isDisplayResult);
-        if (ret != str) {
+        ret = parseStatic(str, isDisplayResult, model);
+        if (model.isField) {
             fields[str] = true;
         }
         return ret;
