@@ -256,7 +256,10 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         var field,
         pos0 = 0,
         pos,
-        i = 0;
+        i = 0,
+        model = {
+            isField: false
+        };
 
         // 循环解析操作符分隔的每个表达式
         // 并把他们加在一起
@@ -266,13 +269,16 @@ function parseExecuteItem(str, fields, isDisplayResult) {
                 continue;
             }
 
+            model.isField = false;
+
             pos = str.indexOf(actions[i], pos0);
             field = str.substring(pos0, pos);
-            ret += parseStatic(field, isDisplayResult) + actions[i];
+            ret += parseStatic(field, isDisplayResult, model) + actions[i];
             pos0 = pos + actions[i].length;
 
             // 不是方法, 而是属性的话, 要加到监听列表里
-            if (actions[i].indexOf('(') == -1) {
+            // 不是关键字及数字.
+            if (model.isField && actions[i].indexOf('(') == -1) {
                 fields[field] = true;
             }
         }
@@ -306,7 +312,7 @@ options.keywords = {};
     options.keywords[item] = true;
 });
 
-function parseStatic(str, isDisplayResult) {
+function parseStatic(str, isDisplayResult, model) {
     if (!str) {
         return '';
     }
@@ -325,6 +331,8 @@ function parseStatic(str, isDisplayResult) {
     if (c == '"' || c == "'") {
         return str;
     }
+
+    model.isField = true;
 
     return '$model.$get("' + str + '"' + (isDisplayResult ? ',0,1':'') +')';
 }
