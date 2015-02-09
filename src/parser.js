@@ -287,7 +287,8 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         // 处理最后结尾部分
         if (str.length > pos0) {
             field = str.substr(pos0);
-            var res = parseStatic(field, isDisplayResult);
+            model.isField = false;
+            var res = parseStatic(field, isDisplayResult, model);
             if (res != field) {
                 fields[field] = true;
             }
