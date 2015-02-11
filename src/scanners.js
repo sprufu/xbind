@@ -47,7 +47,9 @@ exports.scanners = {
      * 当a[href=""]时, 阻止默认点击行为和事件冒泡
      */
     'href': function(model, element, value) {
-        if (element.tagName == 'A' && value === '') {
+        // ie下使用getAttribute第二个参数, 避免属性进行了转换
+        // https://msdn.microsoft.com/en-us/library/ms536429(VS.85).aspx
+        if (element.tagName == 'A' && element.getAttribute("href", 2) === '') {
             exports.on(element, 'click', function() {
                 return false;
             });
