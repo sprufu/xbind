@@ -313,6 +313,11 @@ mix(exports, {
             style = styles[name];
             return style;
         } else {
+            // ie8以下设置样式为undefined会出错.
+            if ('undefined' == typeof value) {
+                value = '';
+            }
+
             el.style[name] = value;
         }
     },
