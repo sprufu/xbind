@@ -47,6 +47,7 @@ ajax = exports.ajax = function (opt) {
     // post必须设置Content-Type, 否则服务器端无法解析参数.
     xhr.setRequestHeader("Content-Type", opt.contentType);
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    xhr.setRequestHeader("Accept", opt.typeAccept[opt.dataType]);
     xhr.onreadystatechange = function(e) {
         if (this.readyState == 4) {
             // 执行statusCode
@@ -121,6 +122,13 @@ options.ajax = {
     type        : 'get',
     dataType    : 'text',
     contentType : AJAX_CONTENT_TYPE_URLENCODED,
+    typeAccept  : {
+        text    : "text/plain",
+        html    : "text/html",
+        json    : "application/json,text/json",
+        script  : "application/x-javascript",
+        jsonp   : "application/x-javascript"
+    },
     statusCode  : {
         // 跟jQuery.ajax的statusCode差不多, 只是返回false有特殊意义, 且这个在success及error前执行.
         // 404  : function() {
