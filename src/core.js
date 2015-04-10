@@ -33,7 +33,7 @@ var options = {
      * 是否在dom准备好时扫描一次
      * 这个设置必须在dom准备好之前设置方有效
      */
-    scanOnReady: true,
+    scanOnReady: false,
 
     /**
      * 忽略扫描的标签
