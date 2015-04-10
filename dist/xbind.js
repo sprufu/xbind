@@ -34,7 +34,7 @@ var options = {
      * 是否在dom准备好时扫描一次
      * 这个设置必须在dom准备好之前设置方有效
      */
-    scanOnReady: true,
+    scanOnReady: false,
 
     /**
      * 忽略扫描的标签
@@ -50,7 +50,7 @@ var options = {
      */
     igonreAttrs: {
         'x-ajax-if'         : true,
-        'x-ajax-callback'   : true,
+        'x-ajax-callback'   : true
     },
 
     /**
@@ -71,32 +71,6 @@ var ie67 = !"1"[0],
 
 // 判断ie678也很简单, 因为它有个神奇的特性
 ie678 = window == document && document != window;
-
-// ie678 DOMContentLoaded支持方案
-// script[defer=defer]dom对象
-if (ie678) {
-    var id = '__ie_onload';
-    // 要有src属性, 否则不能保证其它js已经被加载
-    // <script id=__ie_onload defer src=javascript:></script>
-    /* jshint -W060 */
-    document.write('<script id='+ id + ' defer src=javascript:></script>');
-    document.getElementById(id).onreadystatechange = function() {
-        if (this.readyState == 'complete') {
-            DOMLoadedListeners.forEach(function(fn) {
-                fn();
-            });
-            this.onreadystatechange = null;
-            addDOMLoadedListener = null;
-            DOMLoadedListeners = null;
-            this.parentNode.removeChild(this);
-        }
-    };
-}
-
-var DOMLoadedListeners = [];
-function addDOMLoadedListener(fn) {
-    DOMLoadedListeners.push(fn);
-}
 
 /* ie678) */
 
@@ -286,8 +260,7 @@ mix(exports, {
             /* ie678( */
         } else if(ie678) {
             // ie678 用script的defer特性实现
-            //setTimeout(fn);
-            DOMLoadedListeners === null ? fn() : addDOMLoadedListener(fn);
+            setTimeout(fn);
         }
         /* ie678) */
     },
@@ -341,6 +314,11 @@ mix(exports, {
             style = styles[name];
             return style;
         } else {
+            // ie8以下设置样式为undefined会出错.
+            if ('undefined' == typeof value) {
+                value = '';
+            }
+
             el.style[name] = value;
         }
     },
@@ -514,6 +492,8 @@ ajax = exports.ajax = function (opt) {
     //xhr.overrideMimeType(opt.dataType); // 低版本IE不支持overrideMimeType
     // post必须设置Content-Type, 否则服务器端无法解析参数.
     xhr.setRequestHeader("Content-Type", opt.contentType);
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    xhr.setRequestHeader("Accept", opt.typeAccept[opt.dataType]);
     xhr.onreadystatechange = function(e) {
         if (this.readyState == 4) {
             // 执行statusCode
@@ -588,6 +568,13 @@ options.ajax = {
     type        : 'get',
     dataType    : 'text',
     contentType : AJAX_CONTENT_TYPE_URLENCODED,
+    typeAccept  : {
+        text    : "text/plain",
+        html    : "text/html",
+        json    : "application/json,text/json",
+        script  : "application/x-javascript",
+        jsonp   : "application/x-javascript"
+    },
     statusCode  : {
         // 跟jQuery.ajax的statusCode差不多, 只是返回false有特殊意义, 且这个在success及error前执行.
         // 404  : function() {
@@ -971,7 +958,7 @@ Model.prototype = {
             if (model.$parent) {
                 model.$parent.$childs.push(model);
                 var observer = {
-                    isChildSubscribe: true,
+                    owner: this,
                     update: function(parentModel, field) {
                         if (!model.hasOwnProperty(field)) {
                             model.$fire(field);
@@ -1001,7 +988,7 @@ function getSubscribes (model, field) {
     var ret = [];
     try {
         for (var key in model.$subscribes) {
-            if (key == '*' || key == field || key.startsWith(field + '.')) {
+            if (key == '*' || key == field || (field + '.').startsWith(key)) {
                 ret = ret.concat(model.$subscribes[key]);
             }
         }
@@ -1067,7 +1054,7 @@ function gc(model) {
         var subscribes = parent.$subscribes['*'],
         i = subscribes.length;
         while (i--) {
-            if (subscribes[i].isChildSubscribe) {
+            if (subscribes[i].owner == model) {
                 subscribes.splice(i, 1);
             }
         }
@@ -1248,7 +1235,7 @@ function getScanAttrList(attrs) {
     }
 
     res.sort(function(a,b) {
-        return a.priority < b.priority;
+        return a.priority > b.priority ? -1 : a.priority < a.priority ? 1 : 0;
     });
 
     return res;
@@ -1360,7 +1347,9 @@ exports.scanners = {
      * 当a[href=""]时, 阻止默认点击行为和事件冒泡
      */
     'href': function(model, element, value) {
-        if (element.tagName == 'A' && value === '') {
+        // ie下使用getAttribute第二个参数, 避免属性进行了转换
+        // https://msdn.microsoft.com/en-us/library/ms536429(VS.85).aspx
+        if (element.tagName == 'A' && element.getAttribute("href", 2) === '') {
             exports.on(element, 'click', function() {
                 return false;
             });
@@ -1544,21 +1533,7 @@ exports.scanners = {
     'x-show': function(model, element, value, attr) {
         compileElement(element, attr.name, 'x-show');
         bindModel(model, value, parseExpress, function(res) {
-            /* ie678( */
-            // ie8 设置hidden能隐藏, 但移出属性不能恢复
-            // 用hidden属性是否比设置display更好更快呢?
-            if (ie678) {
-                element.style.display = res ? "" : "none";
-            } else {
-                /* ie678) */
-                if (res) {
-                    element.removeAttribute('hidden');
-                } else {
-                    element.setAttribute('hidden', 'hidden');
-                }
-                /* ie678( */
-            }
-            /* ie678) */
+            element.style.display = res ? "" : "none";
         });
     },
 
@@ -1827,7 +1802,7 @@ function Template(id, element) {
 var
 filterRegExp    = /(\w+)(.*)/,
 URLPARAMS       = null,
-exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s]+/g,    // 表达式操作符
+exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:]+/g,    // 表达式操作符
 whithReg        = /^[\s\uFEFF\xA0]$/,
 cacheParse      = false,
 cacheParses     = {
@@ -2064,7 +2039,11 @@ function parseExecute(str) {
  * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
  */
 function parseExecuteItem(str, fields, isDisplayResult) {
-    var ret, actions, c = str.charAt(0);
+    var ret, actions, c = str.charAt(0),
+    model = {
+        isField: false
+    };
+
     if (c == '"' || c == "'") {
         return str;
     }
@@ -2085,13 +2064,16 @@ function parseExecuteItem(str, fields, isDisplayResult) {
                 continue;
             }
 
+            model.isField = false;
+
             pos = str.indexOf(actions[i], pos0);
             field = str.substring(pos0, pos);
-            ret += parseStatic(field, isDisplayResult) + actions[i];
+            ret += parseStatic(field, isDisplayResult, model) + actions[i];
             pos0 = pos + actions[i].length;
 
             // 不是方法, 而是属性的话, 要加到监听列表里
-            if (actions[i].indexOf('(') == -1) {
+            // 不是关键字及数字.
+            if (model.isField && actions[i].indexOf('(') == -1) {
                 fields[field] = true;
             }
         }
@@ -2099,7 +2081,8 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         // 处理最后结尾部分
         if (str.length > pos0) {
             field = str.substr(pos0);
-            var res = parseStatic(field, isDisplayResult);
+            model.isField = false;
+            var res = parseStatic(field, isDisplayResult, model);
             if (res != field) {
                 fields[field] = true;
             }
@@ -2108,8 +2091,8 @@ function parseExecuteItem(str, fields, isDisplayResult) {
 
         return ret;
     } else {
-        ret = parseStatic(str, isDisplayResult);
-        if (ret != str) {
+        ret = parseStatic(str, isDisplayResult, model);
+        if (model.isField) {
             fields[str] = true;
         }
         return ret;
@@ -2125,7 +2108,7 @@ options.keywords = {};
     options.keywords[item] = true;
 });
 
-function parseStatic(str, isDisplayResult) {
+function parseStatic(str, isDisplayResult, model) {
     if (!str) {
         return '';
     }
@@ -2145,13 +2128,22 @@ function parseStatic(str, isDisplayResult) {
         return str;
     }
 
+    model.isField = true;
+
     return '$model.$get("' + str + '"' + (isDisplayResult ? ',0,1':'') +')';
 }
 
 if (options.scanOnReady) {
     exports.ready(scan);
 }
-window.xbind = exports;
+
+if (window.define && window.define.cmd) {
+    window.define(function() {
+        return exports;
+    });
+} else {
+    window.xbind = exports;
+}
 /**
  * @file 过滤器
  * @author jcode
