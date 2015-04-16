@@ -2232,7 +2232,7 @@ function formatDate(date, format) {
             case 's'    : return date.getSeconds();
             case 'ww'   : return '星期' + '日一二三四五六'.split('')[date.getDay()];
             case 'w'    : return '周' + '日一二三四五六'.split('')[date.getDay()];
-            case 'l'    : return ''; // TODO
+            case 'l'    : return formatLastDisplay(date); // 刚刚，5分钟前，2小时前，3天前，5个月前。。。
             default     : return dateFormatter[str] ? dateFormatter[str].call(date) : str;
         }
     });
@@ -2240,6 +2240,36 @@ function formatDate(date, format) {
 
 function fix0Number(num) {
     return num > 9 ? num : ('0' + num);
+}
+
+function formatLastDisplay(date) {
+    // 与当前时间差
+    var diff = (new Date() - date) / 1000;
+    if (diff < 60) {
+        return '刚刚';
+    }
+
+    diff /= 60;
+    if (diff < 60) {
+        return Math.floor(diff) + '分钟前';
+    }
+
+    diff /= 60;
+    if (diff < 24) {
+        return Math.floor(diff) + '小时前';
+    }
+
+    diff /= 24;
+    if (diff < 30) {
+        return Math.floor(diff) + '天前';
+    }
+
+    diff /= 30;
+    if (diff < 12) {
+        return Math.floor(diff) + '月前';
+    }
+
+    return Math.floor(diff / 12) + '年前';
 }
 
 var dateFormatter = {};
