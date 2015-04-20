@@ -2,7 +2,7 @@ if (options.scanOnReady) {
     exports.ready(scan);
 }
 
-if (window.define && window.define.cmd) {
+if (window.define && window.define.amd) {
     window.define(function() {
         return exports;
     });
