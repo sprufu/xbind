@@ -28,7 +28,7 @@ var MODELS = {
  * @private
  */
 function setFieldValue(model, field, value) {
-    var i, v, sub, subs, key, keys;
+    var i, v, key, keys;
     if (~field.indexOf('.')) {
         // 深层的数据, 如: user.name, user.job.type
         keys = field.split('.');
@@ -292,8 +292,7 @@ Model.prototype = {
         }
 
         var subscribes = getSubscribes(this, field),
-        i = 0,
-        subscribe;
+        i = 0;
 
         for(; i<subscribes.length; i++) {
             subscribes[i].update(this, field);
@@ -351,7 +350,7 @@ function getSubscribes (model, field) {
     var ret = [];
     try {
         for (var key in model.$subscribes) {
-            if (key == '*' || key == field || (field + '.').startsWith(key)) {
+            if (key == '*' || key == field || key.startsWith(field + '.')) {
                 ret = ret.concat(model.$subscribes[key]);
             }
         }
