@@ -52,7 +52,7 @@ function parseString(str, fields) {
                 if (tmp) {
                     txt += '+"' + tmp + '"';
                 }
-                txt += '+' + parseExpress(str.substring(pos1 + len1, pos2), fields, true);
+                txt += '+(' + parseExpress(str.substring(pos1 + len1, pos2), fields, true) + ')';
                 pos = pos1 = pos2 = pos2 + len2;
             } else {
                 tmp = replaceWrapLineString(str.substr(pos));

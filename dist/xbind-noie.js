@@ -625,7 +625,7 @@ var MODELS = {
  * @private
  */
 function setFieldValue(model, field, value) {
-    var i, v, sub, subs, key, keys;
+    var i, v, key, keys;
     if (~field.indexOf('.')) {
         // 深层的数据, 如: user.name, user.job.type
         keys = field.split('.');
@@ -889,8 +889,7 @@ Model.prototype = {
         }
 
         var subscribes = getSubscribes(this, field),
-        i = 0,
-        subscribe;
+        i = 0;
 
         for(; i<subscribes.length; i++) {
             subscribes[i].update(this, field);
@@ -948,7 +947,7 @@ function getSubscribes (model, field) {
     var ret = [];
     try {
         for (var key in model.$subscribes) {
-            if (key == '*' || key == field || (field + '.').startsWith(key)) {
+            if (key == '*' || key == field || key.startsWith(field + '.')) {
                 ret = ret.concat(model.$subscribes[key]);
             }
         }
@@ -1083,6 +1082,8 @@ function scan(element, model, cache) {
         scanText(element, model);
     break;
     }
+
+    return model;
 }
 
 exports.scan = scan;
@@ -1684,6 +1685,7 @@ function Template(id, element) {
     TEMPLATES[id] = this;
 }
 
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 表达式字符串解析
  * @author jcode
@@ -1738,7 +1740,7 @@ function parseString(str, fields) {
                 if (tmp) {
                     txt += '+"' + tmp + '"';
                 }
-                txt += '+' + parseExpress(str.substring(pos1 + len1, pos2), fields, true);
+                txt += '+(' + parseExpress(str.substring(pos1 + len1, pos2), fields, true) + ')';
                 pos = pos1 = pos2 = pos2 + len2;
             } else {
                 tmp = replaceWrapLineString(str.substr(pos));
@@ -2029,7 +2031,7 @@ if (options.scanOnReady) {
     exports.ready(scan);
 }
 
-if (window.define && window.define.cmd) {
+if (window.define && window.define.amd) {
     window.define(function() {
         return exports;
     });
