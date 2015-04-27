@@ -31,6 +31,8 @@ function scan(element, model, cache) {
         scanText(element, model);
     break;
     }
+
+    return model;
 }
 
 exports.scan = scan;
