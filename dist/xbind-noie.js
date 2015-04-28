@@ -1138,6 +1138,20 @@ function scanText(element, parentModel) {
     });
 }
 
+/*
+ * 低版本安卓(android2)及IE的比较函数必须返回-1, 0或1
+ * 而chrome, firefox则需要返回true或false
+ */
+var orderFn, testOrderArray = [{k:2},{k:3}];
+testOrderArray.sort(function(a,b) {
+    return a.k < b.k;
+});
+orderFn = testOrderArray[0].k == 2 ? function(a,b) {
+    return a.priority > b.priority ? -1 : a.priority < a.priority ? 1 : 0;
+} : function(a, b) {
+    return a.priority < b.priority;
+};
+
 /**
  * 获取所要扫描的属性列表
  * 这个是一个有序的列表
@@ -1184,11 +1198,7 @@ function getScanAttrList(attrs) {
         });
     }
 
-    res.sort(function(a,b) {
-        return a.priority > b.priority ? -1 : a.priority < a.priority ? 1 : 0;
-    });
-
-    return res;
+    return res.sort(orderFn);
 }
 
 /**
