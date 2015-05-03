@@ -14,6 +14,10 @@ git clone https://github.com/sprufu/xbind.git
 cd vmodel && npm run build
 ```
 
+### 注意事项
+1. option标签必须写明value属性, 否IE浏览器在model变化时, view没显示正常
+   如: `<option>item</option>` ==> `<option value="item">item</option>`
+
 ### 自定义组件选择
 
 如以下组件可以自由选择是否压缩到你的最终版本里:

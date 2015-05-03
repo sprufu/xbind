@@ -761,7 +761,7 @@ Model.prototype = {
                 value = value.bind(this);
             }
 
-            return value ? value : isDisplayResult ? '' : undefined;
+            return value || value === 0 ? value : isDisplayResult ? '' : undefined;
         }
     },
 
