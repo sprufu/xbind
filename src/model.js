@@ -350,7 +350,7 @@ function getSubscribes (model, field) {
     var ret = [];
     try {
         for (var key in model.$subscribes) {
-            if (key == '*' || key == field || field.startsWith(key + '.')) {
+            if (key == '*' || key == field || (key + '.').startsWith(field)) {
                 ret = ret.concat(model.$subscribes[key]);
             }
         }

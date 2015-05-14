@@ -192,6 +192,7 @@ exports.scanners = {
                     $middle: i > 0 && i < res.length
                 });
                 model[param] = item;
+				model.$model = model;
 
                 parent.insertBefore(el, endElement);
                 model.$scope(el);
