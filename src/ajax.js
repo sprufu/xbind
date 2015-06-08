@@ -118,6 +118,7 @@ ajax = exports.ajax = function (opt) {
 };
 
 options.ajax = {
+	url			: '',
     async       : true,
     type        : 'get',
     dataType    : 'text',
