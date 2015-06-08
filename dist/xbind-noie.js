@@ -524,6 +524,7 @@ ajax = exports.ajax = function (opt) {
 };
 
 options.ajax = {
+	url			: '',
     async       : true,
     type        : 'get',
     dataType    : 'text',
@@ -947,7 +948,7 @@ function getSubscribes (model, field) {
     var ret = [];
     try {
         for (var key in model.$subscribes) {
-            if (key == '*' || key == field || field.startsWith(key + '.')) {
+            if (key == '*' || key == field || (key + '.').startsWith(field)) {
                 ret = ret.concat(model.$subscribes[key]);
             }
         }
@@ -1219,7 +1220,7 @@ function getScanAttrList(attrs) {
 
 function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
     removeAttrbuteName  && element.removeAttribute(removeAttrbuteName);
-    removeClassName     && exports.removeClass(removeClassName);
+    removeClassName     && exports.removeClass(element, removeClassName);
     noScanChild         && (element.$noScanChild = true);
     skipNextSibling     && (element.$nextSibling = element.nextSibling);
     skipScanOtherAttrs  && (element.$skipOtherAttr = true);

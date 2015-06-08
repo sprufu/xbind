@@ -6,7 +6,7 @@
 
 function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
     removeAttrbuteName  && element.removeAttribute(removeAttrbuteName);
-    removeClassName     && exports.removeClass(removeClassName);
+    removeClassName     && exports.removeClass(element, removeClassName);
     noScanChild         && (element.$noScanChild = true);
     skipNextSibling     && (element.$nextSibling = element.nextSibling);
     skipScanOtherAttrs  && (element.$skipOtherAttr = true);
