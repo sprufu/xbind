@@ -39,16 +39,15 @@ var options = {
     /**
      * 忽略扫描的标签
      */
-    igonreTags: {
+    ignoreTags: {
         SCRIPT      : true,
-        NOSCRIPT    : true,
-        IFRAME      : true
+        NOSCRIPT    : true
     },
 
     /**
      * 忽略扫描的属性
      */
-    igonreAttrs: {
+    ignoreAttrs: {
         'x-ajax-if'         : true,
         'x-ajax-callback'   : true
     },
@@ -1111,7 +1110,7 @@ function scan(element, model, cache) {
     switch(element.nodeType) {
     // 普通结点
     case 1:
-        if (!options.igonreTags[element.tagName]) {
+        if (!options.ignoreTags[element.tagName]) {
             model = scanAttrs(element, model) || model;
             if (!element.$noScanChild && element.childNodes.length) {
                 scanChildNodes(element, model, cache);
@@ -1222,7 +1221,7 @@ function getScanAttrList(attrs) {
         /* ie678) */
 
         // 在过滤属性列表中的属性, 忽略不处理
-        if (options.igonreAttrs[attr.name]) {
+        if (options.ignoreAttrs[attr.name]) {
             continue;
         }
 

@@ -38,16 +38,15 @@ var options = {
     /**
      * 忽略扫描的标签
      */
-    igonreTags: {
+    ignoreTags: {
         SCRIPT      : true,
-        NOSCRIPT    : true,
-        IFRAME      : true
+        NOSCRIPT    : true
     },
 
     /**
      * 忽略扫描的属性
      */
-    igonreAttrs: {
+    ignoreAttrs: {
         'x-ajax-if'         : true,
         'x-ajax-callback'   : true
     },
