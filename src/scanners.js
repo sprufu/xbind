@@ -209,7 +209,7 @@ exports.scanners = {
         parentModel = getParentModel(element),
         replaceElement = document.createComment('x-if:' + model.$id);
 
-        compileElement(element, attr.name, 'x-if', 0, 1);
+        compileElement(element, attr.name, 'x-if', 1, 1);
 
         model = getModel(element) || new Model();
         if (!element.$modelId) {
@@ -220,6 +220,7 @@ exports.scanners = {
             if (res) {
                 element.parentElement || parent.replaceChild(element, replaceElement);
                 model.$freeze = false;
+				scanChildNodes(element, model);
                 for (var field in model.$watchs) {
                     model.$fire(field);
                 }
