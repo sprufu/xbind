@@ -204,6 +204,21 @@ exports.scanners = {
         });
     },
 
+    // 条件扫描 x-scan="express" 当条件为真时才扫描子结点
+    'x-scan': function(model, element, value) {
+        compileElement(element, 'x-scan', 'x-scan', 1, 0, 1);
+        bindModel(model, value, parseExpress, function(res, observer, fields) {
+            if (res) {
+                element.$noScanChild = false;
+                element.$skipOtherAttr = false;
+                scan(element, model, false);
+                for(var field in fields) {
+                    model.$unwatch(field, observer);
+                }
+            }
+        });
+    },
+
     'x-if': function(model, element, value, attr) {
         var parent = element.parentElement,
         parentModel = getParentModel(element),
@@ -443,7 +458,7 @@ function bindModel(model, str, parseFn, updateFn) {
     var fn = getFn(expr),
     observer = {
         update: function(model) {
-            updateFn(fn(model, exports.filter));
+            updateFn(fn(model, exports.filter), observer, fields);
         }
     };
 

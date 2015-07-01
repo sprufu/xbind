@@ -29,6 +29,7 @@ var model = xbind('test', {
         name: 'jcode',
         sex: '先生',
         ah: ['体育', '游戏'],
+		job: '被踢',
 		say: function(element) {
 			console.log('My name is %s', this.user.name);
 			console.log(element)
@@ -86,7 +87,7 @@ setTimeout(function() {
 			<label><input type="checkbox" name="ah" x-bind="user.ah" value="游戏" /> 游戏</label>
 		</div>
 		
-		<div>
+		<div x-scan="user.sex=='女士'">
 			<select x-bind="user.job" id="select">
 				<option>--请选择--</option>
 				<option value="被踢">IT</option>
