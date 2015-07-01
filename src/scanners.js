@@ -12,6 +12,13 @@ function compileElement(element, removeAttributeName, removeClassName, noScanChi
     skipScanOtherAttrs  && (element.$skipOtherAttr = true);
 }
 
+function bindEvent(model, element, express, attr, param, once) {
+    var fn = getFn(parseExecute(express));
+    compileElement(element, attr.name);
+    exports.on(element, param, function () {
+        return fn(model);
+    }, once);
+}
 /**
  * 扫描器列表
  * @namespace
@@ -36,11 +43,12 @@ exports.scanners = {
      * 事件绑定
      */
     'x-on': function(model, element, value, attr, param) {
-        var fn = getFn(parseExecute(value));
-        compileElement(element, attr.name);
-        exports.on(element, param, function(event) {
-            return fn(model);
-        });
+        bindEvent(model, element, value, attr, param);
+    },
+
+    // 一次性绑定事件
+    'x-once': function(model, element, value, attr, param) {
+        bindEvent(model, element, value, attr, param, true);
     },
 
     /**
