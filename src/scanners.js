@@ -401,7 +401,11 @@ exports.scanners = {
                 url: url,
                 success: function(res) {
                     model.$set(param + '.$error', null);
-                    model.$set(res, param);
+                    if (Array.isArray(res)) {
+                        model.$set(param, res);
+                    } else {
+                        model.$set(res, param);
+                    }
                     callback && callback(model);
                 },
                 error: function(xhr, err) {
