@@ -334,8 +334,9 @@ mix(exports, {
      * @param {Element} el 监听对象
      * @param {String} type 事件类型, 如click
      * @param {Function} handler 事件句柄
+     * @param {boolean} once 是否一次性事件
      */
-    on: function(el, type, handler) {
+    on: function(el, type, handler, once) {
         if (exports.type(type, 'object')) {
             // 批量添加事件
             // 如:
@@ -344,28 +345,39 @@ mix(exports, {
             //      mouseout: fun2
             //  });
             for (var key in type) {
-                exports.on(el, key, type[key]);
+                exports.on(el, key, type[key], once);
             }
         } else {
             /* ie678( */
             if (el.addEventListener) {
                 /* ie678) */
-                el.addEventListener(type, function(event) {
+                var caller = function(event) {
+                    if (once) {
+                        el.removeEventListener(type, caller);
+                    }
+
                     var res = handler.call(el, event);
                     if (res === false) {
                         event.preventDefault();
                         event.stopPropagation();
                     }
-                }, false);
+                };
+
+                el.addEventListener(type, caller, false);
                 /* ie678( */
             } else if (el.attachEvent){
-                el.attachEvent('on' + type, function(event) {
+                var caller = function(event) {
+                    if (once) {
+                        el.detachEvent('on' + type, caller);
+                    }
+
                     var res = handler.call(el, event);
                     if (res === false) {
                         event.returnValue = false;
                         event.cancelBubble = true;
                     }
-                });
+                };
+                el.attachEvent('on' + type, caller);
             }
             /* ie678) */
         }
