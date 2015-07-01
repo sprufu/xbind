@@ -9,7 +9,7 @@
 /* ie678( */
 if (!''.trim) {
     var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
-    String.prototype.trim = function(str) {
+    String.prototype.trim = function() {
         return this.replace(rtrim, '');
     };
 }

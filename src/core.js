@@ -56,6 +56,7 @@ var options = {
      */
     priorities: {
         'x-skip'        : 0,
+        'x-scan'        : 5,
         'x-repeat'      : 10,
         'x-controller'  : 20,
         'x-if'          : 50
@@ -100,12 +101,12 @@ var REGEXPS = exports.regexps = {
     /**
      * 电话号码正则
      */
-    telphone: /^0\d{10,11}/,
+    telPhone: /^0\d{10,11}/,
 
     /**
      * 身份证正则
      */
-    idcard: /^\d{6}(19\d{2}|20\d{2})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
+    idCard: /^\d{6}(19\d{2}|20\d{2})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
 };
 
 /**********************************/

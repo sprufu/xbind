@@ -2,12 +2,12 @@
 "use strict";
 
 // var AJAX_CONTENT_TYPE_FROMDATA      = 'multipart/form-data';
-var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded',
-ajax = exports.ajax = function (opt) {
+var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded';
+function ajax(opt) {
     opt = mix({}, options.ajax, opt);
     var XMLHttpRequest = window.XMLHttpRequest || window.ActiveXObject,
     xhr = new XMLHttpRequest('Microsoft.XMLHTTP'),
-    jsonpcallback,
+    jsonpCallback,
     data = null;
 
     if (opt.data) {
@@ -29,16 +29,16 @@ ajax = exports.ajax = function (opt) {
 
     opt.dataType = opt.dataType.toLowerCase();
     if (opt.dataType == 'jsonp') {
-        jsonpcallback = 'callback' + Math.random().toString(36).substr(2);
-        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + 'callback=' + jsonpcallback;
-        window[jsonpcallback] = function(data) {
+        jsonpCallback = 'callback' + Math.random().toString(36).substr(2);
+        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + 'callback=' + jsonpCallback;
+        window[jsonpCallback] = function(data) {
             opt.success.call(opt, data, xhr);
         };
     }
 
     xhr.open(opt.type, opt.url, opt.async);
     if (opt.headers) {
-        var key, header;
+        var key;
         for (key in opt.headers) {
             xhr.setRequestHeader(key, opt.headers[key]);
         }
@@ -57,7 +57,7 @@ ajax = exports.ajax = function (opt) {
             }
 
             // 执行headerCode
-            var res;
+            var res = true;
             exports.each(opt.headerCode, function(fn, key) {
                 var headerValue = xhr.getResponseHeader(key);
                 if (headerValue && fn.call(xhr, headerValue) === false) {
@@ -99,7 +99,7 @@ ajax = exports.ajax = function (opt) {
                         el.innerHTML = obj;
                         document.body.removeChild(el);
                         if (opt.dataType == 'jsonp') {
-                            delete window[jsonpcallback];
+                            delete window[jsonpCallback];
                             return;
                         }
                     break;
@@ -116,6 +116,8 @@ ajax = exports.ajax = function (opt) {
     };
     xhr.send(data);
 };
+
+exports.ajax = ajax;
 
 options.ajax = {
 	url			: '',

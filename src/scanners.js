@@ -4,8 +4,8 @@
 /* jshint -W097 */
 "use strict";
 
-function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
-    removeAttrbuteName  && element.removeAttribute(removeAttrbuteName);
+function compileElement(element, removeAttributeName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
+    removeAttributeName  && element.removeAttribute(removeAttributeName);
     removeClassName     && exports.removeClass(element, removeClassName);
     noScanChild         && (element.$noScanChild = true);
     skipNextSibling     && (element.$nextSibling = element.nextSibling);
@@ -433,9 +433,9 @@ exports.scanners = {
     }
 };
 
-function bindModel(model, str, parsefn, updatefn) {
+function bindModel(model, str, parseFn, updateFn) {
     var fields = {},
-    expr = parsefn(str, fields);
+    expr = parseFn(str, fields);
     if (exports.isEmptyObject(fields)) {
         return false;
     }
@@ -443,7 +443,7 @@ function bindModel(model, str, parsefn, updatefn) {
     var fn = getFn(expr),
     observer = {
         update: function(model) {
-            updatefn(fn(model, exports.filter));
+            updateFn(fn(model, exports.filter));
         }
     };
 

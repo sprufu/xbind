@@ -29,20 +29,20 @@ describe('REGEXPS test', function() {
         assert(REGEXPS.phone.test('136391379120') == false, '136391379120')
     });
 
-    it('telphone regexp', function() {
-        assert(REGEXPS.telphone.test('08515814740'), '08515814740')
+    it('telPhone regexp', function() {
+        assert(REGEXPS.telPhone.test('08515814740'), '08515814740')
     })
 
-    it('idcard regexp', function() {
-        assert(REGEXPS.idcard.test('655312198312012345'))
-        assert(REGEXPS.idcard.test('6553121983120123459') == false)
-        assert(REGEXPS.idcard.test('65531219831201234a') == false)
-        assert(REGEXPS.idcard.test('65531219831201234x') == true)
-        assert(REGEXPS.idcard.test('65531229831201234x') == false, '生日年不对')
-        assert(REGEXPS.idcard.test('65531219831401234x') == false, '生日月不对')
-        assert(REGEXPS.idcard.test('65531219831241234x') == false, '生日日不对')
-        assert(REGEXPS.idcard.test('65531219831231234x') == true, '生日日不对')
-        assert(REGEXPS.idcard.test('65531219831232234x') == false, '生日日不对')
+    it('idCard regexp', function() {
+        assert(REGEXPS.idCard.test('655312198312012345'))
+        assert(REGEXPS.idCard.test('6553121983120123459') == false)
+        assert(REGEXPS.idCard.test('65531219831201234a') == false)
+        assert(REGEXPS.idCard.test('65531219831201234x') == true)
+        assert(REGEXPS.idCard.test('65531229831201234x') == false, '生日年不对')
+        assert(REGEXPS.idCard.test('65531219831401234x') == false, '生日月不对')
+        assert(REGEXPS.idCard.test('65531219831241234x') == false, '生日日不对')
+        assert(REGEXPS.idCard.test('65531219831231234x') == true, '生日日不对')
+        assert(REGEXPS.idCard.test('65531219831232234x') == false, '生日日不对')
     })
 })
 

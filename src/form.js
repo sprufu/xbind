@@ -119,13 +119,12 @@ function bindValidModel(element, fn) {
 function updateFormItem(element, type, res) {
     var frm = element.form,
     model = getExtModel(frm),
-    name, prefix;
+    prefix;
 
     if (!model) {
         return;
     }
 
-    name = element.name;
     prefix = model.$xform + '.' + element.name;
     model.$set(prefix + '.$valid', res);
     model.$set(prefix + '.$error.' + type, !res);

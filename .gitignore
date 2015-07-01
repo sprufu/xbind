@@ -1,6 +1,8 @@
-Session.vim
+*.vim
 *.swp
-npm-debug.log
+*.iml
+*.log
+
 node_modules/
 sample/firebug-lite/
 doc/api/

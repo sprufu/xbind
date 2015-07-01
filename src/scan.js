@@ -118,7 +118,7 @@ orderFn = testOrderArray[0].k == 2 ? function(a,b) {
  */
 function getScanAttrList(attrs) {
     var res = [],
-    i = attrs.length, attr, param, endpos, type;
+    i = attrs.length, attr, param, endPos, type;
     while (i--) {
         attr = attrs[i];
 
@@ -137,10 +137,10 @@ function getScanAttrList(attrs) {
         param = undefined;
 
         if (attr.name.startsWith('x-')) {
-            endpos = attr.name.indexOf('-', 2);
-            if (~endpos) {
-                type = attr.name.substr(0, endpos);
-                param = attr.name.substr(endpos+1);
+            endPos = attr.name.indexOf('-', 2);
+            if (~endPos) {
+                type = attr.name.substr(0, endPos);
+                param = attr.name.substr(endPos+1);
             } else {
                 type = attr.name;
             }
