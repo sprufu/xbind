@@ -21,8 +21,8 @@
 <script src="../src/exports.js"></script>
 <script>
 xbind.ready(xbind.scan);
-var model = xbind({
-    $id: 'test',
+var model = xbind('test', {
+    //$id: 'test',
     url: 'test.html',
     my_tpl: 'full',
     user: {
@@ -53,7 +53,7 @@ var model2 = xbind({
 setTimeout(function() {
     model.$set('user.name', 'sprufu');
 	model.$set({
-		user: {
+		user1: {
 			bgColor: "red",
 			name: "jcode"
 		},
@@ -130,8 +130,6 @@ setTimeout(function() {
     <a x-href="{{ url }}" href="">主页: {{ user.name }} </a>
     <div id="test2" x-if="user.sex == '先生'">TMD, 这家伙是男的, 喜欢{{ user.ah }}!!!</div>
     <div id="dd" x-show="user.sex == '女士'"> 这个MM很漂亮嘛, 很喜欢{{ user.ah }}. </div>
-    <div x-include="my_tpl"></div>
-    <div x-include="my_tpl"></div>
     <ul x-skip>
         <li x-repeat-item="user.ah"> {{ $index }} - {{ item }} <button x-click="$remove()">remove</button> </li>
     </ul>

@@ -10,11 +10,17 @@
 /**********************************/
 
 /**
+ * usage:
+ *   var model = xbind('controllerName');
+ *   var model = xbind({$id: 'controllerName});
+ *   var model = xbind('controllerName', {otherAttr ... });
  * @namespace exports
  */
 function exports(vm) {
     if ('string' == typeof vm) {
-        vm = {$id: vm};
+        var id = vm;
+        vm = arguments[1] || {};
+        vm.$id = id;
     }
     return new Model(vm);
 }
