@@ -63,7 +63,7 @@ function scanAttrs(element, model) {
         item = list[i];
         attr = attrs[item.index];
         fn = exports.scanners[item.type];
-        if (fn) {
+        if (fn && attr) {
             model = fn(model, element, attr.value, attr, item.param) || model;
         }
 
