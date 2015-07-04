@@ -8,7 +8,7 @@
 var
 filterRegExp    = /(\w+)(.*)/,
 URLPARAMS       = null,
-exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:]+/g,    // 表达式操作符
+exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<]+/g,    // 表达式操作符
 whithReg        = /^[\s\uFEFF\xA0]$/,
 cacheParse      = false,
 cacheParses     = {
@@ -250,7 +250,7 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         isField: false
     };
 
-    if (c == '"' || c == "'") {
+    if (c == '"' || c == "'" || c == "{") {
         return str;
     }
 
