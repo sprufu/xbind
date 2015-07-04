@@ -32,6 +32,11 @@ function setFieldValue(model, field, value) {
     if (~field.indexOf('.')) {
         // 深层的数据, 如: user.name, user.job.type
         keys = field.split('.');
+		
+		if ('undefined' == typeof model[keys[0]] && model.$parent) {
+			return setFieldValue(model.$parent, field, value);
+		}
+		
         v = model;
         for (i=0; i<keys.length; i++) {
             key = keys[i];
@@ -43,7 +48,11 @@ function setFieldValue(model, field, value) {
             v = v[key];
         }
     } else {
-        model[field] = value;
+		if ('undefined' == typeof model[field] && model.$parent) {
+			setFieldValue(model.$parent, field, value);
+		} else {
+			model[field] = value;
+		}
     }
 }
 
