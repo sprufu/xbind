@@ -265,6 +265,7 @@ exports.scanners = {
     'x-bind': function(model, element, value, attr) {
         compileElement(element, attr.name);
         bindModel(model, value, parseExpress, function(res) {
+			if ('undefined' == typeof res) return;
             if (element.tagName == 'INPUT') {
                 if (element.type == 'radio') {
                     if (res == element.value) {
