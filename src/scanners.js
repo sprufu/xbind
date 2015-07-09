@@ -13,7 +13,7 @@ function compileElement(element, removeAttributeName, removeClassName, noScanChi
 }
 
 function bindEvent(model, element, express, attr, param, once) {
-    var fn = getFn(parseExecute(express));
+    var fn = getFn(parseExecute(express), true);
     compileElement(element, attr.name);
     exports.on(element, param, function () {
         return fn(model);
@@ -484,13 +484,13 @@ function bindModel(model, str, parseFn, updateFn) {
 }
 
 var fnCache = {};
-function getFn(str) {
+function getFn(str, withoutReturn) {
     if (fnCache[str]) {
         return fnCache[str];
     }
 
     /* jshint -W054 */
-    var fn = new Function('$model,filter', 'return ' + str);
+    var fn = new Function('$model,filter', (withoutReturn ? '' : 'return ') + str);
     fnCache[str] = fn;
     return fn;
 }
