@@ -16,7 +16,7 @@ function bindEvent(model, element, express, attr, param, once) {
     var fn = getFn(parseExecute(express), true);
     compileElement(element, attr.name);
     exports.on(element, param, function () {
-        return fn(model);
+        return fn.call(element, model);
     }, once);
 }
 /**
