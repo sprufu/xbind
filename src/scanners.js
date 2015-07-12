@@ -85,7 +85,7 @@ exports.scanners = {
         var expr = parseExecute(value),
         /* jshint -W054 */
         fn = new Function('$model', expr);
-        fn(model);
+        fn.call(element, model);
     },
 
     /**
