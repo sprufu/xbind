@@ -8,7 +8,7 @@
 var
 filterRegExp    = /(\w+)(.*)/,
 URLPARAMS       = null,
-exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:]+/g,    // 表达式操作符
+exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:\{\}]+/g,    // 表达式操作符
 whithReg        = /^[\s\uFEFF\xA0]$/,
 cacheParse      = false,
 cacheParses     = {
@@ -242,6 +242,12 @@ function parseExecute(str) {
  *    user.age + 1
  *    user.getName()
  *
+ * 复杂对象请加引号, 像JSON方式:
+ *    {
+ *      "name":"jcode",
+ *      "age": 28
+ *    }
+ *
  * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
  */
 function parseExecuteItem(str, fields, isDisplayResult) {
@@ -250,7 +256,7 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         isField: false
     };
 
-    if (c == '"' || c == "'" || c == "{") {
+    if (c == '"' || c == "'") {
         return str;
     }
 
