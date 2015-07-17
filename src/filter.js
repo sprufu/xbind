@@ -235,6 +235,11 @@ function formatLastDisplay(date) {
     }
 
     diff /= 24;
+
+    if (diff < 2) {
+        return '昨天';
+    }
+
     if (diff < 30) {
         return Math.floor(diff) + '天前';
     }

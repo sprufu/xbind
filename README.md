@@ -47,6 +47,7 @@ cd vmodel && npm run build
 3. 监听数组长度变化.
 
 ## Issue
+1. parseExecuteItem解析字符串时无法解析json串等复杂对象表达式
 
 ## Change
 

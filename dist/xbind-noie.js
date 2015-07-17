@@ -11,11 +11,17 @@
 /**********************************/
 
 /**
+ * usage:
+ *   var model = xbind('controllerName');
+ *   var model = xbind({$id: 'controllerName});
+ *   var model = xbind('controllerName', {otherAttr ... });
  * @namespace exports
  */
 function exports(vm) {
     if ('string' == typeof vm) {
-        vm = {$id: vm};
+        var id = vm;
+        vm = arguments[1] || {};
+        vm.$id = id;
     }
     return new Model(vm);
 }
@@ -57,6 +63,7 @@ var options = {
      */
     priorities: {
         'x-skip'        : 0,
+        'x-scan'        : 5,
         'x-repeat'      : 10,
         'x-controller'  : 20,
         'x-if'          : 50
@@ -93,12 +100,12 @@ var REGEXPS = exports.regexps = {
     /**
      * 电话号码正则
      */
-    telphone: /^0\d{10,11}/,
+    telPhone: /^0\d{10,11}/,
 
     /**
      * 身份证正则
      */
-    idcard: /^\d{6}(19\d{2}|20\d{2})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
+    idCard: /^\d{6}(19\d{2}|20\d{2})(0\d|1[012])([012]\d|3[01])\d{3}[\dx]$/
 };
 
 /**********************************/
@@ -306,8 +313,9 @@ mix(exports, {
      * @param {Element} el 监听对象
      * @param {String} type 事件类型, 如click
      * @param {Function} handler 事件句柄
+     * @param {boolean} once 是否一次性事件
      */
-    on: function(el, type, handler) {
+    on: function(el, type, handler, once) {
         if (exports.type(type, 'object')) {
             // 批量添加事件
             // 如:
@@ -316,17 +324,23 @@ mix(exports, {
             //      mouseout: fun2
             //  });
             for (var key in type) {
-                exports.on(el, key, type[key]);
+                exports.on(el, key, type[key], once);
             }
         } else {
             
-                el.addEventListener(type, function(event) {
+                var caller = function(event) {
+                    if (once) {
+                        el.removeEventListener(type, caller);
+                    }
+
                     var res = handler.call(el, event);
                     if (res === false) {
                         event.preventDefault();
                         event.stopPropagation();
                     }
-                }, false);
+                };
+
+                el.addEventListener(type, caller, false);
                 
         }
     },
@@ -403,16 +417,17 @@ function camelize(target) {
     });
 }
 
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /* jshint -W097 */
 
 
 // var AJAX_CONTENT_TYPE_FROMDATA      = 'multipart/form-data';
-var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded',
-ajax = exports.ajax = function (opt) {
+var AJAX_CONTENT_TYPE_URLENCODED    = 'application/x-www-form-urlencoded';
+function ajax(opt) {
     opt = mix({}, options.ajax, opt);
     var XMLHttpRequest = window.XMLHttpRequest || window.ActiveXObject,
     xhr = new XMLHttpRequest('Microsoft.XMLHTTP'),
-    jsonpcallback,
+    jsonpCallback,
     data = null;
 
     if (opt.data) {
@@ -434,16 +449,16 @@ ajax = exports.ajax = function (opt) {
 
     opt.dataType = opt.dataType.toLowerCase();
     if (opt.dataType == 'jsonp') {
-        jsonpcallback = 'callback' + Math.random().toString(36).substr(2);
-        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + 'callback=' + jsonpcallback;
-        window[jsonpcallback] = function(data) {
+        jsonpCallback = 'callback' + Math.random().toString(36).substr(2);
+        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + 'callback=' + jsonpCallback;
+        window[jsonpCallback] = function(data) {
             opt.success.call(opt, data, xhr);
         };
     }
 
     xhr.open(opt.type, opt.url, opt.async);
     if (opt.headers) {
-        var key, header;
+        var key;
         for (key in opt.headers) {
             xhr.setRequestHeader(key, opt.headers[key]);
         }
@@ -462,7 +477,7 @@ ajax = exports.ajax = function (opt) {
             }
 
             // 执行headerCode
-            var res;
+            var res = true;
             exports.each(opt.headerCode, function(fn, key) {
                 var headerValue = xhr.getResponseHeader(key);
                 if (headerValue && fn.call(xhr, headerValue) === false) {
@@ -504,7 +519,7 @@ ajax = exports.ajax = function (opt) {
                         el.innerHTML = obj;
                         document.body.removeChild(el);
                         if (opt.dataType == 'jsonp') {
-                            delete window[jsonpcallback];
+                            delete window[jsonpCallback];
                             return;
                         }
                     break;
@@ -521,6 +536,8 @@ ajax = exports.ajax = function (opt) {
     };
     xhr.send(data);
 };
+
+exports.ajax = ajax;
 
 options.ajax = {
 	url			: '',
@@ -595,6 +612,7 @@ exports.param = function(object, prefix) {
     return ret.join('&');
 };
 
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 数据模型
  * 所有通过工厂函数加工过的数据, 都是以这个为原型
@@ -629,6 +647,11 @@ function setFieldValue(model, field, value) {
     if (~field.indexOf('.')) {
         // 深层的数据, 如: user.name, user.job.type
         keys = field.split('.');
+		
+		if ('undefined' == typeof model[keys[0]] && model.$parent) {
+			return setFieldValue(model.$parent, field, value);
+		}
+		
         v = model;
         for (i=0; i<keys.length; i++) {
             key = keys[i];
@@ -640,7 +663,11 @@ function setFieldValue(model, field, value) {
             v = v[key];
         }
     } else {
-        model[field] = value;
+		if ('undefined' == typeof model[field] && model.$parent) {
+			setFieldValue(model.$parent, field, value);
+		} else {
+			model[field] = value;
+		}
     }
 }
 
@@ -1049,6 +1076,7 @@ exports.model = function(id) {
     return 'string' == typeof id ? MODELS[id] || null : getExtModel(id);
 };
 
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /* jshint -W097 */
 
 
@@ -1114,7 +1142,7 @@ function scanAttrs(element, model) {
         item = list[i];
         attr = attrs[item.index];
         fn = exports.scanners[item.type];
-        if (fn) {
+        if (fn && attr) {
             model = fn(model, element, attr.value, attr, item.param) || model;
         }
 
@@ -1163,7 +1191,7 @@ orderFn = testOrderArray[0].k == 2 ? function(a,b) {
  */
 function getScanAttrList(attrs) {
     var res = [],
-    i = attrs.length, attr, param, endpos, type;
+    i = attrs.length, attr, param, endPos, type;
     while (i--) {
         attr = attrs[i];
 
@@ -1177,10 +1205,10 @@ function getScanAttrList(attrs) {
         param = undefined;
 
         if (attr.name.startsWith('x-')) {
-            endpos = attr.name.indexOf('-', 2);
-            if (~endpos) {
-                type = attr.name.substr(0, endpos);
-                param = attr.name.substr(endpos+1);
+            endPos = attr.name.indexOf('-', 2);
+            if (~endPos) {
+                type = attr.name.substr(0, endPos);
+                param = attr.name.substr(endPos+1);
             } else {
                 type = attr.name;
             }
@@ -1201,6 +1229,7 @@ function getScanAttrList(attrs) {
     return res.sort(orderFn);
 }
 
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 浏览器补丁, 主要用来兼容ie678
  * 如果不考虑ie678, 可以去掉这个文件
@@ -1211,20 +1240,28 @@ function getScanAttrList(attrs) {
 
 
 
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * 属性扫描定义的回调
  */
 /* jshint -W097 */
 
 
-function compileElement(element, removeAttrbuteName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
-    removeAttrbuteName  && element.removeAttribute(removeAttrbuteName);
+function compileElement(element, removeAttributeName, removeClassName, noScanChild, skipNextSibling, skipScanOtherAttrs) {
+    removeAttributeName  && element.removeAttribute(removeAttributeName);
     removeClassName     && exports.removeClass(element, removeClassName);
     noScanChild         && (element.$noScanChild = true);
     skipNextSibling     && (element.$nextSibling = element.nextSibling);
     skipScanOtherAttrs  && (element.$skipOtherAttr = true);
 }
 
+function bindEvent(model, element, express, attr, param, once) {
+    var fn = getFn(parseExecute(express), true);
+    compileElement(element, attr.name);
+    exports.on(element, param, function () {
+        return fn.call(element, model);
+    }, once);
+}
 /**
  * 扫描器列表
  * @namespace
@@ -1249,11 +1286,12 @@ exports.scanners = {
      * 事件绑定
      */
     'x-on': function(model, element, value, attr, param) {
-        var fn = getFn(parseExecute(value));
-        compileElement(element, attr.name);
-        exports.on(element, param, function(event) {
-            return fn(model);
-        });
+        bindEvent(model, element, value, attr, param);
+    },
+
+    // 一次性绑定事件
+    'x-once': function(model, element, value, attr, param) {
+        bindEvent(model, element, value, attr, param, true);
     },
 
     /**
@@ -1290,7 +1328,7 @@ exports.scanners = {
         var expr = parseExecute(value),
         /* jshint -W054 */
         fn = new Function('$model', expr);
-        fn(model);
+        fn.call(element, model);
     },
 
     /**
@@ -1407,12 +1445,27 @@ exports.scanners = {
         });
     },
 
+    // 条件扫描 x-scan="express" 当条件为真时才扫描子结点
+    'x-scan': function(model, element, value) {
+        compileElement(element, 'x-scan', 'x-scan', 1, 0, 1);
+        bindModel(model, value, parseExpress, function(res, observer, fields) {
+            if (res) {
+                element.$noScanChild = false;
+                element.$skipOtherAttr = false;
+                scan(element, model, false);
+                for(var field in fields) {
+                    model.$unwatch(field, observer);
+                }
+            }
+        });
+    },
+
     'x-if': function(model, element, value, attr) {
         var parent = element.parentElement,
         parentModel = getParentModel(element),
         replaceElement = document.createComment('x-if:' + model.$id);
 
-        compileElement(element, attr.name, 'x-if', 0, 1);
+        compileElement(element, attr.name, 'x-if', 1, 1);
 
         model = getModel(element) || new Model();
         if (!element.$modelId) {
@@ -1423,6 +1476,7 @@ exports.scanners = {
             if (res) {
                 element.parentElement || parent.replaceChild(element, replaceElement);
                 model.$freeze = false;
+				scanChildNodes(element, model);
                 for (var field in model.$watchs) {
                     model.$fire(field);
                 }
@@ -1444,6 +1498,7 @@ exports.scanners = {
     'x-bind': function(model, element, value, attr) {
         compileElement(element, attr.name);
         bindModel(model, value, parseExpress, function(res) {
+			if ('undefined' == typeof res) return;
             if (element.tagName == 'INPUT') {
                 if (element.type == 'radio') {
                     if (res == element.value) {
@@ -1580,7 +1635,11 @@ exports.scanners = {
                 url: url,
                 success: function(res) {
                     model.$set(param + '.$error', null);
-                    model.$set(res, param);
+                    if (Array.isArray(res)) {
+                        model.$set(param, res);
+                    } else {
+                        model.$set(res, param);
+                    }
                     callback && callback(model);
                 },
                 error: function(xhr, err) {
@@ -1635,9 +1694,9 @@ exports.scanners = {
     }
 };
 
-function bindModel(model, str, parsefn, updatefn) {
+function bindModel(model, str, parseFn, updateFn) {
     var fields = {},
-    expr = parsefn(str, fields);
+    expr = parseFn(str, fields);
     if (exports.isEmptyObject(fields)) {
         return false;
     }
@@ -1645,7 +1704,7 @@ function bindModel(model, str, parsefn, updatefn) {
     var fn = getFn(expr),
     observer = {
         update: function(model) {
-            updatefn(fn(model, exports.filter));
+            updateFn(fn(model, exports.filter), observer, fields);
         }
     };
 
@@ -1658,13 +1717,13 @@ function bindModel(model, str, parsefn, updatefn) {
 }
 
 var fnCache = {};
-function getFn(str) {
+function getFn(str, withoutReturn) {
     if (fnCache[str]) {
         return fnCache[str];
     }
 
     /* jshint -W054 */
-    var fn = new Function('$model,filter', 'return ' + str);
+    var fn = new Function('$model,filter', (withoutReturn ? '' : 'return ') + str);
     fnCache[str] = fn;
     return fn;
 }
@@ -1707,7 +1766,7 @@ function Template(id, element) {
 var
 filterRegExp    = /(\w+)(.*)/,
 URLPARAMS       = null,
-exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:]+/g,    // 表达式操作符
+exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:\{\}]+/g,    // 表达式操作符
 whithReg        = /^[\s\uFEFF\xA0]$/,
 cacheParse      = false,
 cacheParses     = {
@@ -1941,6 +2000,12 @@ function parseExecute(str) {
  *    user.age + 1
  *    user.getName()
  *
+ * 复杂对象请加引号, 像JSON方式:
+ *    {
+ *      "name":"jcode",
+ *      "age": 28
+ *    }
+ *
  * 这与javascript表达式有所不同, "."两边不能有空格, 如: user.  age
  */
 function parseExecuteItem(str, fields, isDisplayResult) {
@@ -2038,6 +2103,7 @@ function parseStatic(str, isDisplayResult, model) {
     return '$model.$get("' + str + '"' + (isDisplayResult ? ',0,1':'') +')';
 }
 
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 if (options.scanOnReady) {
     exports.ready(scan);
 }
@@ -2049,6 +2115,7 @@ if (window.define && window.define.amd) {
 } else {
     window.xbind = exports;
 }
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 过滤器
  * @author jcode
@@ -2312,6 +2379,7 @@ exports.filter = function(filterName, obj, args) {
     return fn.apply(null, args);
 };
 
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 表单处理
  * @author jcode
@@ -2433,16 +2501,16 @@ function bindValidModel(element, fn) {
 function updateFormItem(element, type, res) {
     var frm = element.form,
     model = getExtModel(frm),
-    name, prefix;
+    prefix;
 
     if (!model) {
         return;
     }
 
-    name = element.name;
     prefix = model.$xform + '.' + element.name;
     model.$set(prefix + '.$valid', res);
     model.$set(prefix + '.$error.' + type, !res);
 }
 
+// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 }(window, document, location, history));
