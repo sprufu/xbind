@@ -5,26 +5,26 @@
 
 /* jshint -W097 */
 "use strict";
-var URLPARAMS = null;
+var URL_PARAMS = null;
 
 /**
  * 解析url参数
  */
 function parseUrlParam(name, object, def) {
-    if (URLPARAMS === null) {
-        URLPARAMS = {};
+    if (URL_PARAMS === null) {
+        URL_PARAMS = {};
         if (location.search) {
             decodeURIComponent(location.search).substr(1).split('&').map(function(it) {
                 var val = it.split('=');
-                URLPARAMS[val[0]] = val[1];
+                URL_PARAMS[val[0]] = val[1];
             });
         }
     }
 
     if (object) {
-        object[name] = URLPARAMS[name] || def;
+        object[name] = URL_PARAMS[name] || def;
     } else {
-        return URLPARAMS[name];
+        return URL_PARAMS[name];
     }
 }
 

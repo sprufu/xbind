@@ -7,9 +7,8 @@
 
 var
 filterRegExp    = /(\w+)(.*)/,
-URLPARAMS       = null,
 exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:\{\}]+/g,    // 表达式操作符
-whithReg        = /^[\s\uFEFF\xA0]$/,
+whiteReg        = /^[\s\uFEFF\xA0]$/,
 cacheParse      = false,
 cacheParses     = {
     string : {},
@@ -212,15 +211,15 @@ function parseExecute(str) {
     if (~str.indexOf(';')) {
         // 含有";", 如: user.name = 'jcode'; user.age = 31
         // 表示由多个表达式组成
-        var strs = str.split(';'),
+        var scripts = str.split(';'),
         i = 0;
 
         // 循环解析每个表达式, 把结果累加在一起
-        for (; i<strs.length; i++) {
+        for (; i<scripts.length; i++) {
             if (i) {
                 ret += ';';
             }
-            ret += parseExecute(strs[i].trim());
+            ret += parseExecute(scripts[i].trim());
         }
     } else {
         if (~str.indexOf('=')) {
@@ -271,7 +270,7 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         // 循环解析操作符分隔的每个表达式
         // 并把他们加在一起
         for (; i<actions.length; i++) {
-            if (whithReg.test(actions[i])) {
+            if (whiteReg.test(actions[i])) {
                 // 是纯空白的不处理
                 continue;
             }
