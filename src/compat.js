@@ -44,6 +44,12 @@ if (!Array.prototype.indexOf) {
     };
 }
 
+if (!Array.isArray) {
+	Array.isArray = function(obj) {
+		return obj instanceof Array;
+	};
+}
+
 if (!Function.prototype.bind) {
     Function.prototype.bind = function(scope) {
         var fn = this;
