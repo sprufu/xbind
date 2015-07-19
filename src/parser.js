@@ -161,7 +161,7 @@ function divExpress(str, filters, fields) {
                     var filter = parseFilter(str, fields);
                     filters.push(filter);
                 });
-                expr = str.substr(0, pos - 1);
+                expr = str.substr(0, pos);
                 break;
             }
         } else {
