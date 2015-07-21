@@ -11,7 +11,8 @@ exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:\{\}]+/g,    // 表达�
 whiteReg        = /^[\s\uFEFF\xA0]$/,
 cacheParses     = {
     string : {},
-    express: {}
+    express: {},
+    execute: {}
 },
 parseJSON       = window.JSON ? window.JSON.parse : function(str) {
     /* jshint -W054 */
@@ -200,6 +201,10 @@ function parseFilter(str, fields) {
  * TODO fields是否应该收集
  */
 function parseExecute(str) {
+    if (cacheParses.execute[str]) {
+        return cacheParses.execute[str];
+    }
+
     var fields = {},
     ret = '';
 
@@ -225,7 +230,7 @@ function parseExecute(str) {
             ret = parseExecuteItem(str, fields) + ';';
         }
     }
-    return ret;
+    return cacheParses.execute[str] = ret;
 }
 
 
@@ -251,11 +256,8 @@ function parseExecuteItem(str, fields, isDisplayResult) {
     };
 
     if (c == '"' || c == "'") {
-        return str;
-    }
-
-    actions = str.match(exprActionReg);
-    if (actions) {
+        ret = str;
+    } else if (actions = str.match(exprActionReg)) {
         ret = '';
         var field,
         pos0 = 0,
@@ -294,15 +296,14 @@ function parseExecuteItem(str, fields, isDisplayResult) {
             }
             ret += res;
         }
-
-        return ret;
     } else {
         ret = parseStatic(str, isDisplayResult, model);
         if (model.isField) {
             fields[str] = true;
         }
-        return ret;
     }
+
+    return ret;
 }
 
 /**
