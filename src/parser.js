@@ -9,7 +9,7 @@ var
 filterRegExp    = /(\w+)(.*)/,
 exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:\{\}]+/g,    // 表达式操作符
 whiteReg        = /^[\s\uFEFF\xA0]$/,
-cacheParse      = false,
+cacheParse      = true,
 cacheParses     = {
     string : {},
     express: {}
