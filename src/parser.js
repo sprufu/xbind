@@ -9,7 +9,6 @@ var
 filterRegExp    = /(\w+)(.*)/,
 exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:\{\}]+/g,    // 表达式操作符
 whiteReg        = /^[\s\uFEFF\xA0]$/,
-cacheParse      = true,
 cacheParses     = {
     string : {},
     express: {}
@@ -25,7 +24,7 @@ parseJSON       = window.JSON ? window.JSON.parse : function(str) {
 function parseString(str, fields) {
     var cache;
     // get from cache
-    if (cacheParse && (cache = cacheParses.string[str])) {
+    if (cache = cacheParses.string[str]) {
         mix(fields, cache.fields);
         return cache.expr;
     }
@@ -70,12 +69,10 @@ function parseString(str, fields) {
     }
 
     // cache the result.
-    if (cacheParse) {
-        cacheParses.string[str] = isBindField ? {
-            fields: fields,
-            expr: txt
-        } : false;
-    }
+    cacheParses.string[str] = isBindField ? {
+        fields: fields,
+        expr: txt
+    } : false;
 
     return isBindField ? txt : false;
 }
@@ -105,7 +102,7 @@ function replaceWrapLineString(str) {
 function parseExpress(str, fields, isDisplayResult) {
     var cache;
     // get from cache
-    if (cacheParse && (cache = cacheParses.express[str])) {
+    if (cache = cacheParses.express[str]) {
         mix(fields, cache.fields);
         return cache.expr;
     }
@@ -126,12 +123,10 @@ function parseExpress(str, fields, isDisplayResult) {
         }
 
         // cache the result.
-        if (cacheParse) {
-            cacheParses.express[str] = {
-                fields: fields,
-                expr: expr
-            };
-        }
+        cacheParses.express[str] = {
+            fields: fields,
+            expr: expr
+        };
 
         return expr;
     } catch (err) {
