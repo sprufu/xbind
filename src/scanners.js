@@ -478,9 +478,9 @@ function bindModel(model, str, parseFn, updateFn) {
     for (var field in fields) {
         if (model) {
             model.$watch(field, observer);
-            observer.update(model);
         }
     }
+	model && observer.update(model);
 }
 
 var fnCache = {};
