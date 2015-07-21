@@ -464,8 +464,8 @@ exports.scanners = {
 function bindModel(model, str, parseFn, updateFn) {
     var fields = {},
     expr = parseFn(str, fields);
-    if (exports.isEmptyObject(fields)) {
-        return false;
+    if (!expr) {
+        return;
     }
 
     var fn = getFn(expr),

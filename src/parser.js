@@ -37,7 +37,7 @@ function parseString(str, fields) {
     interpolate2 = options.interpolate[1],
     len1 = interpolate1.length,
     len2 = interpolate2.length,
-    flag = false,
+    isBindField = false,
     pos = 0,
     pos1 = 0,
     pos2 = 0;
@@ -46,7 +46,7 @@ function parseString(str, fields) {
         if (~pos1) {
             pos2 = str.indexOf(interpolate2, pos1 + len1);
             if (~pos2) {
-                flag = true;
+                isBindField = true;
                 tmp = replaceWrapLineString(str.substring(pos, pos1));
                 if (tmp) {
                     txt += '+"' + tmp + '"';
@@ -71,13 +71,13 @@ function parseString(str, fields) {
 
     // cache the result.
     if (cacheParse) {
-        cacheParses.string[str] = {
+        cacheParses.string[str] = isBindField ? {
             fields: fields,
             expr: txt
-        };
+        } : false;
     }
 
-    return flag ? txt : false;
+    return isBindField ? txt : false;
 }
 
 function replaceWrapLineString(str) {
