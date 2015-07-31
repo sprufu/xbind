@@ -287,63 +287,33 @@ exports.scanners = {
             }
         });
 
+        if (element.tagName == 'INPUT' && element.type == 'checkbox') {
+            var v = model.$get(value);
+            if (v && !exports.type(v, 'array')) {
+                throw new TypeError('Checkbox bind must be array.');
+            }
 
-        function addListen(type) {
-            exports.on(element, type, function() {
+            if (!v) {
+                model.$set(value, []);
+            }
+
+            exports.on(element, 'click', function(e) {
+                var $value = model.$get(value),
+                    item = element.value;
+
+                if (element.checked) {
+                    $value.push(item);
+                } else {
+                    // 删除掉元素
+                    removeArrayItem($value, item);
+                }
+
+                model.$set(value, $value);
+            });
+        } else {
+            exports.on(element, param || 'change', function() {
                 model.$set(value, element.value);
             });
-        }
-        switch(element.tagName) {
-            case 'INPUT':
-                switch(element.type) {
-                    case 'checkbox':
-                        var v = model.$get(value);
-                        if (v && !exports.type(v, 'array')) {
-                            throw new TypeError('Checkbox bind must be array.');
-                        }
-
-                        if (!v) {
-                            model.$set(value, []);
-                        }
-
-                        exports.on(element, 'click', function(e) {
-                            var $value = model.$get(value),
-                            item = element.value;
-
-                            if (element.checked) {
-                                $value.push(item);
-                            } else {
-                                // 删除掉元素
-                                removeArrayItem($value, item);
-                            }
-
-                            model.$set(value, $value);
-                        });
-                    break;
-                    case 'radio':
-                        addListen(param || 'click');
-                    break;
-                    default:
-                        if (param) {
-                            addListen(param);
-                        } else {
-                            addListen('keyup');
-                            addListen('change');
-                        }
-                    break;
-                }
-            break;
-            case 'SELECT':
-                addListen(param || 'change');
-            break;
-            case 'TEXTAREA':
-                if (param) {
-                    addListen(param);
-                } else {
-                    addListen('keyup');
-                    addListen('change');
-                }
-            break;
         }
     },
 
