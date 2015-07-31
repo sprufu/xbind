@@ -28,7 +28,7 @@ var MODELS = {
  * @private
  */
 function setFieldValue(model, field, value) {
-    var i, v, key, keys;
+    var i, v, key, keys, oldValue;
     if (~field.indexOf('.')) {
         // 深层的数据, 如: user.name, user.job.type
         keys = field.split('.');
@@ -41,6 +41,7 @@ function setFieldValue(model, field, value) {
         for (i=0; i<keys.length; i++) {
             key = keys[i];
             if (i == keys.length - 1) {
+                oldValue = v[key];
                 v[key] = value;
             } else if (!v[key]) {
                 v[key] = {};
@@ -49,11 +50,13 @@ function setFieldValue(model, field, value) {
         }
     } else {
 		if ('undefined' == typeof model[field] && model.$parent) {
-			setFieldValue(model.$parent, field, value);
+			return setFieldValue(model.$parent, field, value);
 		} else {
-			model[field] = value;
+            oldValue = model[field];
+            model[field] = value;
 		}
     }
+    return oldValue;
 }
 
 /**
@@ -259,10 +262,12 @@ Model.prototype = {
         } else {
             // 单个更新模式, 如:
             // model.$set('name', 'jcode');
-            setFieldValue(this, field, value);
-            this.$cache[field] = value;
-            this.$fire(field);
-            delete this.$cache[field];
+            var oldValue = setFieldValue(this, field, value);
+            if (oldValue != value) {
+                this.$cache[field] = value;
+                this.$fire(field, value, oldValue);
+                delete this.$cache[field];
+            }
         }
     },
 
@@ -295,7 +300,7 @@ Model.prototype = {
      * @see Model#$watch
      * @see Model#$unwatch
      */
-    $fire: function(field) {
+    $fire: function(field, value, oldValue) {
         if (this.$freeze) {
             return;
         }
@@ -304,7 +309,7 @@ Model.prototype = {
         i = 0;
 
         for(; i<subscribes.length; i++) {
-            subscribes[i].update(this, field);
+            subscribes[i].update(this, field, value, oldValue);
         }
     },
 
