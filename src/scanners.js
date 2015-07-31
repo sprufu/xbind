@@ -262,7 +262,7 @@ exports.scanners = {
         });
     },
 
-    'x-bind': function(model, element, value, attr) {
+    'x-bind': function(model, element, value, attr, param) {
         compileElement(element, attr.name);
         bindModel(model, value, parseExpress, function(res) {
 			if ('undefined' == typeof res) return;
@@ -289,7 +289,7 @@ exports.scanners = {
 
 
         function addListen(type) {
-            exports.on(element, type, function(e) {
+            exports.on(element, type, function() {
                 model.$set(value, element.value);
             });
         }
@@ -321,20 +321,28 @@ exports.scanners = {
                         });
                     break;
                     case 'radio':
-                        addListen('click');
+                        addListen(param || 'click');
                     break;
                     default:
-                        addListen('keyup');
-                        addListen('change');
+                        if (param) {
+                            addListen(param);
+                        } else {
+                            addListen('keyup');
+                            addListen('change');
+                        }
                     break;
                 }
             break;
             case 'SELECT':
-                addListen('change');
+                addListen(param || 'change');
             break;
             case 'TEXTAREA':
-                addListen('keyup');
-                addListen('change');
+                if (param) {
+                    addListen(param);
+                } else {
+                    addListen('keyup');
+                    addListen('change');
+                }
             break;
         }
     },
