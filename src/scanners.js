@@ -311,7 +311,7 @@ exports.scanners = {
                 model.$set(value, $value);
             });
         } else {
-            exports.on(element, param || 'change', function() {
+            exports.on(element, param ? camelize(param) : 'change', function() {
                 model.$set(value, element.value);
             });
         }
