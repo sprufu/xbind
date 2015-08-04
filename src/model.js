@@ -301,15 +301,23 @@ Model.prototype = {
      * @see Model#$unwatch
      */
     $fire: function(field, value, oldValue) {
-        if (this.$freeze) {
+        var model = this,
+            indexOfPointOfField = field.indexOf('.'),
+            prefixField = indexOfPointOfField == -1 ? field : (field.slice(0, indexOfPointOfField - field.length));
+
+        while(model && !model.hasOwnProperty(prefixField)) {
+            model = model.$parent;
+        }
+
+        if (model.$freeze) {
             return;
         }
 
-        var subscribes = getSubscribes(this, field),
+        var subscribes = getSubscribes(model, field),
         i = 0;
 
         for(; i<subscribes.length; i++) {
-            subscribes[i].update(this, field, value, oldValue);
+            subscribes[i].update(model, field, value, oldValue);
         }
     },
 
@@ -327,21 +335,11 @@ Model.prototype = {
         var model = this;
 
         // 如果没有指定是否继承上级数据, 表示默认继承
-        // 查找并设置当前数据的上级数据, 并监听上级数据的变化(当上级数据变化时, 可能会影响到自己)
         // 如果不继承上级数据, 只简单的与结点绑定.
         if (!noExtend) {
             model.$parent = getParentModel(element);
             if (model.$parent) {
                 model.$parent.$childs.push(model);
-                var observer = {
-                    owner: this,
-                    update: function(parentModel, field) {
-                        if (!model.hasOwnProperty(field)) {
-                            model.$fire(field);
-                        }
-                    }
-                };
-                model.$parent.$watch('*', observer);
             }
         }
 
@@ -361,7 +359,14 @@ Model.prototype = {
  * 获取一个数据的所有订阅
  */
 function getSubscribes (model, field) {
-    var ret = [], flag;
+    var ret = [], flag,
+	indexOfPoindOfField = field.indexOf('.'),
+	prefixKey = indexOfPoindOfField == -1 ? field : (field.slice(0, indexOfPoindOfField - field.length));
+	
+	if (!model.hasOwnProperty(prefixKey)) {
+		return model.$parent ? getSubscribes(model.$parent, field) : ret;
+	}
+	
     try {
         for (var key in model.$subscribes) {
             flag = key === field
@@ -439,7 +444,7 @@ function gc(model) {
     if (parent) {
         removeArrayItem(parent.$childs, model);
         var subscribes = parent.$subscribes['*'],
-        i = subscribes.length;
+        i = subscribes ? subscribes.length : 0;
         while (i--) {
             if (subscribes[i].owner == model) {
                 subscribes.splice(i, 1);
