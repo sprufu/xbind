@@ -364,16 +364,16 @@ function getSubscribes (model, field) {
     var ret = [], flag;
     try {
         for (var key in model.$subscribes) {
-            flag = key === field;
+            flag = key === field
 
             // 为"*"的所有变化都通知监听者
-            flag = flag || key == '*';
+            || key == '*'
 
             // foo变化了, 要通知foo.bar
-            flag = flag || (key + '.').startsWith(field);
+            || (key + '.').startsWith(field + '.')
 
             // foo.bar变化了, 要通知foo
-            flag = flag || field.startsWith(key + '.');
+            || (field + '.').startsWith(key + '.');
 
             if (flag) {
                 ret = ret.concat(model.$subscribes[key]);
