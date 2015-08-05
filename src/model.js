@@ -305,7 +305,7 @@ Model.prototype = {
             indexOfPointOfField = field.indexOf('.'),
             prefixField = indexOfPointOfField == -1 ? field : (field.slice(0, indexOfPointOfField - field.length));
 
-        while(model && !model.hasOwnProperty(prefixField)) {
+        while(model && !model.hasOwnProperty(prefixField) && model.$parent) {
             model = model.$parent;
         }
 
