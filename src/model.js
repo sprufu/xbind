@@ -28,15 +28,13 @@ var MODELS = {
  * @private
  */
 function setFieldValue(model, field, value) {
+    model = getRealModel(model, field);
+
     var i, v, key, keys, oldValue;
     if (~field.indexOf('.')) {
         // 深层的数据, 如: user.name, user.job.type
         keys = field.split('.');
-		
-		if ('undefined' == typeof model[keys[0]] && model.$parent) {
-			return setFieldValue(model.$parent, field, value);
-		}
-		
+
         v = model;
         for (i=0; i<keys.length; i++) {
             key = keys[i];
@@ -49,13 +47,10 @@ function setFieldValue(model, field, value) {
             v = v[key];
         }
     } else {
-		if ('undefined' == typeof model[field] && model.$parent) {
-			return setFieldValue(model.$parent, field, value);
-		} else {
-            oldValue = model[field];
-            model[field] = value;
-		}
+        oldValue = model[field];
+        model[field] = value;
     }
+    
     return oldValue;
 }
 
@@ -301,13 +296,7 @@ Model.prototype = {
      * @see Model#$unwatch
      */
     $fire: function(field, value, oldValue) {
-        var model = this,
-            indexOfPointOfField = field.indexOf('.'),
-            prefixField = indexOfPointOfField == -1 ? field : (field.slice(0, indexOfPointOfField - field.length));
-
-        while(model && !model.hasOwnProperty(prefixField) && model.$parent) {
-            model = model.$parent;
-        }
+        var model = getRealModel(this, field);
 
         if (model.$freeze) {
             return;
@@ -387,6 +376,17 @@ function getSubscribes (model, field) {
     } finally {
         return ret;
     }
+}
+
+function getRealModel(model, field) {
+    var indexOfPointOfField = field.indexOf('.'),
+        prefixField = indexOfPointOfField == -1 ? field : (field.slice(0, indexOfPointOfField - field.length));
+
+    while(model && !model.hasOwnProperty(prefixField) && model.$parent) {
+        model = model.$parent;
+    }
+
+    return model;
 }
 
 /**

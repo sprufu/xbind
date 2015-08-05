@@ -454,11 +454,9 @@ function bindModel(model, str, parseFn, updateFn) {
     };
 
     for (var field in fields) {
-        if (model) {
-            model.$watch(field, observer);
-        }
+        getRealModel(model, field).$watch(field, observer);
     }
-	model && observer.update(model);
+	observer.update(model);
 }
 
 var fnCache = {};
