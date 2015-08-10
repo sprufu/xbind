@@ -24,7 +24,7 @@ function ajax(opt) {
     }
 
     if (!opt.cache) {
-        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + new Date().getTime().toString();
+        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + '_=' + new Date().getTime().toString(36);
     }
 
     opt.dataType = opt.dataType.toLowerCase();
