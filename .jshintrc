@@ -2,6 +2,7 @@
     "browser": true,
     "boss": true,
     "expr": true,
+    "strict": false,
     "globals": {
         "REGEXPS": true,
         "removeArrayItem": true,
@@ -27,6 +28,8 @@
         "getExtModel": true,
         "compileElement": true,
         "bindModel": true,
-        "camelize": true
+        "camelize": true,
+        "scanChildNodes": true,
+        "getRealModel": true
     }
 }

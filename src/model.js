@@ -358,6 +358,7 @@ function getSubscribes (model, field) {
 	
     try {
         for (var key in model.$subscribes) {
+            /*jshint -W014 */
             flag = key === field
 
             // 为"*"的所有变化都通知监听者

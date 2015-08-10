@@ -395,6 +395,7 @@ exports.scanners = {
 
         if (callbackExpr) {
             callbackExpr = parseExecute(callbackExpr, {});
+            /* jshint -W054 */
             callback = new Function('$model', callbackExpr);
         }
 

@@ -115,7 +115,7 @@ function ajax(opt) {
         }
     };
     xhr.send(data);
-};
+}
 
 exports.ajax = ajax;
 

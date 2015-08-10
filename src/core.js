@@ -348,10 +348,11 @@ mix(exports, {
                 exports.on(el, key, type[key], once);
             }
         } else {
+            var caller;
             /* ie678( */
             if (el.addEventListener) {
                 /* ie678) */
-                var caller = function(event) {
+                caller = function(event) {
                     if (once) {
                         el.removeEventListener(type, caller);
                     }
@@ -366,7 +367,7 @@ mix(exports, {
                 el.addEventListener(type, caller, false);
                 /* ie678( */
             } else if (el.attachEvent){
-                var caller = function(event) {
+                caller = function(event) {
                     if (once) {
                         el.detachEvent('on' + type, caller);
                     }
