@@ -348,16 +348,10 @@ Model.prototype = {
  * 获取一个数据的所有订阅
  */
 function getSubscribes (model, field) {
-    var ret = [], flag,
-	indexOfPoindOfField = field.indexOf('.'),
-	prefixKey = indexOfPoindOfField == -1 ? field : (field.slice(0, indexOfPoindOfField - field.length));
-	
-	if (!model.hasOwnProperty(prefixKey)) {
-		return model.$parent ? getSubscribes(model.$parent, field) : ret;
-	}
-	
+    var ret = [], flag, key;
+
     try {
-        for (var key in model.$subscribes) {
+        for (key in model.$subscribes) {
             /*jshint -W014 */
             flag = key === field
 
