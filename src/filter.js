@@ -140,6 +140,9 @@ function parseDate(obj) {
     }
 }
 
+// ie及firefox不兼容这种日期格式
+var notCompatDateParse = isNaN(Date.parse('2015-01-22 14:32:04'));
+
 /**
  * 解析日期字符串
  * 字符串就应该符合如下格式:
@@ -148,6 +151,10 @@ function parseDate(obj) {
  *      2014-12-09T03:24:08.539Z
  */
 function parseDateString(str) {
+	if (notCompatDateParse) {
+		str = str.replace(/-/g, '/');
+	}
+
     var time = Date.parse(str);
     if (!isNaN(time)) {
         return parseDateNumber(time);
