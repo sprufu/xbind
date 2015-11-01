@@ -184,6 +184,11 @@ Model.prototype = {
      * @see Model#$get
      */
     $set: function(field, value) {
+		if (!field) {
+			// TODO 显示错误日志
+			return;
+		}
+
         if (exports.type(field, 'object')) {
             // 批量模式, 如:
             // model.$set({
