@@ -264,6 +264,12 @@ exports.scanners = {
 
     'x-bind': function(model, element, value, attr, param) {
         compileElement(element, attr.name);
+		var field, pos = value.indexOf('|');
+		if (pos == -1) {
+			field = value;
+		} else {
+			field = value.substr(0, pos).trim();
+		}
         bindModel(model, value, parseExpress, function(res) {
 			if ('undefined' == typeof res) return;
             if (element.tagName == 'INPUT') {
@@ -288,17 +294,17 @@ exports.scanners = {
         });
 
         if (element.tagName == 'INPUT' && element.type == 'checkbox') {
-            var v = model.$get(value);
+            var v = model.$get(field);
             if (v && !exports.type(v, 'array')) {
                 throw new TypeError('Checkbox bind must be array.');
             }
 
             if (!v) {
-                model.$set(value, []);
+                model.$set(field, []);
             }
 
             exports.on(element, 'click', function(e) {
-                var $value = model.$get(value),
+                var $value = model.$get(field),
                     item = element.value;
 
                 if (element.checked) {
@@ -308,11 +314,11 @@ exports.scanners = {
                     removeArrayItem($value, item);
                 }
 
-                model.$set(value, $value);
+                model.$set(field, $value);
             });
         } else {
             exports.on(element, param ? camelize(param) : 'change', function() {
-                model.$set(value, element.value);
+                model.$set(field, element.value);
             });
         }
     },
