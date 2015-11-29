@@ -397,7 +397,13 @@ mix(exports, {
             el.fireEvent('on'+type);
         } else {
             /* ie678) */
-            var event = new window.Event(type);
+            var event;
+			try {
+				event = new window.Event(type);
+			} catch(err) {
+				event = window.document.createEvent('Event');
+				event.initEvent(type, true, true);
+			}
             el.dispatchEvent(event);
         /* ie678( */
         }
