@@ -436,13 +436,6 @@ if (!''.startsWith) {
     };
 }
 
-// 修复浏览器字符串中没有支持trim情况
-if (!''.trim) {
-	String.prototype.trim = function() {
-		return this.replace(/^[\\x20\\t\\r\\n\\f]+|((?:^|[^\\\\])(?:\\\\.)*)[\\x20\\t\\r\\n\\f]+$/g, '');
-	}
-}
-
 /**
  * 删除数组中指定的元素
  */
