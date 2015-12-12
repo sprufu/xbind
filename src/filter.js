@@ -117,7 +117,7 @@ exports.filters = {
 	replace: function(str, patten, dist) {
 		var reg = new RegExp(patten, 'g');
 		return str.replace(reg, dist);
-	}
+	},
 
     /**
      * url参数格式化
