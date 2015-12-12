@@ -425,6 +425,10 @@ function getExtModel(el) {
  * @param {Model} model 只检查指定的数据及其以下子数据, 省略这参数时检查全部
  */
 function gc(model) {
+	if (!gc || false === model instanceof Model) {
+		return;
+	}
+	
     // 先删除子数据
     model.$childs.forEach(function(it) {
         it.$parent = null;
