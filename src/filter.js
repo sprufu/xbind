@@ -111,6 +111,14 @@ exports.filters = {
         return obj && obj[key];
     },
 
+	/**
+	 * 字符串替换
+	 */
+	replace: function(str, patten, dist) {
+		var reg = new RegExp(patten, 'g');
+		return str.replace(reg, dist);
+	}
+
     /**
      * url参数格式化
      */
