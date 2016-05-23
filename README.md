@@ -32,9 +32,11 @@ cd vmodel && npm run build
 ## 一些其它的mvvm框架
 
 1. google的 [argularjs](https://angularjs.org/)
+1. facebook的 [reactjs](https://facebook.github.io/react/)
 1. 微软的 [knockoutjs](http://knockoutjs.com/)
 3. 苹果的 [emberjs](http://emberjs.com/)
 4. 还有一个国产的 [avalonjs](http://rubylouvre.github.io/mvvm/)
+5. riot2 [riot2](https://github.com/riot/riot)
 5. ractive [ractive](http://ractivejs.org)
 6. rivetsjs [rivetsjs](http://rivetsjs.com/)
 7. vuejs [vuejs](http://vuejs.org/)
@@ -46,7 +48,10 @@ cd vmodel && npm run build
 2. 绑定时, 如果同时绑定几个参数, 当这几个参数中同时变化时, 应该只更新一次视图.
 3. 监听数组长度变化.
 
-## Issue
+## Known bugs
+1. `x-attr-value="{{displayDocumentNumber(document)}}"`会得到value="undefined"
+
+## Issues
 1. parseExecuteItem解析字符串时无法解析json串等复杂对象表达式
 
 ## Change

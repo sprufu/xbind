@@ -6,4 +6,5 @@
 node_modules/
 sample/firebug-lite/
 doc/api/
+.idea/
 
