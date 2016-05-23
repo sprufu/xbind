@@ -32,6 +32,11 @@ function exports(vm) {
  */
 var options = {
     /**
+     * 默认绑定命名空间
+     */
+    defaultNamespace: 'scan.template',
+
+    /**
      * 字符串插值边界
      */
     interpolate: ['{{', '}}'],
@@ -349,10 +354,11 @@ mix(exports, {
                 exports.on(el, key, type[key], once);
             }
         } else {
+            var caller;
             /* ie678( */
             if (el.addEventListener) {
                 /* ie678) */
-                var caller = function(event) {
+                caller = function(event) {
                     if (once) {
                         el.removeEventListener(type, caller);
                     }
@@ -367,7 +373,7 @@ mix(exports, {
                 el.addEventListener(type, caller, false);
                 /* ie678( */
             } else if (el.attachEvent){
-                var caller = function(event) {
+                caller = function(event) {
                     if (once) {
                         el.detachEvent('on' + type, caller);
                     }
@@ -397,7 +403,13 @@ mix(exports, {
             el.fireEvent('on'+type);
         } else {
             /* ie678) */
-            var event = new window.Event(type);
+            var event;
+			try {
+				event = new window.Event(type);
+			} catch(err) {
+				event = window.document.createEvent('Event');
+				event.initEvent(type, true, true);
+			}
             el.dispatchEvent(event);
         /* ie678( */
         }
@@ -462,7 +474,6 @@ function camelize(target) {
     });
 }
 
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /* jshint -W097 */
 
 
@@ -489,7 +500,7 @@ function ajax(opt) {
     }
 
     if (!opt.cache) {
-        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + new Date().getTime().toString();
+        opt.url += (~opt.url.indexOf('?') ? '&' : '?') + '_=' + new Date().getTime().toString(36);
     }
 
     opt.dataType = opt.dataType.toLowerCase();
@@ -580,7 +591,7 @@ function ajax(opt) {
         }
     };
     xhr.send(data);
-};
+}
 
 exports.ajax = ajax;
 
@@ -657,7 +668,6 @@ exports.param = function(object, prefix) {
     return ret.join('&');
 };
 
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 数据模型
  * 所有通过工厂函数加工过的数据, 都是以这个为原型
@@ -688,19 +698,18 @@ var MODELS = {
  * @private
  */
 function setFieldValue(model, field, value) {
-    var i, v, key, keys;
+    model = getRealModel(model, field);
+
+    var i, v, key, keys, oldValue;
     if (~field.indexOf('.')) {
         // 深层的数据, 如: user.name, user.job.type
         keys = field.split('.');
-		
-		if ('undefined' == typeof model[keys[0]] && model.$parent) {
-			return setFieldValue(model.$parent, field, value);
-		}
-		
+
         v = model;
         for (i=0; i<keys.length; i++) {
             key = keys[i];
             if (i == keys.length - 1) {
+                oldValue = v[key];
                 v[key] = value;
             } else if (!v[key]) {
                 v[key] = {};
@@ -708,12 +717,11 @@ function setFieldValue(model, field, value) {
             v = v[key];
         }
     } else {
-		if ('undefined' == typeof model[field] && model.$parent) {
-			setFieldValue(model.$parent, field, value);
-		} else {
-			model[field] = value;
-		}
+        oldValue = model[field];
+        model[field] = value;
     }
+
+    return oldValue;
 }
 
 /**
@@ -845,7 +853,12 @@ Model.prototype = {
      *    3. 这会触发视图更新
      * @see Model#$get
      */
-    $set: function(field, value) {
+    $set: function(field, value, updateNamespace) {
+        if (!field) {
+            // TODO 显示错误日志
+            return;
+        }
+
         if (exports.type(field, 'object')) {
             // 批量模式, 如:
             // model.$set({
@@ -919,10 +932,12 @@ Model.prototype = {
         } else {
             // 单个更新模式, 如:
             // model.$set('name', 'jcode');
-            setFieldValue(this, field, value);
-            this.$cache[field] = value;
-            this.$fire(field);
-            delete this.$cache[field];
+            var oldValue = setFieldValue(this, field, value);
+            if (oldValue != value) {
+                this.$cache[field] = value;
+                this.$fire(field, value, oldValue, updateNamespace);
+                delete this.$cache[field];
+            }
         }
     },
 
@@ -936,6 +951,7 @@ Model.prototype = {
         if (!this.$subscribes[field]) {
             this.$subscribes[field] = [];
         }
+
         this.$subscribes[field].push(observer);
     },
 
@@ -952,19 +968,41 @@ Model.prototype = {
 
     /**
      * 通知订阅者更新自己
+     * @param {string} namespace 仅触发level级别及以上的绑定
      * @see Model#$watch
      * @see Model#$unwatch
      */
-    $fire: function(field) {
-        if (this.$freeze) {
+    $fire: function(field, value, oldValue, namespace) {
+        var model = getRealModel(this, field);
+
+        if (model.$freeze) {
             return;
         }
 
-        var subscribes = getSubscribes(this, field),
+        var subscribes = getSubscribes(model, field),
         i = 0;
 
         for(; i<subscribes.length; i++) {
-            subscribes[i].update(this, field);
+            var namespaceFlag = false,
+                observerNamespace = subscribes[i].namespace;
+            if (!namespace || 'string' != typeof observerNamespace) {
+                namespaceFlag = true;
+            } else if (!namespaceFlag && 'string' == typeof observerNamespace) {
+                if (namespace.charAt(0) == '!') {
+                    // 排除这个命名空间, 其它都触发
+                    var realNamespace = namespace.substr(1);
+                    if (realNamespace != observerNamespace && !observerNamespace.startsWith(realNamespace + '.')) {
+                        namespaceFlag = true;
+                    }
+                } else if (observerNamespace === namespace || observerNamespace.startsWith(namespace + '.')) {
+                    // 只触发命名空间的监听
+                    namespaceFlag = true;
+                }
+            }
+
+            if (namespaceFlag) {
+                subscribes[i].update(model, field, value, oldValue);
+            }
         }
     },
 
@@ -982,21 +1020,11 @@ Model.prototype = {
         var model = this;
 
         // 如果没有指定是否继承上级数据, 表示默认继承
-        // 查找并设置当前数据的上级数据, 并监听上级数据的变化(当上级数据变化时, 可能会影响到自己)
         // 如果不继承上级数据, 只简单的与结点绑定.
         if (!noExtend) {
             model.$parent = getParentModel(element);
             if (model.$parent) {
                 model.$parent.$childs.push(model);
-                var observer = {
-                    owner: this,
-                    update: function(parentModel, field) {
-                        if (!model.hasOwnProperty(field)) {
-                            model.$fire(field);
-                        }
-                    }
-                };
-                model.$parent.$watch('*', observer);
             }
         }
 
@@ -1016,16 +1044,40 @@ Model.prototype = {
  * 获取一个数据的所有订阅
  */
 function getSubscribes (model, field) {
-    var ret = [];
+    var ret = [], flag, key;
+
     try {
-        for (var key in model.$subscribes) {
-            if (key == '*' || key == field || (key + '.').startsWith(field)) {
+        for (key in model.$subscribes) {
+            /*jshint -W014 */
+            flag = key === field
+
+            // 为"*"的所有变化都通知监听者
+            || key == '*'
+
+            // foo变化了, 要通知foo.bar
+            || (key + '.').startsWith(field + '.')
+
+            // foo.bar变化了, 要通知foo
+            || (field + '.').startsWith(key + '.');
+
+            if (flag) {
                 ret = ret.concat(model.$subscribes[key]);
             }
         }
     } finally {
         return ret;
     }
+}
+
+function getRealModel(model, field) {
+    var indexOfPointOfField = field.indexOf('.'),
+        prefixField = indexOfPointOfField == -1 ? field : (field.slice(0, indexOfPointOfField - field.length));
+
+    while(model && !model.hasOwnProperty(prefixField) && model.$parent) {
+        model = model.$parent;
+    }
+
+    return model;
 }
 
 /**
@@ -1064,6 +1116,10 @@ function getExtModel(el) {
  * @param {Model} model 只检查指定的数据及其以下子数据, 省略这参数时检查全部
  */
 function gc(model) {
+	if (!gc || false === model instanceof Model) {
+		return;
+	}
+
     // 先删除子数据
     model.$childs.forEach(function(it) {
         it.$parent = null;
@@ -1083,7 +1139,7 @@ function gc(model) {
     if (parent) {
         removeArrayItem(parent.$childs, model);
         var subscribes = parent.$subscribes['*'],
-        i = subscribes.length;
+        i = subscribes ? subscribes.length : 0;
         while (i--) {
             if (subscribes[i].owner == model) {
                 subscribes.splice(i, 1);
@@ -1121,7 +1177,6 @@ exports.model = function(id) {
     return 'string' == typeof id ? MODELS[id] || null : getExtModel(id);
 };
 
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /* jshint -W097 */
 
 
@@ -1129,11 +1184,9 @@ exports.model = function(id) {
  * 扫描结点, 添加绑定
  * @param {Element} element 从哪个结点开始扫描(扫描它及它的子结点), 如果省略, 从页面顶级开始扫描.
  * @param {Model} model 这结点拥有的数据对象, 可以从上级取得
- * @param {boolean} cache 是否缓存扫描结果
  */
-function scan(element, model, cache) {
+function scan(element, model) {
     element = element || document.documentElement;
-    cacheParse = cache;
 
     if (!model) {
         model = new Model();
@@ -1146,7 +1199,7 @@ function scan(element, model, cache) {
         if (!options.ignoreTags[element.tagName]) {
             model = scanAttrs(element, model) || model;
             if (!element.$noScanChild && element.childNodes.length) {
-                scanChildNodes(element, model, cache);
+                scanChildNodes(element, model);
             }
         }
     break;
@@ -1161,10 +1214,10 @@ function scan(element, model, cache) {
 
 exports.scan = scan;
 
-function scanChildNodes(element, parentModel, cache) {
+function scanChildNodes(element, parentModel) {
     var el = element.firstChild;
     while (el) {
-        scan(el, parentModel, cache);
+        scan(el, parentModel);
         el = el.$nextSibling || el.nextSibling;
     }
 }
@@ -1285,7 +1338,6 @@ function getScanAttrList(attrs) {
     return res.sort(orderFn);
 }
 
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 浏览器补丁, 主要用来兼容ie678
  * 如果不考虑ie678, 可以去掉这个文件
@@ -1332,6 +1384,12 @@ if (!Array.prototype.indexOf) {
     };
 }
 
+if (!Array.isArray) {
+	Array.isArray = function(obj) {
+		return obj instanceof Array;
+	};
+}
+
 if (!Function.prototype.bind) {
     Function.prototype.bind = function(scope) {
         var fn = this;
@@ -1343,7 +1401,6 @@ if (!Function.prototype.bind) {
 
 /* ie678) */
 
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * 属性扫描定义的回调
  */
@@ -1608,8 +1665,14 @@ exports.scanners = {
         });
     },
 
-    'x-bind': function(model, element, value, attr) {
+    'x-bind': function(model, element, value, attr, param) {
         compileElement(element, attr.name);
+		var field, pos = value.indexOf('|');
+		if (pos == -1) {
+			field = value;
+		} else {
+			field = value.substr(0, pos).trim();
+		}
         bindModel(model, value, parseExpress, function(res) {
 			if ('undefined' == typeof res) return;
             if (element.tagName == 'INPUT') {
@@ -1633,55 +1696,33 @@ exports.scanners = {
             }
         });
 
+        if (element.tagName == 'INPUT' && element.type == 'checkbox') {
+            var v = model.$get(field);
+            if (v && !exports.type(v, 'array')) {
+                throw new TypeError('Checkbox bind must be array.');
+            }
 
-        function addListen(type) {
-            exports.on(element, type, function(e) {
-                model.$set(value, element.value);
-            });
-        }
-        switch(element.tagName) {
-            case 'INPUT':
-                switch(element.type) {
-                    case 'checkbox':
-                        var v = model.$get(value);
-                        if (v && !exports.type(v, 'array')) {
-                            throw new TypeError('Checkbox bind must be array.');
-                        }
+            if (!v) {
+                model.$set(field, []);
+            }
 
-                        if (!v) {
-                            model.$set(value, []);
-                        }
+            exports.on(element, 'click', function(e) {
+                var $value = model.$get(field),
+                    item = element.value;
 
-                        exports.on(element, 'click', function(e) {
-                            var $value = model.$get(value),
-                            item = element.value;
-
-                            if (element.checked) {
-                                $value.push(item);
-                            } else {
-                                // 删除掉元素
-                                removeArrayItem($value, item);
-                            }
-
-                            model.$set(value, $value);
-                        });
-                    break;
-                    case 'radio':
-                        addListen('click');
-                    break;
-                    default:
-                        addListen('keyup');
-                        addListen('change');
-                    break;
+                if (element.checked) {
+                    $value.push(item);
+                } else {
+                    // 删除掉元素
+                    removeArrayItem($value, item);
                 }
-            break;
-            case 'SELECT':
-                addListen('change');
-            break;
-            case 'TEXTAREA':
-                addListen('keyup');
-                addListen('change');
-            break;
+
+                model.$set(field, $value);
+            });
+        } else {
+            exports.on(element, param ? camelize(param) : 'change', function() {
+                model.$set(field, element.value);
+            });
         }
     },
 
@@ -1763,6 +1804,7 @@ exports.scanners = {
 
         if (callbackExpr) {
             callbackExpr = parseExecute(callbackExpr, {});
+            /* jshint -W054 */
             callback = new Function('$model', callbackExpr);
         }
 
@@ -1810,23 +1852,22 @@ exports.scanners = {
 function bindModel(model, str, parseFn, updateFn) {
     var fields = {},
     expr = parseFn(str, fields);
-    if (exports.isEmptyObject(fields)) {
-        return false;
+    if (!expr) {
+        return;
     }
 
     var fn = getFn(expr),
     observer = {
+        namespace: options.defaultNamespace,
         update: function(model) {
             updateFn(fn(model, exports.filter), observer, fields);
         }
     };
 
     for (var field in fields) {
-        if (model) {
-            model.$watch(field, observer);
-            observer.update(model);
-        }
+        getRealModel(model, field).$watch(field, observer);
     }
+    observer.update(model);
 }
 
 var fnCache = {};
@@ -1868,7 +1909,6 @@ function Template(id, element) {
     TEMPLATES[id] = this;
 }
 
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 表达式字符串解析
  * @author jcode
@@ -1878,13 +1918,12 @@ function Template(id, element) {
 
 var
 filterRegExp    = /(\w+)(.*)/,
-URLPARAMS       = null,
-exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s\>\<\:\{\}]+/g,    // 表达式操作符
-whithReg        = /^[\s\uFEFF\xA0]$/,
-cacheParse      = false,
+exprActionReg   = /[-\+\*\/\=\(\)\%\&\|\^\!\~\,\?\s><\:\{\}]+/g,    // 表达式操作符
+whiteReg        = /^[\s\uFEFF\xA0]$/,
 cacheParses     = {
     string : {},
-    express: {}
+    express: {},
+    execute: {}
 },
 parseJSON       = window.JSON ? window.JSON.parse : function(str) {
     /* jshint -W054 */
@@ -1897,7 +1936,7 @@ parseJSON       = window.JSON ? window.JSON.parse : function(str) {
 function parseString(str, fields) {
     var cache;
     // get from cache
-    if (cacheParse && (cache = cacheParses.string[str])) {
+    if (cache = cacheParses.string[str]) {
         mix(fields, cache.fields);
         return cache.expr;
     }
@@ -1909,7 +1948,7 @@ function parseString(str, fields) {
     interpolate2 = options.interpolate[1],
     len1 = interpolate1.length,
     len2 = interpolate2.length,
-    flag = false,
+    isBindField = false,
     pos = 0,
     pos1 = 0,
     pos2 = 0;
@@ -1918,7 +1957,7 @@ function parseString(str, fields) {
         if (~pos1) {
             pos2 = str.indexOf(interpolate2, pos1 + len1);
             if (~pos2) {
-                flag = true;
+                isBindField = true;
                 tmp = replaceWrapLineString(str.substring(pos, pos1));
                 if (tmp) {
                     txt += '+"' + tmp + '"';
@@ -1942,14 +1981,12 @@ function parseString(str, fields) {
     }
 
     // cache the result.
-    if (cacheParse) {
-        cacheParses.string[str] = {
-            fields: fields,
-            expr: txt
-        };
-    }
+    cacheParses.string[str] = isBindField ? {
+        fields: fields,
+        expr: txt
+    } : false;
 
-    return flag ? txt : false;
+    return isBindField ? txt : false;
 }
 
 function replaceWrapLineString(str) {
@@ -1977,7 +2014,7 @@ function replaceWrapLineString(str) {
 function parseExpress(str, fields, isDisplayResult) {
     var cache;
     // get from cache
-    if (cacheParse && (cache = cacheParses.express[str])) {
+    if (cache = cacheParses.express[str]) {
         mix(fields, cache.fields);
         return cache.expr;
     }
@@ -1998,12 +2035,10 @@ function parseExpress(str, fields, isDisplayResult) {
         }
 
         // cache the result.
-        if (cacheParse) {
-            cacheParses.express[str] = {
-                fields: fields,
-                expr: expr
-            };
-        }
+        cacheParses.express[str] = {
+            fields: fields,
+            expr: expr
+        };
 
         return expr;
     } catch (err) {
@@ -2033,7 +2068,7 @@ function divExpress(str, filters, fields) {
                     var filter = parseFilter(str, fields);
                     filters.push(filter);
                 });
-                expr = str.substr(0, pos - 1);
+                expr = str.substr(0, pos);
                 break;
             }
         } else {
@@ -2077,21 +2112,25 @@ function parseFilter(str, fields) {
  * TODO fields是否应该收集
  */
 function parseExecute(str) {
+    if (cacheParses.execute[str]) {
+        return cacheParses.execute[str];
+    }
+
     var fields = {},
     ret = '';
 
     if (~str.indexOf(';')) {
         // 含有";", 如: user.name = 'jcode'; user.age = 31
         // 表示由多个表达式组成
-        var strs = str.split(';'),
+        var scripts = str.split(';'),
         i = 0;
 
         // 循环解析每个表达式, 把结果累加在一起
-        for (; i<strs.length; i++) {
+        for (; i<scripts.length; i++) {
             if (i) {
                 ret += ';';
             }
-            ret += parseExecute(strs[i].trim());
+            ret += parseExecute(scripts[i].trim());
         }
     } else {
         if (~str.indexOf('=')) {
@@ -2102,7 +2141,7 @@ function parseExecute(str) {
             ret = parseExecuteItem(str, fields) + ';';
         }
     }
-    return ret;
+    return cacheParses.execute[str] = ret;
 }
 
 
@@ -2128,11 +2167,8 @@ function parseExecuteItem(str, fields, isDisplayResult) {
     };
 
     if (c == '"' || c == "'") {
-        return str;
-    }
-
-    actions = str.match(exprActionReg);
-    if (actions) {
+        ret = str;
+    } else if (actions = str.match(exprActionReg)) {
         ret = '';
         var field,
         pos0 = 0,
@@ -2142,7 +2178,7 @@ function parseExecuteItem(str, fields, isDisplayResult) {
         // 循环解析操作符分隔的每个表达式
         // 并把他们加在一起
         for (; i<actions.length; i++) {
-            if (whithReg.test(actions[i])) {
+            if (whiteReg.test(actions[i])) {
                 // 是纯空白的不处理
                 continue;
             }
@@ -2171,15 +2207,14 @@ function parseExecuteItem(str, fields, isDisplayResult) {
             }
             ret += res;
         }
-
-        return ret;
     } else {
         ret = parseStatic(str, isDisplayResult, model);
         if (model.isField) {
             fields[str] = true;
         }
-        return ret;
     }
+
+    return ret;
 }
 
 /**
@@ -2216,7 +2251,6 @@ function parseStatic(str, isDisplayResult, model) {
     return '$model.$get("' + str + '"' + (isDisplayResult ? ',0,1':'') +')';
 }
 
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 if (options.scanOnReady) {
     exports.ready(scan);
 }
@@ -2228,7 +2262,6 @@ if (window.define && window.define.amd) {
 } else {
     window.xbind = exports;
 }
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 过滤器
  * @author jcode
@@ -2342,6 +2375,14 @@ exports.filters = {
         return obj && obj[key];
     },
 
+	/**
+	 * 字符串替换
+	 */
+	replace: function(str, patten, dist) {
+		var reg = new RegExp(patten, 'g');
+		return str.replace(reg, dist);
+	},
+
     /**
      * url参数格式化
      */
@@ -2371,6 +2412,9 @@ function parseDate(obj) {
     }
 }
 
+// ie及firefox不兼容这种日期格式
+var notCompatDateParse = isNaN(Date.parse('2015-01-22 14:32:04'));
+
 /**
  * 解析日期字符串
  * 字符串就应该符合如下格式:
@@ -2379,6 +2423,10 @@ function parseDate(obj) {
  *      2014-12-09T03:24:08.539Z
  */
 function parseDateString(str) {
+	if (notCompatDateParse) {
+		str = str.replace(/-/g, '/');
+	}
+
     var time = Date.parse(str);
     if (!isNaN(time)) {
         return parseDateNumber(time);
@@ -2466,6 +2514,11 @@ function formatLastDisplay(date) {
     }
 
     diff /= 24;
+
+    if (diff < 2) {
+        return '昨天';
+    }
+
     if (diff < 30) {
         return Math.floor(diff) + '天前';
     }
@@ -2505,7 +2558,6 @@ exports.filter = function(filterName, obj, args) {
     return fn.apply(null, args);
 };
 
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 /**
  * @file 表单处理
  * @author jcode
@@ -2638,5 +2690,4 @@ function updateFormItem(element, type, res) {
     model.$set(prefix + '.$error.' + type, !res);
 }
 
-// vim:et:sw=4:ft=javascript:ff=dos:fenc=utf-8:ts=4:noswapfile
 }(window, document, location, history));

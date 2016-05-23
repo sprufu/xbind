@@ -455,6 +455,7 @@ function bindModel(model, str, parseFn, updateFn) {
 
     var fn = getFn(expr),
     observer = {
+        namespace: options.defaultNamespace,
         update: function(model) {
             updateFn(fn(model, exports.filter), observer, fields);
         }
@@ -463,7 +464,7 @@ function bindModel(model, str, parseFn, updateFn) {
     for (var field in fields) {
         getRealModel(model, field).$watch(field, observer);
     }
-	observer.update(model);
+    observer.update(model);
 }
 
 var fnCache = {};

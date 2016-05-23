@@ -31,6 +31,11 @@ function exports(vm) {
  */
 var options = {
     /**
+     * 默认绑定命名空间
+     */
+    defaultNamespace: 'scan.template',
+
+    /**
      * 字符串插值边界
      */
     interpolate: ['{{', '}}'],

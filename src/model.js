@@ -50,7 +50,7 @@ function setFieldValue(model, field, value) {
         oldValue = model[field];
         model[field] = value;
     }
-    
+
     return oldValue;
 }
 
@@ -183,11 +183,11 @@ Model.prototype = {
      *    3. 这会触发视图更新
      * @see Model#$get
      */
-    $set: function(field, value) {
-		if (!field) {
-			// TODO 显示错误日志
-			return;
-		}
+    $set: function(field, value, updateNamespace) {
+        if (!field) {
+            // TODO 显示错误日志
+            return;
+        }
 
         if (exports.type(field, 'object')) {
             // 批量模式, 如:
@@ -265,7 +265,7 @@ Model.prototype = {
             var oldValue = setFieldValue(this, field, value);
             if (oldValue != value) {
                 this.$cache[field] = value;
-                this.$fire(field, value, oldValue);
+                this.$fire(field, value, oldValue, updateNamespace);
                 delete this.$cache[field];
             }
         }
@@ -281,6 +281,7 @@ Model.prototype = {
         if (!this.$subscribes[field]) {
             this.$subscribes[field] = [];
         }
+
         this.$subscribes[field].push(observer);
     },
 
@@ -297,10 +298,11 @@ Model.prototype = {
 
     /**
      * 通知订阅者更新自己
+     * @param {string} namespace 仅触发level级别及以上的绑定
      * @see Model#$watch
      * @see Model#$unwatch
      */
-    $fire: function(field, value, oldValue) {
+    $fire: function(field, value, oldValue, namespace) {
         var model = getRealModel(this, field);
 
         if (model.$freeze) {
@@ -311,7 +313,26 @@ Model.prototype = {
         i = 0;
 
         for(; i<subscribes.length; i++) {
-            subscribes[i].update(model, field, value, oldValue);
+            var namespaceFlag = false,
+                observerNamespace = subscribes[i].namespace;
+            if (!namespace || 'string' != typeof observerNamespace) {
+                namespaceFlag = true;
+            } else if (!namespaceFlag && 'string' == typeof observerNamespace) {
+                if (namespace.charAt(0) == '!') {
+                    // 排除这个命名空间, 其它都触发
+                    var realNamespace = namespace.substr(1);
+                    if (realNamespace != observerNamespace && !observerNamespace.startsWith(realNamespace + '.')) {
+                        namespaceFlag = true;
+                    }
+                } else if (observerNamespace === namespace || observerNamespace.startsWith(namespace + '.')) {
+                    // 只触发命名空间的监听
+                    namespaceFlag = true;
+                }
+            }
+
+            if (namespaceFlag) {
+                subscribes[i].update(model, field, value, oldValue);
+            }
         }
     },
 
@@ -428,7 +449,7 @@ function gc(model) {
 	if (!gc || false === model instanceof Model) {
 		return;
 	}
-	
+
     // 先删除子数据
     model.$childs.forEach(function(it) {
         it.$parent = null;
