@@ -1,10 +1,8 @@
+*~
 *.vim
 *.swp
 *.iml
 *.log
 
 node_modules/
-sample/firebug-lite/
-doc/api/
 .idea/
-

@@ -9,25 +9,10 @@ xbind是一款轻量级的MVVM框架, 旨在于轻量, 易用, 易于扩展.
 git clone https://github.com/sprufu/xbind.git
 ```
 
-进入vmodel目录并压缩javascript
+进入xbind目录并压缩javascript
 ```bash
-cd vmodel && npm run build
+cd xbind && npm install && npm run build
 ```
-
-### 注意事项
-1. option标签必须写明value属性, 否IE浏览器在model变化时, view没显示正常
-   如: `<option>item</option>` ==> `<option value="item">item</option>`
-
-### 自定义组件选择
-
-如以下组件可以自由选择是否压缩到你的最终版本里:
-
-- **filter**: 过滤器组件, 如果你的项目中用不到过滤器, 可以去掉这组件: `--without-filter=true`
-- **form**: 表单处理组件, 目前这个组件仅处理表单验证, 如果你有更好的验证模块, 可以忽略这组件: `--without-form=true`
-- **watch**: x-watch指令标签组件, 默认没有加入这组件, 用 `--with-watch=true` 添加
-- **store**: 小数据存储组件, 还在开发中.
-- **view**: 单页应用组件, 还在开发中.
-
 
 ## 一些其它的mvvm框架
 
@@ -41,18 +26,6 @@ cd vmodel && npm run build
 6. rivetsjs [rivetsjs](http://rivetsjs.com/)
 7. vuejs [vuejs](http://vuejs.org/)
 8. way.js [way.js](http://gwendall.github.io/way/)
-
-## TODO
-
-1. 列表处理当前记录, 当前的内容与列表某条记录一至处理.
-2. 绑定时, 如果同时绑定几个参数, 当这几个参数中同时变化时, 应该只更新一次视图.
-3. 监听数组长度变化.
-
-## Known bugs
-1. `x-attr-value="{{displayDocumentNumber(document)}}"`会得到value="undefined"
-
-## Issues
-1. parseExecuteItem解析字符串时无法解析json串等复杂对象表达式
 
 ## Change
 

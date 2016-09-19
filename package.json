@@ -1,26 +1,25 @@
 {
   "name": "xbind",
-  "version": "0.4.3",
-  "description": "Simple MVVM Library.",
+  "version": "0.5.0",
+  "description": "轻量级的数据绑定框架.",
+  "main": "index.js",
   "scripts": {
-    "build": "npm install && grunt"
+	"build": "glup compile",
+    "test": "mocha test"
   },
   "jshintconfig":".jshintrc",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sprufu/xbind.git"
+    "url": "git+https://github.com/sprufu/xbind.git"
   },
   "keywords": [
-    "mvvm",
-    "bind"
+    "bind",
+	"MVVM"
   ],
   "author": "jcode",
   "license": "MIT",
-  "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-contrib-concat": "^0.5.1",
-    "grunt-contrib-jshint": "^0.10.0",
-    "grunt-contrib-uglify": "^0.6.0",
-    "grunt-jsdoc": "^0.5.7"
-  }
+  "bugs": {
+    "url": "https://github.com/sprufu/xbind/issues"
+  },
+  "homepage": "https://github.com/sprufu/xbind#readme"
 }
