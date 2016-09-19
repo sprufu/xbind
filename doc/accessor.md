@@ -6,12 +6,12 @@
 - [ ] 获取原始字符串
 
 ```javascript
-// <div x:model-user="{name: 'jcode', age: 35}">
-var accessor = new Accessor("{name: 'jcode', age: 35}");
+// <div x:model="name: 'jcode', age: 35">
+var accessor = new Accessor("name: 'jcode', age: 35");
 
 // 获取原始字符串
 console.log(accessor.getRawString());
-// "{name: 'jcode', age: 35}"
+// "name: 'jcode', age: 35"
 
 ```
 
@@ -36,12 +36,12 @@ console.log(accessor.getBindFields());
 2. `callback`, 回调函数, 有一个参数(表达式结果值)
 
 ```javascript
-// <div x:model-user="xbind.ajax('/get/user?uid=' + uid)">
-var accessor = new Accessor("xbind.ajax('/get/user?uid=' + uid)");
+// <div x:model="user: xbind.ajax('/get/user?uid=' + uid)">
+var accessor = new Accessor("user: xbind.ajax('/get/user?uid=' + uid)");
 
-accessor.getValue({uid: 20}, function(user) {
-	console.log(user);
-	// {name: 'jcode', age: 35}
+accessor.getValue({uid: 20}, function(data) {
+    console.log(data);
+    // {user: {name: 'jcode', age: 35}}
 });
 ```
 
@@ -57,8 +57,8 @@ accessor.getValue({uid: 20}, function(user) {
 var accessor = new Accessor("User name: {username}");
 
 accessor.getValue({username: 'jcode'}, function(text) {
-	console.log(text);
-	// User name: jcode
+    console.log(text);
+    // User name: jcode
 });
 ```
 
@@ -74,6 +74,6 @@ accessor.getValue({username: 'jcode'}, function(text) {
 var accessor = new Accessor("state = state1; var2 = someValue");
 
 accessor.getValue({state1: 'removed', someValue: 'test'}, function() {
-	
+
 });
 ```
