@@ -34,10 +34,8 @@
 
 ## 字符串插值
 - [x] 用`{}`括起来的部分是插值表达式.
-- [x] 普通标签属性可以使用字符串插值
-- [x] 带`x:text`属性标签的文本结点都可以使用字符串插值.
-- [x] x命名空间的属性不能使用字符串插值, 因为它们本身就
-      是表达式了.
+- [x] 普通标签属性（href和src外）都**可以**使用字符串插值
+- [x] 文本结点**不能**使用字符串插值.
 - [x] 所有字符串插件都会对值的特殊字符进行html实体编码,
       如果不想转码, 可用`{= ... }`代替`{ ... }`, "{="是
       连着写的, 不能分开.  
@@ -91,7 +89,7 @@
       的图片地址, 为避免这情况, 采用`x:src`代替
 
 ```html
-<img x:src="/path/to/image.jpg"/>
+<img x:src="{imgUrl}"/>
 ```
 
 ## x:skip
@@ -244,7 +242,7 @@
       元素具体数据)
 
 ```html
-<select x:selected="someOne">
+<select x:bind="someOne">
     <option value="">选择</option>
     <option x:each="users" value="{uid}" x:text="userName"></option>
     
@@ -260,9 +258,11 @@
 - [x] 扫描子结点共享当前作用域, 如果不想这样做, 结合
       `x:scope`使用.
 - [x] 如果想给模板传递参数, 可使用`x:model`
+- [x] 可使用动态插入不同内容
+- [ ] 使用这个是不是很容易做个单页应用呢？
 
 ```html
-<div x:include="/path/to/tpl">
+<div x:include="/path/to/{tpl}">
     ....
 </div>
 ```
@@ -280,9 +280,10 @@
 ## x:use
 - [x] 使用某个组件
 - [x] 结合`x:model`一起使用, 用于传递参数给组件
+- [x] 这是个字符串插值，可以动态替换为不同的组件，不采用表达式的原因是使用常量时写法我简捷。
 
 ```html
-<div x:use="userComponent" x:model="user: {firstName: 'wu', lastName: 'rf'}"></div>
+<div x:use="{userComponent}" x:model="user: {firstName: 'wu', lastName: 'rf'}"></div>
 ```
 
 ## 自定义绑定
