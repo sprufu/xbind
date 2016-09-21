@@ -254,12 +254,11 @@
 </select>
 ```
 
-### x:[event]
-- [ ] 事件处理
+## x:[event]
+- [x] 事件处理
 
 ```html
-<a x:click="var1=someone; var2=doSomeThing(arg1, arg2)">...</a>
-
+<a x:click="var1=someone; var2=getSomeVar(); doSomeThing(arg1, arg2)">...</a>
 ```
 
 
@@ -293,7 +292,8 @@
 ## x:use
 - [x] 使用某个组件
 - [x] 结合`x:model`一起使用, 用于传递参数给组件
-- [x] 这是个字符串插值，可以动态替换为不同的组件，不采用表达式的原因是使用常量时写法我简捷。
+- [x] 这是个字符串插值，可以动态替换为不同的组件，
+      不采用表达式的原因是使用常量时写法我简捷。
 
 ```html
 <div x:use="{userComponent}" x:model="user = {firstName: 'wu', lastName: 'rf'}"></div>
