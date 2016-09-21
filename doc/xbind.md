@@ -42,3 +42,10 @@
 ### subscribe(field, callback) : Function
 - [ ] 监听数据变化, 返回一个函数, 调用后取消监听
 - [ ] 回调函数能取到变化前后的值, 过渡效果要用到两个值
+
+### ajax(url): Promise
+- [ ] 仿JQuery的ajax
+
+参数说明：
+
+1.  `url` 请求地址
