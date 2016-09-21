@@ -254,6 +254,16 @@
 </select>
 ```
 
+### x:[event]
+- [ ] 事件处理
+
+```html
+<a x:click="var1=someone; var2=doSomeThing(arg1, arg2)">...</a>
+
+```
+
+
+
 ## x:include
 - [x] 远程加载到结点下, 会清除掉所有子结点.
 - [x] 加载到子结点后, 会继续扫描这些子结点, 不想扫描子
