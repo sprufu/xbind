@@ -94,7 +94,8 @@
 
 ## x:skip
 - [x] 忽略扫描其子结点
-- [x] 这个优先级最高
+
+优先级：0
 
 ```html
 <div x:skip>
@@ -104,7 +105,8 @@
 
 ## x:delay
 - [x] 延迟扫描子结点
-- [x] 这个优先级仅次于`x:skip`
+
+优先级：10
 
 ```html
 <div x:delay="ifValue">
@@ -209,7 +211,8 @@
 
 ## x:scope
 - [x] 定义一个作用域, 默认顶级作用域为`root`, 其它作用域自行定义
-- [x] 这个扫描的优先级高于其它(除`x:skip`及`x:delay`)
+
+优先级：20
 
 ```html
     <div x:scope="useScope">
