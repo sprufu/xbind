@@ -183,15 +183,15 @@
 ```
 
 ## x:css
-- [x] 每个格式间, 样式名与条件用`:`分隔, 多个样式间用`,`分隔
+- [x] 每个格式间, 样式名与条件用`=`分隔, 多个样式间用`;`分隔。助记：给样式赋条件值。
 - [x] 可以对每个样式条件采用过滤器
 - [ ] 采用过渡过滤器实现过度效果
 
 ```html
     <div x:css="
-        className1: ifState1,                        // 普通用法
-        'class-with-char': state2,                   // 样式名带"-"符号时用法
-        class3: state3 | filter()                    // 可以使用过滤器, 过滤器必须带括号
+        className1 = ifState1;                        // 普通用法
+        'class-with-char' = state2;                   // 样式名带"-"符号时用法
+        class3 = state3 | filter arg1, arg2 | noArgFilter                    // 可以使用过滤器
         ">
         ...
     </div>
@@ -204,7 +204,7 @@
       渡效果动画
 
 ```html
-    <div x:style="styleName: someValue | smooth(200)">
+    <div x:style="styleName = someValue | smooth 200">
         ...
     </div>
 ```
@@ -224,13 +224,13 @@
 - [x] 获取数据源, 一般配合`x:scope`一起使用以限定作用域
 
 ```html
-<div x:model="name: 'jcode', age: 35">
+<div x:model="name = 'jcode'; age = 35">
     <!-- 采用值直接做结果 -->
 </a>
-<div x:model="name: 'jcode' | filter1 args | filter2">
+<div x:model="name = 'jcode' | filter1 args | filter2">
     <!-- 当然可以有过滤器 -->
 </a>
-<div x:model="user: xbind.getJson('/get/user?uid=' + uid) | filters">
+<div x:model="user = xbind.getJson('/get/user?uid=' + uid) | filters">
     <!-- 可以是计算结果, 计算结果如果返回个Promise的要等到其实际得到结果 -->
 </a>
 ```
@@ -286,7 +286,7 @@
 - [x] 这是个字符串插值，可以动态替换为不同的组件，不采用表达式的原因是使用常量时写法我简捷。
 
 ```html
-<div x:use="{userComponent}" x:model="user: {firstName: 'wu', lastName: 'rf'}"></div>
+<div x:use="{userComponent}" x:model="user = {firstName: 'wu', lastName: 'rf'}"></div>
 ```
 
 ## 自定义绑定
