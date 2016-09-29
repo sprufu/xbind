@@ -1,6 +1,6 @@
 # Accessor属性访问器
 
-## rawString()
+## getRawString()
 - [ ] 获取原始字符串
 
 ```javascript
@@ -8,19 +8,19 @@
 var accessor = new Accessor("name = 'jcode'; age = 35");
 
 // 获取原始字符串
-console.log(accessor.rawString());
+console.log(accessor.getRawString());
 // "name = 'jcode'; age = 35"
 
 ```
 
-## bindFields()
+## getBindFields()
 - [ ] 获取绑定的字段(属性)
 
 ```javascript
 // <div title="User name: {username}"></div>
 var accessor = new Accessor("User name: {username}");
 
-console.log(accessor.bindFields());
+console.log(accessor.getBindFields());
 // ['username']
 ```
 
