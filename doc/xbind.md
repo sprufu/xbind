@@ -1,6 +1,13 @@
 # xbind
 > 暴露全局变量xbind, amd下导出xbind
 
+## 属性
+
+### options选项
+
+1.  ` autoScan: bool=true `  是否在加载完成DOM时自动从根结点扫描。
+1.   `scanTextNode: bool=fale`  是否扫描文本结点。
+
 ## 静态方法
 
 ### extend(Parent, override[, constructor]): Child
