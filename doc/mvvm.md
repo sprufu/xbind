@@ -279,11 +279,11 @@
 </div>
 ```
 
-## x:component
+## x:mixin
 - [x] 组件的定义, 供给其它用
 
 ```html
-<div x:component="userComponent">
+<div x:mixin="userMixin">
     <label>First Name: <input x:bind="firstName" /></label>
     <label>Last Name: <input x:bind="lastName" /></label>
 </div>
@@ -296,7 +296,7 @@
       不采用表达式的原因是使用常量时写法我简捷。
 
 ```html
-<div x:use="{userComponent}" x:model="user = {firstName: 'wu', lastName: 'rf'}"></div>
+<div x:use="{userMixin}" x:model="user = {firstName: 'wu', lastName: 'rf'}"></div>
 ```
 
 ## 自定义绑定
