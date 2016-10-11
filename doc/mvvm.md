@@ -144,6 +144,14 @@
 <a x:text="The string with some {= varWithoutHtmlEncoding }"></a>
 ```
 
+## x:text-node
+- [x] 重定义是否扫描文本结点选项
+- [x]  `scan` 扫描子结点
+- [x]  `skip` 忽略子结点扫描
+- [x]  `self` 只对直接子结点扫描，深级采用
+        上下文定义
+- [x]  `rest` 重置开始扫描是定义值
+
 ## x:enable
 - [x] 添加或移除`disabled="disabled"`属性
 
