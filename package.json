@@ -4,22 +4,34 @@
   "description": "轻量级的数据绑定框架.",
   "main": "index.js",
   "scripts": {
-	"build": "glup compile",
+    "build": "glup compile",
     "test": "mocha test"
   },
-  "jshintconfig":".jshintrc",
+  "jshintconfig": ".jshintrc",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sprufu/xbind.git"
   },
   "keywords": [
     "bind",
-	"MVVM"
+    "MVVM"
   ],
   "author": "jcode",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/sprufu/xbind/issues"
   },
-  "homepage": "https://github.com/sprufu/xbind#readme"
+  "homepage": "https://github.com/sprufu/xbind#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-concat": "^2.6.0",
+    "gulp-footer": "^1.0.5",
+    "gulp-header": "^1.8.8",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.4",
+    "gulp-uglify": "^2.0.0",
+    "mocha": "^3.0.2",
+    "promise-phantom": "^3.1.2"
+  }
 }
