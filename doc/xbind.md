@@ -14,7 +14,7 @@
    也就是说父类构造函数总是先运行
 
 
-### scan([dom][, model][, options])方法
+### scan([dom][, model][, options]): Binder
 - [ ] 扫描结点
 
 参数说明:
