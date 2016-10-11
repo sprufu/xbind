@@ -5,7 +5,6 @@
 
 ### options选项
 
-1.  ` autoScan: bool=true `  是否在加载完成DOM时自动从根结点扫描。
 1.   `scanTextNode: bool=fale`  是否扫描文本结点。
 1.   `skip: []`  跳过监听这些数据的变化，以$开头命名的数据本身就是不监听的。
 
