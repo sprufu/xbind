@@ -1,13 +1,6 @@
 # xbind
 > 暴露全局变量xbind, amd下导出xbind
 
-## 属性
-
-### options选项
-
-1.   `scanTextNode: bool=fale`  是否扫描文本结点。
-1.   `skip: []`  跳过监听这些数据的变化，以$开头命名的数据本身就是不监听的。
-
 ## 静态方法
 
 ### extend(Parent, override[, constructor]): Child
@@ -30,7 +23,9 @@
 2. `model` 数据
 3. `options` 选项, 可用的选项有:
     1. `scope` 默认为`root`
-    2. `callback` 扫描完成后的回调函数
+    1. `callback` 扫描完成后的回调函数
+    1.  `scanTextNode: bool=fale`  是否扫描文本结点。
+    1. `skip: []`  跳过监听这些数据的变化，以$开头命名的数据本身就是不监听的。
 
 其它说明:
 
