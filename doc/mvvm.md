@@ -1,6 +1,10 @@
 # mvvm
-- [x] 采用namespace代替以前版本中用的属性前辍
-- [x] 采用固定的属性名称, 以便于采用dtd或xsd约束
+- [x] 采用namespace代替以前版本中用的属
+        性前辍
+- [x] 采用固定的属性名称, 以便于采用dtd或
+        xsd约束
+- [x] 命名空间并不是必须的，但建议加上以便
+        IDE等各种检验工具能及早地发现问题。
 
 ```html
 <!-- v0.4版本 -->
@@ -19,8 +23,10 @@
 <!DOCTYPE HTML>
 <!-- 用xmlns:x="https://github.com/sprufu/xbind/xbind.dtd"定义命名空间 -->
 <html lang="cn-zh"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="https://github.com/sprufu/xbind/xbind.xsd">
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:x="https://github.com/sprufu/xbind"
+     xsi:schemaLocation="https://github.com/sprufu/xbind 
+     https://github.com/sprufu/xbind/master/raw/xbind.xsd">
 <head>
     <meta charset="UTF-8">
     <title></title>
