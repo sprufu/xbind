@@ -199,16 +199,16 @@
 ```
 
 ## x:css
-- [x] 每个格式间, 样式名与条件用`=`分隔, 多个样式间用`;`分隔。助记：给样式赋条件值。
+- [x] 对像，对像的键为样式名，值如果为 `false` 时删除这样式，否则添加这样式。
 - [x] 可以对每个样式条件采用过滤器
 - [ ] 采用过渡过滤器实现过度效果
 
 ```html
-    <div x:css="
-        className1 = ifState1;                        // 普通用法
-        'class-with-char' = state2;                   // 样式名带"-"符号时用法
-        class3 = state3 | filter arg1, arg2 | noArgFilter                    // 可以使用过滤器
-        ">
+    <div x:css="{
+        className1: ifState1,                        // 普通用法
+        'class-with-char': state2,                  // 样式名带"-"符号时用法
+        class3: state3 | filter arg1, arg2 | noArgFilter                    // 可以使用过滤器
+        }">
         ...
     </div>
 ```
@@ -220,7 +220,7 @@
       渡效果动画
 
 ```html
-    <div x:style="styleName = someValue | smooth 200">
+    <div x:style="{styleName: someValue | smooth 200}">
         ...
     </div>
 ```
