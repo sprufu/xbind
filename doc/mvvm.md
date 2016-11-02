@@ -5,6 +5,9 @@
         xsd约束
 - [x] 命名空间并不是必须的，但建议加上以便
         IDE等各种检验工具能及早地发现问题。
+        
+
+xbind的理念是操作数据，所以后mvvm中不应该出现 `doSomeThing()` 的情况，取而代之是对数据进行修改。
 
 ```html
 <!-- v0.4版本 -->
@@ -274,7 +277,7 @@
 - [x] 事件处理
 
 ```html
-<a x:click="var1=someone; var2=getSomeVar(); doSomeThing(arg1, arg2)">...</a>
+<a x:click="var1=someone; var2=getSomeVar();">...</a>
 ```
 
 

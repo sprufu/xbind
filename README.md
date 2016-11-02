@@ -2,6 +2,7 @@ xbind是一款轻量级的MVVM框架, 旨在于轻量, 易用, 易于扩展.
 
 > 在使用angularjs及avalonjs的过程中, 发现angularjs的过滤规范化, 很难入手, 其条条款款太多, 同时, 其强大的功能背后使其失去了轻量概念, 而avalonjs过度追求完美, 导致最后一点都不完美, 使用vbscript使其预先定义属性才能使用, 与javascript的理念不同, 难让javascript用户信服.
 
+
 ## 自定义压缩javascript
 
 用git拷贝项目源文件到本地:
@@ -84,4 +85,3 @@ cd xbind && npm install && npm run build
 5. fix: 修复repeat绑定与其它绑定共同使用时预先扫描问题.
 6. change: 分离出filter, form, grid模块, 可自由使用或移出.
 7. change: 重命名watch, unwatch, fire方法.
-
